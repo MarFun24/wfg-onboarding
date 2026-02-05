@@ -29,7 +29,7 @@ const MOCK_DATA = {
     timeline_health: "On Track",
     licensing_status: "In Progress",
     training_status: "In Progress",
-    recruiter_name: "Jorge Martinez",
+    recruiter_name: "Jorge Maldonado",
     upline_office: "Bay Area Office"
   },
   progress: {
