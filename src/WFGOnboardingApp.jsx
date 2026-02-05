@@ -7,7 +7,7 @@ import {
 
 // Configuration
 const CONFIG = {
-  n8nBaseUrl: 'YOUR_N8N_URL', // Replace with your actual n8n URL
+  n8nBaseUrl: 'https://mfunston.app.n8n.cloud', // Replace with your actual n8n URL
   webhooks: {
     getData: '/webhook/wfg-app-get-recruit-data',
     updateStep: '/webhook/wfg-app-step-update'
