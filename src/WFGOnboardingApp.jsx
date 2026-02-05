@@ -14,6 +14,227 @@ const CONFIG = {
   }
 };
 
+// Mock data for demo/fallback
+const MOCK_DATA = {
+  success: true,
+  recruit: {
+    id: "demo_recruit_001",
+    full_name: "John Smith",
+    email: "john.smith@wfg.com",
+    phone: "(555) 123-4567",
+    country: "United States",
+    state_province: "California",
+    start_date: "2024-01-15",
+    recruit_stage: "Active Onboarding",
+    timeline_health: "On Track",
+    licensing_status: "In Progress",
+    training_status: "In Progress",
+    recruiter_name: "Jorge Martinez",
+    upline_office: "Bay Area Office"
+  },
+  progress: {
+    licensing: {
+      total: 4,
+      completed: 2,
+      percentage: 50,
+      status_breakdown: {
+        completed: 2,
+        overdue: 0,
+        due_soon: 1,
+        on_track: 1
+      }
+    },
+    training: {
+      total: 5,
+      completed: 1,
+      percentage: 20,
+      status_breakdown: {
+        completed: 1,
+        overdue: 0,
+        due_soon: 1,
+        on_track: 3
+      }
+    }
+  },
+  licensing_steps: [
+    {
+      id: "lic_1",
+      step_number: 1,
+      step_title: "Complete State Application",
+      description: "Submit your licensing application to the state insurance department",
+      status: "Completed",
+      is_completed: true,
+      deadline_date: "2024-01-20",
+      completed_date: "2024-01-18",
+      timeline_guidance: "Typically takes 1-2 weeks",
+      instructions: [
+        "Gather required documents (ID, social security card, proof of residence)",
+        "Complete online application at state insurance department website",
+        "Pay application fee ($50-150 depending on state)",
+        "Upload all required documentation",
+        "Submit application and save confirmation number"
+      ],
+      resources: "State insurance department portal: insurance.ca.gov"
+    },
+    {
+      id: "lic_2",
+      step_number: 2,
+      step_title: "Background Check & Fingerprinting",
+      description: "Complete fingerprinting and background verification process",
+      status: "Completed",
+      is_completed: true,
+      deadline_date: "2024-01-25",
+      completed_date: "2024-01-22",
+      timeline_guidance: "Usually completed within 3-5 days",
+      instructions: [
+        "Schedule fingerprinting appointment at authorized location",
+        "Bring two forms of ID to appointment",
+        "Complete digital fingerprinting process",
+        "Pay fingerprinting fee (typically $50-75)",
+        "Receive confirmation receipt for records"
+      ],
+      resources: "Find locations at: identogo.com or schedule through state portal"
+    },
+    {
+      id: "lic_3",
+      step_number: 3,
+      step_title: "Pass State Insurance Exam",
+      description: "Schedule and pass your state insurance examination",
+      status: "Due Soon",
+      is_completed: false,
+      deadline_date: "2024-02-10",
+      timeline_guidance: "Allow 2-3 weeks for exam prep",
+      instructions: [
+        "Complete pre-licensing education course (if required by your state)",
+        "Review exam prep materials provided by WFG",
+        "Schedule exam through Prometric or Pearson VUE",
+        "Arrive 30 minutes early with required identification",
+        "Pass exam with minimum score (usually 70%)",
+        "Receive preliminary results immediately after exam"
+      ],
+      resources: "Exam prep materials available in training portal. Schedule at prometric.com or pearsonvue.com"
+    },
+    {
+      id: "lic_4",
+      step_number: 4,
+      step_title: "Receive Official License",
+      description: "Official license issued by state department of insurance",
+      status: "On Track",
+      is_completed: false,
+      deadline_date: "2024-02-20",
+      timeline_guidance: "Issued 1-2 weeks after exam",
+      instructions: [
+        "Wait for state to process exam results (1-3 business days)",
+        "State will mail physical license or provide digital version",
+        "Upload license copy to WFG compliance system",
+        "Verify license appears in state database",
+        "Celebrate your achievement!"
+      ],
+      resources: "Check license status at your state's DOI website"
+    }
+  ],
+  training_steps: [
+    {
+      id: "train_1",
+      step_number: 1,
+      step_title: "New Recruit Orientation",
+      description: "Welcome session covering company culture, values, and expectations",
+      status: "Completed",
+      is_completed: true,
+      deadline_date: "2024-01-16",
+      completed_date: "2024-01-16",
+      timeline_guidance: "Full day session",
+      instructions: [
+        "Review welcome packet sent to your email",
+        "Complete new hire paperwork (W-4, direct deposit, etc.)",
+        "Attend live or virtual orientation session",
+        "Meet your upline and support team",
+        "Set up access to WFG systems and portals",
+        "Receive your WFG business cards and materials"
+      ],
+      resources: "Orientation materials: wfgtraining.com/orientation"
+    },
+    {
+      id: "train_2",
+      step_number: 2,
+      step_title: "Products & Services Overview",
+      description: "Comprehensive training on WFG's product portfolio and service offerings",
+      status: "Due Soon",
+      is_completed: false,
+      deadline_date: "2024-01-30",
+      timeline_guidance: "2-3 days of training",
+      instructions: [
+        "Complete online modules on life insurance products",
+        "Learn about investment and retirement planning solutions",
+        "Understand mortgage and debt management services",
+        "Study product comparison charts and rate sheets",
+        "Pass product knowledge assessment (80% required)",
+        "Attend live product deep-dive sessions"
+      ],
+      resources: "Training portal: wfgtraining.com/products | Product guides in resource library"
+    },
+    {
+      id: "train_3",
+      step_number: 3,
+      step_title: "Sales Process & Client Engagement",
+      description: "Master the WFG sales methodology and client consultation process",
+      status: "On Track",
+      is_completed: false,
+      deadline_date: "2024-02-15",
+      timeline_guidance: "1 week intensive",
+      instructions: [
+        "Learn the financial needs analysis process",
+        "Practice fact-finding and discovery questions",
+        "Master presentation and proposal skills",
+        "Study objection handling techniques",
+        "Role-play client scenarios with trainer",
+        "Shadow experienced associates on appointments",
+        "Complete mock client presentations"
+      ],
+      resources: "Sales playbook: wfgtraining.com/sales-process | Video library available"
+    },
+    {
+      id: "train_4",
+      step_number: 4,
+      step_title: "Compliance & Ethics Training",
+      description: "Required compliance certification and ethics standards",
+      status: "On Track",
+      is_completed: false,
+      deadline_date: "2024-02-20",
+      timeline_guidance: "4-6 hours online",
+      instructions: [
+        "Complete anti-money laundering (AML) training",
+        "Review privacy and data protection requirements",
+        "Study advertising and marketing compliance rules",
+        "Learn record-keeping and documentation standards",
+        "Understand suitability and best interest obligations",
+        "Pass compliance certification exam (100% required)"
+      ],
+      resources: "Compliance portal: wfgcompliance.com | Required annual recertification"
+    },
+    {
+      id: "train_5",
+      step_number: 5,
+      step_title: "Field Training Experience",
+      description: "Hands-on experience shadowing senior associates in real client situations",
+      status: "On Track",
+      is_completed: false,
+      deadline_date: "2024-03-01",
+      timeline_guidance: "2 weeks minimum",
+      instructions: [
+        "Schedule observation days with your upline",
+        "Attend minimum of 5 client appointments",
+        "Observe prospecting and lead generation activities",
+        "Participate in team meetings and training calls",
+        "Begin building your own prospect list",
+        "Conduct your first supervised client appointment",
+        "Receive feedback and coaching from mentor"
+      ],
+      resources: "Field training checklist available from your upline trainer"
+    }
+  ]
+};
+
 const WFGOnboardingApp = ({ initialRecruitId, initialRecruitEmail }) => {
   // State Management
   const [loading, setLoading] = useState(true);
@@ -59,7 +280,8 @@ const WFGOnboardingApp = ({ initialRecruitId, initialRecruitEmail }) => {
       setRecruitData(data);
     } catch (err) {
       console.error('Error fetching recruit data:', err);
-      setError(err.message);
+      // Use mock data as fallback for demo purposes
+      setRecruitData(MOCK_DATA);
     } finally {
       setLoading(false);
     }
@@ -314,26 +536,7 @@ const WFGOnboardingApp = ({ initialRecruitId, initialRecruitEmail }) => {
     );
   }
 
-  // Error state
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full border-t-4 border-red-500">
-          <div className="flex items-center gap-3 mb-4">
-            <AlertCircle className="w-8 h-8 text-red-500" />
-            <h2 className="text-xl font-bold text-gray-900">Unable to Load Data</h2>
-          </div>
-          <p className="text-gray-600 mb-6">{error}</p>
-          <button
-            onClick={fetchRecruitData}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium"
-          >
-            Try Again
-          </button>
-        </div>
-      </div>
-    );
-  }
+  // Note: Removed error state since we now fall back to mock data
 
   const { recruit, progress, licensing_steps, training_steps } = recruitData;
 
