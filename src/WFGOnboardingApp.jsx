@@ -19,11 +19,11 @@ const MOCK_DATA = {
   success: true,
   recruit: {
     id: "demo_recruit_001",
-    full_name: "John Smith",
-    email: "john.smith@wfg.com",
-    phone: "(555) 123-4567",
+    full_name: "Jorge Maldonado",
+    email: "jorge.maldonado@wfg.com",
+    phone: "(555) 789-4321",
     country: "United States",
-    state_province: "California",
+    state_province: "Texas",
     start_date: "2024-01-15",
     recruit_stage: "Active Onboarding",
     timeline_health: "On Track",
@@ -34,25 +34,25 @@ const MOCK_DATA = {
   },
   progress: {
     licensing: {
-      total: 4,
-      completed: 2,
-      percentage: 50,
+      total: 12,
+      completed: 5,
+      percentage: 42,
       status_breakdown: {
-        completed: 2,
+        completed: 5,
         overdue: 0,
-        due_soon: 1,
-        on_track: 1
+        due_soon: 2,
+        on_track: 5
       }
     },
     training: {
-      total: 5,
-      completed: 1,
-      percentage: 20,
+      total: 8,
+      completed: 2,
+      percentage: 25,
       status_breakdown: {
-        completed: 1,
+        completed: 2,
         overdue: 0,
-        due_soon: 1,
-        on_track: 3
+        due_soon: 2,
+        on_track: 4
       }
     }
   },
@@ -60,177 +60,343 @@ const MOCK_DATA = {
     {
       id: "lic_1",
       step_number: 1,
-      step_title: "Complete State Application",
-      description: "Submit your licensing application to the state insurance department",
+      step_title: "Sign Your Membership Agreement",
+      description: "Do the Associate Membership Agreement",
       status: "Completed",
       is_completed: true,
-      deadline_date: "2024-01-20",
-      completed_date: "2024-01-18",
-      timeline_guidance: "Typically takes 1-2 weeks",
+      deadline_date: "2024-01-16",
+      completed_date: "2024-01-15",
+      timeline_guidance: "5 mins",
       instructions: [
-        "Gather required documents (ID, social security card, proof of residence)",
-        "Complete online application at state insurance department website",
-        "Pay application fee ($50-150 depending on state)",
-        "Upload all required documentation",
-        "Submit application and save confirmation number"
+        "Type in your personal information"
       ],
-      resources: "State insurance department portal: insurance.ca.gov"
+      resources: "Your trainer and your ID - www.wfglaunch.com"
     },
     {
       id: "lic_2",
       step_number: 2,
-      step_title: "Background Check & Fingerprinting",
-      description: "Complete fingerprinting and background verification process",
+      step_title: "Pay Your Membership Fees",
+      description: "Pay for your Associate Membership Agreement",
       status: "Completed",
       is_completed: true,
-      deadline_date: "2024-01-25",
-      completed_date: "2024-01-22",
-      timeline_guidance: "Usually completed within 3-5 days",
+      deadline_date: "2024-01-16",
+      completed_date: "2024-01-15",
+      timeline_guidance: "1 min",
       instructions: [
-        "Schedule fingerprinting appointment at authorized location",
-        "Bring two forms of ID to appointment",
-        "Complete digital fingerprinting process",
-        "Pay fingerprinting fee (typically $50-75)",
-        "Receive confirmation receipt for records"
+        "Use your credit card to pay"
       ],
-      resources: "Find locations at: identogo.com or schedule through state portal"
+      resources: "Your trainer and your credit card"
     },
     {
       id: "lic_3",
       step_number: 3,
-      step_title: "Pass State Insurance Exam",
-      description: "Schedule and pass your state insurance examination",
-      status: "Due Soon",
-      is_completed: false,
-      deadline_date: "2024-02-10",
-      timeline_guidance: "Allow 2-3 weeks for exam prep",
+      step_title: "Register for Your Online Course",
+      description: "Sign up for the Life & Health pre-licensing course",
+      status: "Completed",
+      is_completed: true,
+      deadline_date: "2024-01-18",
+      completed_date: "2024-01-17",
+      timeline_guidance: "5 mins",
       instructions: [
-        "Complete pre-licensing education course (if required by your state)",
-        "Review exam prep materials provided by WFG",
-        "Schedule exam through Prometric or Pearson VUE",
-        "Arrive 30 minutes early with required identification",
-        "Pass exam with minimum score (usually 70%)",
-        "Receive preliminary results immediately after exam"
+        "Go to your WFG Launch webpage",
+        "Go to licensing",
+        "Pick your licensing provider",
+        "Sign up and pay for the course"
       ],
-      resources: "Exam prep materials available in training portal. Schedule at prometric.com or pearsonvue.com"
+      resources: "Your trainer and your credit card - wfglaunch.com"
     },
     {
       id: "lic_4",
       step_number: 4,
-      step_title: "Receive Official License",
-      description: "Official license issued by state department of insurance",
+      step_title: "Complete Your Pre-Licensing Course",
+      description: "Study and pass the pre-licensing course",
+      status: "Completed",
+      is_completed: true,
+      deadline_date: "2024-01-25",
+      completed_date: "2024-01-24",
+      timeline_guidance: "7 days",
+      instructions: [
+        "Study and learn the material"
+      ],
+      resources: "The training course material"
+    },
+    {
+      id: "lic_5",
+      step_number: 5,
+      step_title: "Book Your State Exam",
+      description: "Book a time to write the exam",
+      status: "Completed",
+      is_completed: true,
+      deadline_date: "2024-01-26",
+      completed_date: "2024-01-25",
+      timeline_guidance: "10 mins",
+      instructions: [
+        "First, you must create an account, followed by registering for a test before you can actually schedule the examination",
+        "On the right side, click Create an account",
+        "Fill in your information and submit",
+        "Pick exam: General Lines Life, Accident & Health: INS-TX-LAH05",
+        "Go to pearsonvue.com/tx/insurance"
+      ],
+      resources: "Your ID and credit card - pearsonvue.com/tx/insurance"
+    },
+    {
+      id: "lic_6",
+      step_number: 6,
+      step_title: "Complete Your State Exam",
+      description: "Write your state exam",
+      status: "Due Soon",
+      is_completed: false,
+      deadline_date: "2024-02-10",
+      timeline_guidance: "Exam 2HRS: 150 Questions, Min. Score: 70%",
+      instructions: [
+        "Go to test centre and write exam",
+        "Bring your ID"
+      ],
+      resources: "Test centre location in confirmation email"
+    },
+    {
+      id: "lic_7",
+      step_number: 7,
+      step_title: "Complete Your Fingerprints",
+      description: "Do your state fingerprint check",
+      status: "Due Soon",
+      is_completed: false,
+      deadline_date: "2024-02-15",
+      timeline_guidance: "10 mins",
+      instructions: [
+        "Go to fingerprint centre and have your fingerprints taken"
+      ],
+      resources: "https://www.identogo.com/locations/texas"
+    },
+    {
+      id: "lic_8",
+      step_number: 8,
+      step_title: "Create Account With Sircon",
+      description: "Create account with Sircon to apply for license",
+      status: "On Track",
+      is_completed: false,
+      deadline_date: "2024-02-16",
+      timeline_guidance: "10 mins",
+      instructions: [
+        "Create username and password"
+      ],
+      resources: "sircon.com"
+    },
+    {
+      id: "lic_9",
+      step_number: 9,
+      step_title: "Apply For Your State License",
+      description: "Apply to get license",
+      status: "On Track",
+      is_completed: false,
+      deadline_date: "2024-02-17",
+      timeline_guidance: "30 mins",
+      instructions: [
+        "Go to Sircon.com → New Insurance → Resident → Individual",
+        "Enter your email → enter your last name → SSN → preparer then click applicant",
+        "Select Texas → payment method",
+        "License type → Insurance Producer → Life, Accident & Health",
+        "Continue to answer the questions",
+        "Pay the application fee"
+      ],
+      resources: "sircon.com"
+    },
+    {
+      id: "lic_10",
+      step_number: 10,
+      step_title: "Sign Your WFG Agent Agreement",
+      description: "Complete the official WFG Agent Agreement",
       status: "On Track",
       is_completed: false,
       deadline_date: "2024-02-20",
-      timeline_guidance: "Issued 1-2 weeks after exam",
+      timeline_guidance: "10 mins",
       instructions: [
-        "Wait for state to process exam results (1-3 business days)",
-        "State will mail physical license or provide digital version",
-        "Upload license copy to WFG compliance system",
-        "Verify license appears in state database",
-        "Celebrate your achievement!"
+        "Go to wfglaunch.com → Click LICENSING (BLUE COLUMN)",
+        "View process → start licensing process → view WFG Agreement",
+        "Start Application process → ok",
+        "Enter state life license number → verify",
+        "Docusign Pay fee $40",
+        "Wait for SMD approval and background check"
       ],
-      resources: "Check license status at your state's DOI website"
+      resources: "Your trainer - wfglaunch.com"
+    },
+    {
+      id: "lic_11",
+      step_number: 11,
+      step_title: "Complete Your Anti-Money Laundering and Long Term Care Test",
+      description: "Do the AML and LTC tests",
+      status: "On Track",
+      is_completed: false,
+      deadline_date: "2024-02-25",
+      timeline_guidance: "10 hours",
+      instructions: [
+        "Go to mywfg.com, menu",
+        "Licensing & appointments",
+        "Licensing, continuing education",
+        "Pick your provider"
+      ],
+      resources: "mywfg.com - links and provider information"
+    },
+    {
+      id: "lic_12",
+      step_number: 12,
+      step_title: "Get Appointed By Carriers",
+      description: "Be appointed by carriers to sell their products",
+      status: "On Track",
+      is_completed: false,
+      deadline_date: "2024-03-01",
+      timeline_guidance: "20 mins",
+      instructions: [
+        "Log into www.mywfg.com",
+        "Click on Menu → Licensing & Appointments → Appointments",
+        "Carrier Appointments → Life & Disability → Non-NY life",
+        "Select the specific carrier you want to be appointed"
+      ],
+      resources: "www.mywfg.com - carrier appointment portal"
     }
   ],
   training_steps: [
     {
       id: "train_1",
       step_number: 1,
-      step_title: "New Recruit Orientation",
-      description: "Welcome session covering company culture, values, and expectations",
+      step_title: "Have Your In-Person Meeting",
+      description: "Initial in-person meeting with your trainer",
       status: "Completed",
       is_completed: true,
       deadline_date: "2024-01-16",
       completed_date: "2024-01-16",
-      timeline_guidance: "Full day session",
+      timeline_guidance: "1-2 hours",
       instructions: [
-        "Review welcome packet sent to your email",
-        "Complete new hire paperwork (W-4, direct deposit, etc.)",
-        "Attend live or virtual orientation session",
-        "Meet your upline and support team",
-        "Set up access to WFG systems and portals",
-        "Receive your WFG business cards and materials"
+        "Meet with your trainer to discuss the business opportunity",
+        "Review the onboarding process and timeline",
+        "Set goals and expectations",
+        "Complete initial paperwork"
       ],
-      resources: "Orientation materials: wfgtraining.com/orientation"
+      resources: "Your trainer will schedule and provide meeting details"
     },
     {
       id: "train_2",
       step_number: 2,
-      step_title: "Products & Services Overview",
-      description: "Comprehensive training on WFG's product portfolio and service offerings",
-      status: "Due Soon",
-      is_completed: false,
-      deadline_date: "2024-01-30",
-      timeline_guidance: "2-3 days of training",
+      step_title: "Get Your Startup Kit",
+      description: "Receive and review your WFG startup materials",
+      status: "Completed",
+      is_completed: true,
+      deadline_date: "2024-01-18",
+      completed_date: "2024-01-17",
+      timeline_guidance: "30 mins",
       instructions: [
-        "Complete online modules on life insurance products",
-        "Learn about investment and retirement planning solutions",
-        "Understand mortgage and debt management services",
-        "Study product comparison charts and rate sheets",
-        "Pass product knowledge assessment (80% required)",
-        "Attend live product deep-dive sessions"
+        "Receive your startup kit from your trainer",
+        "Review all materials and resources",
+        "Familiarize yourself with company materials",
+        "Set up your workspace with provided materials"
       ],
-      resources: "Training portal: wfgtraining.com/products | Product guides in resource library"
+      resources: "Startup kit provided by your trainer"
     },
     {
       id: "train_3",
       step_number: 3,
-      step_title: "Sales Process & Client Engagement",
-      description: "Master the WFG sales methodology and client consultation process",
-      status: "On Track",
+      step_title: "Start Your Licensing Path",
+      description: "Begin the licensing process",
+      status: "Due Soon",
       is_completed: false,
-      deadline_date: "2024-02-15",
-      timeline_guidance: "1 week intensive",
+      deadline_date: "2024-01-30",
+      timeline_guidance: "Ongoing",
       instructions: [
-        "Learn the financial needs analysis process",
-        "Practice fact-finding and discovery questions",
-        "Master presentation and proposal skills",
-        "Study objection handling techniques",
-        "Role-play client scenarios with trainer",
-        "Shadow experienced associates on appointments",
-        "Complete mock client presentations"
+        "Follow the licensing pathway steps",
+        "Complete required courses and exams",
+        "Stay in communication with your trainer",
+        "Track your progress through wfglaunch.com"
       ],
-      resources: "Sales playbook: wfgtraining.com/sales-process | Video library available"
+      resources: "wfglaunch.com - licensing section"
     },
     {
       id: "train_4",
       step_number: 4,
-      step_title: "Compliance & Ethics Training",
-      description: "Required compliance certification and ethics standards",
-      status: "On Track",
+      step_title: "Complete Your PFS",
+      description: "Complete your Personal Financial Strategy",
+      status: "Due Soon",
       is_completed: false,
-      deadline_date: "2024-02-20",
-      timeline_guidance: "4-6 hours online",
+      deadline_date: "2024-02-05",
+      timeline_guidance: "2-3 hours",
       instructions: [
-        "Complete anti-money laundering (AML) training",
-        "Review privacy and data protection requirements",
-        "Study advertising and marketing compliance rules",
-        "Learn record-keeping and documentation standards",
-        "Understand suitability and best interest obligations",
-        "Pass compliance certification exam (100% required)"
+        "Schedule PFS session with your trainer",
+        "Gather your personal financial information",
+        "Complete the PFS process",
+        "Review results and recommendations"
       ],
-      resources: "Compliance portal: wfgcompliance.com | Required annual recertification"
+      resources: "Your trainer will guide you through the PFS process"
     },
     {
       id: "train_5",
       step_number: 5,
-      step_title: "Field Training Experience",
-      description: "Hands-on experience shadowing senior associates in real client situations",
+      step_title: "Attend All Workshops and BPM",
+      description: "Participate in training workshops and Business Presentation Meetings",
+      status: "On Track",
+      is_completed: false,
+      deadline_date: "2024-02-15",
+      timeline_guidance: "Ongoing",
+      instructions: [
+        "Check the calendar for upcoming workshops",
+        "Attend weekly BPMs (Business Presentation Meetings)",
+        "Take notes and participate actively",
+        "Network with other associates",
+        "Apply what you learn to your business"
+      ],
+      resources: "Workshop and BPM schedule available through your trainer"
+    },
+    {
+      id: "train_6",
+      step_number: 6,
+      step_title: "Read Your Trainer Guidebook and Complete Your Share List",
+      description: "Study the trainer guidebook and create your prospect list",
+      status: "On Track",
+      is_completed: false,
+      deadline_date: "2024-02-20",
+      timeline_guidance: "3-4 hours",
+      instructions: [
+        "Read the complete Trainer Guidebook",
+        "Create your initial share list of 100+ names",
+        "Categorize your contacts by relationship strength",
+        "Review your list with your trainer",
+        "Begin reaching out to warm market contacts"
+      ],
+      resources: "Trainer Guidebook provided in startup kit"
+    },
+    {
+      id: "train_7",
+      step_number: 7,
+      step_title: "Complete Your Field Training",
+      description: "Hands-on field training with experienced associates",
       status: "On Track",
       is_completed: false,
       deadline_date: "2024-03-01",
-      timeline_guidance: "2 weeks minimum",
+      timeline_guidance: "2-3 weeks",
       instructions: [
-        "Schedule observation days with your upline",
-        "Attend minimum of 5 client appointments",
-        "Observe prospecting and lead generation activities",
-        "Participate in team meetings and training calls",
-        "Begin building your own prospect list",
-        "Conduct your first supervised client appointment",
-        "Receive feedback and coaching from mentor"
+        "Shadow your trainer on client appointments",
+        "Observe the full sales process",
+        "Learn presentation and closing techniques",
+        "Conduct appointments with trainer support",
+        "Get feedback and coaching after each appointment"
       ],
-      resources: "Field training checklist available from your upline trainer"
+      resources: "Field training schedule coordinated with your trainer"
+    },
+    {
+      id: "train_8",
+      step_number: 8,
+      step_title: "Complete Your GX 315",
+      description: "Complete the GX 315 training program",
+      status: "On Track",
+      is_completed: false,
+      deadline_date: "2024-03-15",
+      timeline_guidance: "Ongoing",
+      instructions: [
+        "Participate in all GX 315 training sessions",
+        "Complete assigned modules and activities",
+        "Practice skills with your training group",
+        "Apply concepts to real client situations",
+        "Pass GX 315 certification requirements"
+      ],
+      resources: "GX 315 materials and schedule provided by training team"
     }
   ]
 };
