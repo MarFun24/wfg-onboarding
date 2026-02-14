@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  CheckCircle2, Circle, Clock, AlertCircle, ChevronDown, ChevronUp, 
-  BookOpen, GraduationCap, Calendar, TrendingUp, Award, ExternalLink,
-  Mail, Phone, MapPin, User, Sparkles, Target, CheckCheck
+import {
+  CheckCircle2, Circle, Clock, ChevronDown, ChevronUp,
+  BookOpen, GraduationCap, Calendar, Award, ExternalLink,
+  Mail, Phone, MapPin, User, Target, CheckCheck, Shield,
+  ArrowRight, Zap, Star, TrendingUp, Briefcase
 } from 'lucide-react';
+import AdminDashboard from './AdminDashboard.jsx';
 
 // Configuration
 const CONFIG = {
-  n8nBaseUrl: 'https://mfunston.app.n8n.cloud', // Replace with your actual n8n URL
+  n8nBaseUrl: 'https://mfunston.app.n8n.cloud',
   webhooks: {
     getData: '/webhook/wfg-app-get-recruit-data',
     updateStep: '/webhook/wfg-app-step-update'
@@ -30,72 +32,49 @@ const MOCK_DATA = {
     licensing_status: "In Progress",
     training_status: "In Progress",
     recruiter_name: "Jorge Maldonado",
-    upline_office: "Bay Area Office"
+    upline_office: "Houston Office"
   },
   progress: {
     licensing: {
       total: 12,
       completed: 5,
       percentage: 42,
-      status_breakdown: {
-        completed: 5,
-        overdue: 0,
-        due_soon: 2,
-        on_track: 5
-      }
+      status_breakdown: { completed: 5, overdue: 0, due_soon: 2, on_track: 5 }
     },
     training: {
       total: 8,
       completed: 2,
       percentage: 25,
-      status_breakdown: {
-        completed: 2,
-        overdue: 0,
-        due_soon: 2,
-        on_track: 4
-      }
+      status_breakdown: { completed: 2, overdue: 0, due_soon: 2, on_track: 4 }
     }
   },
   licensing_steps: [
     {
-      id: "lic_1",
-      step_number: 1,
+      id: "lic_1", step_number: 1,
       step_title: "Sign Your Membership Agreement",
       description: "Do the Associate Membership Agreement",
-      status: "Completed",
-      is_completed: true,
-      deadline_date: "2024-01-16",
-      completed_date: "2024-01-15",
+      status: "Completed", is_completed: true,
+      deadline_date: "2024-01-16", completed_date: "2024-01-15",
       timeline_guidance: "5 mins",
-      instructions: [
-        "Type in your personal information"
-      ],
+      instructions: ["Type in your personal information"],
       resources: "Your trainer and your ID - www.wfglaunch.com"
     },
     {
-      id: "lic_2",
-      step_number: 2,
+      id: "lic_2", step_number: 2,
       step_title: "Pay Your Membership Fees",
       description: "Pay for your Associate Membership Agreement",
-      status: "Completed",
-      is_completed: true,
-      deadline_date: "2024-01-16",
-      completed_date: "2024-01-15",
+      status: "Completed", is_completed: true,
+      deadline_date: "2024-01-16", completed_date: "2024-01-15",
       timeline_guidance: "1 min",
-      instructions: [
-        "Use your credit card to pay"
-      ],
+      instructions: ["Use your credit card to pay"],
       resources: "Your trainer and your credit card"
     },
     {
-      id: "lic_3",
-      step_number: 3,
+      id: "lic_3", step_number: 3,
       step_title: "Register for Your Online Course",
       description: "Sign up for the Life & Health pre-licensing course",
-      status: "Completed",
-      is_completed: true,
-      deadline_date: "2024-01-18",
-      completed_date: "2024-01-17",
+      status: "Completed", is_completed: true,
+      deadline_date: "2024-01-18", completed_date: "2024-01-17",
       timeline_guidance: "5 mins",
       instructions: [
         "Go to your WFG Launch webpage",
@@ -106,348 +85,275 @@ const MOCK_DATA = {
       resources: "Your trainer and your credit card - wfglaunch.com"
     },
     {
-      id: "lic_4",
-      step_number: 4,
+      id: "lic_4", step_number: 4,
       step_title: "Complete Your Pre-Licensing Course",
       description: "Study and pass the pre-licensing course",
-      status: "Completed",
-      is_completed: true,
-      deadline_date: "2024-01-25",
-      completed_date: "2024-01-24",
+      status: "Completed", is_completed: true,
+      deadline_date: "2024-01-25", completed_date: "2024-01-24",
       timeline_guidance: "7 days",
-      instructions: [
-        "Study and learn the material"
-      ],
+      instructions: ["Study and learn the material"],
       resources: "The training course material"
     },
     {
-      id: "lic_5",
-      step_number: 5,
+      id: "lic_5", step_number: 5,
       step_title: "Book Your State Exam",
       description: "Book a time to write the exam",
-      status: "Completed",
-      is_completed: true,
-      deadline_date: "2024-01-26",
-      completed_date: "2024-01-25",
+      status: "Completed", is_completed: true,
+      deadline_date: "2024-01-26", completed_date: "2024-01-25",
       timeline_guidance: "10 mins",
       instructions: [
-        "First, you must create an account, followed by registering for a test before you can actually schedule the examination",
+        "Create an account at pearsonvue.com/tx/insurance",
         "On the right side, click Create an account",
         "Fill in your information and submit",
-        "Pick exam: General Lines Life, Accident & Health: INS-TX-LAH05",
-        "Go to pearsonvue.com/tx/insurance"
+        "Register for a test and schedule your examination",
+        "Pick exam: General Lines Life, Accident & Health: INS-TX-LAH05"
       ],
       resources: "Your ID and credit card - pearsonvue.com/tx/insurance"
     },
     {
-      id: "lic_6",
-      step_number: 6,
+      id: "lic_6", step_number: 6,
       step_title: "Complete Your State Exam",
       description: "Write your state exam",
-      status: "Due Soon",
-      is_completed: false,
+      status: "Due Soon", is_completed: false,
       deadline_date: "2024-02-10",
       timeline_guidance: "Exam 2HRS: 150 Questions, Min. Score: 70%",
       instructions: [
         "Go to test centre and write exam",
         "Bring your ID"
       ],
-      resources: "Test centre location in confirmation email"
+      resources: "Refer to your confirmation email for test centre location"
     },
     {
-      id: "lic_7",
-      step_number: 7,
+      id: "lic_7", step_number: 7,
       step_title: "Complete Your Fingerprints",
       description: "Do your state fingerprint check",
-      status: "Due Soon",
-      is_completed: false,
+      status: "Due Soon", is_completed: false,
       deadline_date: "2024-02-15",
       timeline_guidance: "10 mins",
-      instructions: [
-        "Go to fingerprint centre and have your fingerprints taken"
-      ],
+      instructions: ["Go to fingerprint centre and have your fingerprints taken"],
       resources: "https://www.identogo.com/locations/texas"
     },
     {
-      id: "lic_8",
-      step_number: 8,
+      id: "lic_8", step_number: 8,
       step_title: "Create Account With Sircon",
       description: "Create account with Sircon to apply for license",
-      status: "On Track",
-      is_completed: false,
+      status: "On Track", is_completed: false,
       deadline_date: "2024-02-16",
       timeline_guidance: "10 mins",
-      instructions: [
-        "Create username and password"
-      ],
+      instructions: ["Create username and password"],
       resources: "sircon.com"
     },
     {
-      id: "lic_9",
-      step_number: 9,
+      id: "lic_9", step_number: 9,
       step_title: "Apply For Your State License",
       description: "Apply to get license",
-      status: "On Track",
-      is_completed: false,
+      status: "On Track", is_completed: false,
       deadline_date: "2024-02-17",
       timeline_guidance: "30 mins",
       instructions: [
-        "Go to Sircon.com → New Insurance → Resident → Individual",
-        "Enter your email → enter your last name → SSN → preparer then click applicant",
-        "Select Texas → payment method",
-        "License type → Insurance Producer → Life, Accident & Health",
+        "Go to Sircon.com \u2192 New Insurance \u2192 Resident \u2192 Individual",
+        "Enter your email \u2192 enter your last name \u2192 SSN \u2192 preparer then click applicant",
+        "Select Texas \u2192 payment method",
+        "License type \u2192 Insurance Producer \u2192 Life, Accident & Health",
         "Continue to answer the questions",
         "Pay the application fee"
       ],
       resources: "sircon.com"
     },
     {
-      id: "lic_10",
-      step_number: 10,
+      id: "lic_10", step_number: 10,
       step_title: "Sign Your WFG Agent Agreement",
       description: "Complete the official WFG Agent Agreement",
-      status: "On Track",
-      is_completed: false,
+      status: "On Track", is_completed: false,
       deadline_date: "2024-02-20",
       timeline_guidance: "10 mins",
       instructions: [
-        "Go to wfglaunch.com → Click LICENSING (BLUE COLUMN)",
-        "View process → start licensing process → view WFG Agreement",
-        "Start Application process → ok",
-        "Enter state life license number → verify",
+        "Go to wfglaunch.com \u2192 Click LICENSING (BLUE COLUMN)",
+        "View process \u2192 start licensing process \u2192 view WFG Agreement",
+        "Start Application process \u2192 ok",
+        "Enter state life license number \u2192 verify",
         "Docusign Pay fee $40",
         "Wait for SMD approval and background check"
       ],
       resources: "Your trainer - wfglaunch.com"
     },
     {
-      id: "lic_11",
-      step_number: 11,
+      id: "lic_11", step_number: 11,
       step_title: "Complete Your Anti-Money Laundering and Long Term Care Test",
       description: "Do the AML and LTC tests",
-      status: "On Track",
-      is_completed: false,
+      status: "On Track", is_completed: false,
       deadline_date: "2024-02-25",
       timeline_guidance: "10 hours",
       instructions: [
-        "Go to mywfg.com, menu",
-        "Licensing & appointments",
-        "Licensing, continuing education",
+        "Go to mywfg.com",
+        "Click Menu",
+        "Go to Licensing & Appointments",
+        "Select Licensing, then Continuing Education",
         "Pick your provider"
       ],
-      resources: "mywfg.com - links and provider information"
+      resources: "mywfg.com"
     },
     {
-      id: "lic_12",
-      step_number: 12,
+      id: "lic_12", step_number: 12,
       step_title: "Get Appointed By Carriers",
       description: "Be appointed by carriers to sell their products",
-      status: "On Track",
-      is_completed: false,
+      status: "On Track", is_completed: false,
       deadline_date: "2024-03-01",
       timeline_guidance: "20 mins",
       instructions: [
         "Log into www.mywfg.com",
-        "Click on Menu → Licensing & Appointments → Appointments",
-        "Carrier Appointments → Life & Disability → Non-NY life",
+        "Click on Menu \u2192 Licensing & Appointments \u2192 Appointments",
+        "Carrier Appointments \u2192 Life & Disability \u2192 Non-NY life",
         "Select the specific carrier you want to be appointed"
       ],
-      resources: "www.mywfg.com - carrier appointment portal"
+      resources: "www.mywfg.com"
     }
   ],
   training_steps: [
     {
-      id: "train_1",
-      step_number: 1,
-      step_title: "Have Your In-Person Meeting",
-      description: "Initial in-person meeting with your trainer",
-      status: "Completed",
-      is_completed: true,
-      deadline_date: "2024-01-16",
-      completed_date: "2024-01-16",
-      timeline_guidance: "1-2 hours",
+      id: "train_1", step_number: 1,
+      step_title: "Meet Spouse/Influential Person",
+      description: "In home meeting, campaign introduction",
+      status: "Completed", is_completed: true,
+      deadline_date: "2024-01-16", completed_date: "2024-01-16",
+      timeline_guidance: "24-48 hours",
       instructions: [
-        "Meet with your trainer to discuss the business opportunity",
-        "Review the onboarding process and timeline",
-        "Set goals and expectations",
-        "Complete initial paperwork"
+        "Learn how to introduce your trainer",
+        "Learn how to tell your story",
+        "Take notes on how to do the campaign introduction"
       ],
-      resources: "Your trainer will schedule and provide meeting details"
+      resources: "Campaign introduction, notebook, uniform, survey card"
     },
     {
-      id: "train_2",
-      step_number: 2,
+      id: "train_2", step_number: 2,
       step_title: "Get Your Startup Kit",
-      description: "Receive and review your WFG startup materials",
-      status: "Completed",
-      is_completed: true,
-      deadline_date: "2024-01-18",
-      completed_date: "2024-01-17",
-      timeline_guidance: "30 mins",
+      description: "Go through all materials in the startup kit",
+      status: "Completed", is_completed: true,
+      deadline_date: "2024-01-18", completed_date: "2024-01-17",
+      timeline_guidance: "1 day",
       instructions: [
-        "Receive your startup kit from your trainer",
-        "Review all materials and resources",
-        "Familiarize yourself with company materials",
-        "Set up your workspace with provided materials"
+        "Trainer to go through and explain all the materials",
+        "Read Moment of Truth",
+        "Read Saving Your Future book",
+        "Read first 100 pages of the System Builder"
       ],
-      resources: "Startup kit provided by your trainer"
+      resources: "Your trainer, startup kit"
     },
     {
-      id: "train_3",
-      step_number: 3,
+      id: "train_3", step_number: 3,
       step_title: "Start Your Licensing Path",
-      description: "Begin the licensing process",
-      status: "Due Soon",
-      is_completed: false,
+      description: "Start pre-licensing",
+      status: "Due Soon", is_completed: false,
       deadline_date: "2024-01-30",
-      timeline_guidance: "Ongoing",
+      timeline_guidance: "Set up in first meeting, licensing 30 days",
       instructions: [
-        "Follow the licensing pathway steps",
-        "Complete required courses and exams",
-        "Stay in communication with your trainer",
-        "Track your progress through wfglaunch.com"
+        "Start the pre-licensing journey",
+        "Set up a gmail account (e.g. firstnamelastinitiawfg@gmail.com)",
+        "Set up WSB account with new gmail address"
       ],
-      resources: "wfglaunch.com - licensing section"
+      resources: "Pre-licensing material, worldsystembuilder.com, gmail.com"
     },
     {
-      id: "train_4",
-      step_number: 4,
+      id: "train_4", step_number: 4,
       step_title: "Complete Your PFS",
-      description: "Complete your Personal Financial Strategy",
-      status: "Due Soon",
-      is_completed: false,
+      description: "Go through your own personal financial strategy",
+      status: "Due Soon", is_completed: false,
       deadline_date: "2024-02-05",
-      timeline_guidance: "2-3 hours",
+      timeline_guidance: "24-48 hours",
       instructions: [
-        "Schedule PFS session with your trainer",
-        "Gather your personal financial information",
-        "Complete the PFS process",
-        "Review results and recommendations"
+        "Meeting with your trainer",
+        "Go through client appointment 1, 2 and 3"
       ],
-      resources: "Your trainer will guide you through the PFS process"
+      resources: "Your trainer, PFS sheet, blue flip chart, accounts in Canada/3 circle 3 box (USA), Saving Your Future book, diversification and DCA"
     },
     {
-      id: "train_5",
-      step_number: 5,
+      id: "train_5", step_number: 5,
       step_title: "Attend All Workshops and BPM",
-      description: "Participate in training workshops and Business Presentation Meetings",
-      status: "On Track",
-      is_completed: false,
+      description: "Attend all 6 workshops",
+      status: "On Track", is_completed: false,
       deadline_date: "2024-02-15",
-      timeline_guidance: "Ongoing",
+      timeline_guidance: "30 days",
       instructions: [
-        "Check the calendar for upcoming workshops",
-        "Attend weekly BPMs (Business Presentation Meetings)",
-        "Take notes and participate actively",
-        "Network with other associates",
-        "Apply what you learn to your business"
+        "Attend BPM on Tuesday/Wednesday nights and Saturday mornings",
+        "Attend Webinar Tuesday morning",
+        "Attend workshops throughout the week"
       ],
-      resources: "Workshop and BPM schedule available through your trainer"
+      resources: "Your trainer, worldsystembuilder.com/workshop, worldsystembuilder.com/meetings"
     },
     {
-      id: "train_6",
-      step_number: 6,
-      step_title: "Read Your Trainer Guidebook and Complete Your Share List",
-      description: "Study the trainer guidebook and create your prospect list",
-      status: "On Track",
-      is_completed: false,
+      id: "train_6", step_number: 6,
+      step_title: "Complete Your Trainer Guidebook and Your Share List",
+      description: "Go through top 5 reasons, vision & mission, daily activities and actions",
+      status: "On Track", is_completed: false,
       deadline_date: "2024-02-20",
-      timeline_guidance: "3-4 hours",
-      instructions: [
-        "Read the complete Trainer Guidebook",
-        "Create your initial share list of 100+ names",
-        "Categorize your contacts by relationship strength",
-        "Review your list with your trainer",
-        "Begin reaching out to warm market contacts"
-      ],
-      resources: "Trainer Guidebook provided in startup kit"
+      timeline_guidance: "30 days",
+      instructions: ["Work with your trainer to build a share list"],
+      resources: "Trainer Guidebook, your trainer, trainer manual"
     },
     {
-      id: "train_7",
-      step_number: 7,
+      id: "train_7", step_number: 7,
       step_title: "Complete Your Field Training",
-      description: "Hands-on field training with experienced associates",
-      status: "On Track",
-      is_completed: false,
+      description: "Go out to the field and book appointments",
+      status: "On Track", is_completed: false,
       deadline_date: "2024-03-01",
-      timeline_guidance: "2-3 weeks",
+      timeline_guidance: "30 days",
       instructions: [
-        "Shadow your trainer on client appointments",
-        "Observe the full sales process",
-        "Learn presentation and closing techniques",
-        "Conduct appointments with trainer support",
-        "Get feedback and coaching after each appointment"
+        "Go through share list with trainer",
+        "Book campaign introductions and/or client appointment 1"
       ],
-      resources: "Field training schedule coordinated with your trainer"
+      resources: "Trainer Guidebook, your trainer"
     },
     {
-      id: "train_8",
-      step_number: 8,
+      id: "train_8", step_number: 8,
       step_title: "Complete Your GX 315",
-      description: "Complete the GX 315 training program",
-      status: "On Track",
-      is_completed: false,
+      description: "Complete 3 recruits and 15,000 points",
+      status: "On Track", is_completed: false,
       deadline_date: "2024-03-15",
-      timeline_guidance: "Ongoing",
+      timeline_guidance: "30 days",
       instructions: [
-        "Participate in all GX 315 training sessions",
-        "Complete assigned modules and activities",
-        "Practice skills with your training group",
-        "Apply concepts to real client situations",
-        "Pass GX 315 certification requirements"
+        "Go through 30 contacts",
+        "Complete 10 campaign introductions/client appointments"
       ],
-      resources: "GX 315 materials and schedule provided by training team"
+      resources: "Your trainer, trainer guidebook"
     }
   ]
 };
 
-const WFGOnboardingApp = ({ initialRecruitId, initialRecruitEmail }) => {
-  // State Management
+const WFGOnboardingApp = ({ token, isAdmin }) => {
+  if (isAdmin) return <AdminDashboard token={token} />;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [recruitData, setRecruitData] = useState(null);
   const [activeTab, setActiveTab] = useState('licensing');
   const [expandedSteps, setExpandedSteps] = useState({});
   const [processingSteps, setProcessingSteps] = useState(new Set());
+  const [showCompleted, setShowCompleted] = useState(false);
 
-  // Fetch recruit data on mount
-  useEffect(() => {
-    fetchRecruitData();
-  }, []);
+  // In dev/demo mode (no token), use mock data immediately
+  const isDemoMode = !token;
+
+  useEffect(() => { fetchRecruitData(); }, []);
 
   const fetchRecruitData = async () => {
+    if (isDemoMode) {
+      setRecruitData(MOCK_DATA);
+      setLoading(false);
+      return;
+    }
     try {
       setLoading(true);
       setError(null);
-
-      const payload = {};
-      if (initialRecruitId) payload.recruit_id = initialRecruitId;
-      if (initialRecruitEmail) payload.recruit_email = initialRecruitEmail;
-
       const response = await fetch(
         `${CONFIG.n8nBaseUrl}${CONFIG.webhooks.getData}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        }
+        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token }) }
       );
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const data = await response.json();
-      
-      if (!data.success) {
-        throw new Error(data.error || 'Failed to fetch recruit data');
-      }
-
+      if (!data.success) throw new Error(data.error || 'Failed to fetch recruit data');
       setRecruitData(data);
     } catch (err) {
       console.error('Error fetching recruit data:', err);
-      // Use mock data as fallback for demo purposes
-      setRecruitData(MOCK_DATA);
+      setError('We couldn\u2019t find your onboarding record. Please check your link and try again, or contact your trainer for a new one.');
     } finally {
       setLoading(false);
     }
@@ -455,10 +361,8 @@ const WFGOnboardingApp = ({ initialRecruitId, initialRecruitEmail }) => {
 
   const toggleStepComplete = async (stepId, stepType, currentStatus) => {
     if (processingSteps.has(stepId)) return;
-
     const newStatus = !currentStatus;
     setProcessingSteps(prev => new Set([...prev, stepId]));
-
     try {
       const response = await fetch(
         `${CONFIG.n8nBaseUrl}${CONFIG.webhooks.updateStep}`,
@@ -466,223 +370,282 @@ const WFGOnboardingApp = ({ initialRecruitId, initialRecruitEmail }) => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            recruit_id: recruitData.recruit.id,
-            step_record_id: stepId,
-            step_type: stepType,
-            is_completed: newStatus,
-            user_email: recruitData.recruit.email,
-            user_name: recruitData.recruit.full_name
+            token,
+            recruit_id: recruitData.recruit.id, step_record_id: stepId,
+            step_type: stepType, is_completed: newStatus,
+            user_email: recruitData.recruit.email, user_name: recruitData.recruit.full_name
           })
         }
       );
-
-      if (!response.ok) {
-        throw new Error('Failed to update step');
-      }
-
-      // Refresh data after successful update
+      if (!response.ok) throw new Error('Failed to update step');
       await fetchRecruitData();
     } catch (err) {
       console.error('Error updating step:', err);
       alert('Failed to update step. Please try again.');
     } finally {
-      setProcessingSteps(prev => {
-        const next = new Set(prev);
-        next.delete(stepId);
-        return next;
-      });
+      setProcessingSteps(prev => { const next = new Set(prev); next.delete(stepId); return next; });
     }
   };
 
   const toggleStepExpanded = (stepId) => {
-    setExpandedSteps(prev => ({
-      ...prev,
-      [stepId]: !prev[stepId]
-    }));
+    setExpandedSteps(prev => ({ ...prev, [stepId]: !prev[stepId] }));
   };
 
-  // Status badge component
-  const StatusBadge = ({ status }) => {
-    const styles = {
-      'Completed': 'bg-green-100 text-green-800 border-green-200',
-      'Overdue': 'bg-red-100 text-red-800 border-red-200',
-      'Due Soon': 'bg-orange-100 text-orange-800 border-orange-200',
-      'On Track': 'bg-blue-100 text-blue-800 border-blue-200'
-    };
-
+  // --- Circular Progress Ring ---
+  const ProgressRing = ({ percentage, size = 80, strokeWidth = 6, color = '#3b82f6' }) => {
+    const radius = (size - strokeWidth) / 2;
+    const circumference = radius * 2 * Math.PI;
+    const offset = circumference - (percentage / 100) * circumference;
     return (
-      <span className={`text-xs font-medium px-2.5 py-1 rounded-full border ${styles[status] || styles['On Track']}`}>
+      <svg width={size} height={size} className="transform -rotate-90">
+        <circle
+          cx={size / 2} cy={size / 2} r={radius}
+          fill="none" stroke="#f1f5f9" strokeWidth={strokeWidth}
+        />
+        <circle
+          cx={size / 2} cy={size / 2} r={radius}
+          fill="none" stroke={color} strokeWidth={strokeWidth}
+          strokeDasharray={circumference} strokeDashoffset={offset}
+          strokeLinecap="round"
+          className="transition-all duration-1000 ease-out"
+        />
+      </svg>
+    );
+  };
+
+  // --- Status Badge ---
+  const StatusBadge = ({ status, size = 'default' }) => {
+    const config = {
+      'Completed': { bg: 'bg-emerald-50', text: 'text-emerald-700', dot: 'bg-emerald-500', ring: 'ring-emerald-500/20' },
+      'Overdue': { bg: 'bg-red-50', text: 'text-red-700', dot: 'bg-red-500', ring: 'ring-red-500/20' },
+      'Due Soon': { bg: 'bg-amber-50', text: 'text-amber-700', dot: 'bg-amber-500', ring: 'ring-amber-500/20' },
+      'On Track': { bg: 'bg-sky-50', text: 'text-sky-700', dot: 'bg-sky-500', ring: 'ring-sky-500/20' }
+    };
+    const s = config[status] || config['On Track'];
+    const sizeClasses = size === 'sm' ? 'text-[10px] px-2 py-0.5' : 'text-xs px-2.5 py-1';
+    return (
+      <span className={`inline-flex items-center gap-1.5 font-semibold rounded-full ring-1 ${sizeClasses} ${s.bg} ${s.text} ${s.ring}`}>
+        <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
         {status}
       </span>
     );
   };
 
-  // Progress ring component
-  const ProgressRing = ({ percentage, size = 120, strokeWidth = 8 }) => {
-    const radius = (size - strokeWidth) / 2;
-    const circumference = radius * 2 * Math.PI;
-    const offset = circumference - (percentage / 100) * circumference;
-
-    return (
-      <div className="relative inline-flex items-center justify-center">
-        <svg width={size} height={size} className="transform -rotate-90">
-          <circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            stroke="currentColor"
-            strokeWidth={strokeWidth}
-            fill="none"
-            className="text-gray-200"
-          />
-          <circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            stroke="currentColor"
-            strokeWidth={strokeWidth}
-            fill="none"
-            strokeDasharray={circumference}
-            strokeDashoffset={offset}
-            className="text-blue-600 transition-all duration-500 ease-out"
-            strokeLinecap="round"
-          />
-        </svg>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-2xl font-bold text-gray-900">{percentage}%</span>
-        </div>
-      </div>
-    );
-  };
-
-  // Step card component
+  // --- Step Card ---
   const StepCard = ({ step, stepType, index }) => {
     const isExpanded = expandedSteps[step.id];
     const isProcessing = processingSteps.has(step.id);
-    const instructions = Array.isArray(step.instructions) 
-      ? step.instructions 
+    const instructions = Array.isArray(step.instructions)
+      ? step.instructions
       : (typeof step.instructions === 'string' ? step.instructions.split('\n').filter(i => i.trim()) : []);
 
+    const isLicensing = stepType === 'licensing';
+    const hasDetails = instructions.length > 0 || step.resources;
+
+    // Find the next uncompleted step to highlight it
+    const allSteps = stepType === 'licensing' ? recruitData.licensing_steps : recruitData.training_steps;
+    const firstIncompleteIdx = allSteps.findIndex(s => !s.is_completed);
+    const isNextStep = !step.is_completed && index === firstIncompleteIdx;
+
+    // --- Compact row for incomplete, non-expanded steps ---
+    if (!step.is_completed && !isExpanded) {
+      return (
+        <div
+          className={`group relative rounded-xl transition-all duration-300 overflow-hidden cursor-pointer ${
+            isNextStep
+              ? 'glass-card-elevated ring-2 ring-offset-1 ' + (isLicensing ? 'ring-blue-500/30' : 'ring-violet-500/30')
+              : 'bg-white border border-slate-200/80 hover:border-slate-300'
+          } ${isProcessing ? 'opacity-50 pointer-events-none' : ''}`}
+          onClick={() => hasDetails && toggleStepExpanded(step.id)}
+        >
+          {isNextStep && (
+            <div className={`absolute top-0 left-0 right-0 h-0.5 ${isLicensing ? 'bg-gradient-to-r from-blue-500 to-blue-400' : 'bg-gradient-to-r from-violet-500 to-violet-400'}`} />
+          )}
+          <div className="px-4 py-3 sm:px-5 flex items-center gap-3">
+            {/* Checkbox */}
+            <button
+              onClick={(e) => { e.stopPropagation(); toggleStepComplete(step.id, stepType, step.is_completed); }}
+              disabled={isProcessing}
+              className="flex-shrink-0 transition-all duration-200 hover:scale-110 active:scale-95"
+            >
+              {isNextStep ? (
+                <div className={`w-7 h-7 rounded-full border-2 flex items-center justify-center ${
+                  isLicensing ? 'border-blue-400 bg-blue-50' : 'border-violet-400 bg-violet-50'
+                }`}>
+                  <Circle className={`w-3.5 h-3.5 ${isLicensing ? 'text-blue-300' : 'text-violet-300'}`} />
+                </div>
+              ) : (
+                <div className="w-7 h-7 rounded-full border-2 border-slate-200 group-hover:border-slate-300 flex items-center justify-center bg-white">
+                  <Circle className="w-3.5 h-3.5 text-transparent" />
+                </div>
+              )}
+            </button>
+
+            {/* Pathway dot (all view) + Step number + title */}
+            {activeTab === 'all' && (
+              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${isLicensing ? 'bg-blue-500' : 'bg-violet-500'}`} />
+            )}
+            <span className={`inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-bold flex-shrink-0 ${
+              isLicensing ? 'bg-blue-100 text-blue-700' : 'bg-violet-100 text-violet-700'
+            }`}>
+              {step.step_number}
+            </span>
+            <h3 className="text-sm font-semibold text-slate-900 truncate flex-1">
+              {step.step_title}
+            </h3>
+
+            {/* Right side: due date + status + chevron */}
+            <div className="flex items-center gap-2.5 flex-shrink-0">
+              {step.deadline_date && (
+                <span className="text-[11px] text-slate-400 hidden sm:inline">
+                  Due {new Date(step.deadline_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                </span>
+              )}
+              <StatusBadge status={step.status} size="sm" />
+              {hasDetails && (
+                <ChevronDown className="w-4 h-4 text-slate-300 group-hover:text-slate-400 transition-colors" />
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // --- Full card for completed steps or expanded incomplete steps ---
     return (
-      <div className={`
-        bg-white rounded-lg border-2 transition-all duration-200
-        ${step.is_completed ? 'border-green-200 bg-green-50/30' : 'border-gray-200 hover:border-blue-300'}
-        ${isProcessing ? 'opacity-60' : ''}
-      `}>
-        {/* Step Header */}
-        <div className="p-5">
+      <div
+        className={`group relative rounded-2xl transition-all duration-300 overflow-hidden ${
+          step.is_completed
+            ? 'bg-slate-50/50 border border-slate-200/60'
+            : isNextStep
+              ? 'glass-card-elevated ring-2 ring-offset-2 ' + (isLicensing ? 'ring-blue-500/30' : 'ring-violet-500/30')
+              : 'bg-white border border-slate-200/80'
+        } ${isProcessing ? 'opacity-50 pointer-events-none' : ''}`}
+      >
+        {isNextStep && (
+          <div className={`absolute top-0 left-0 right-0 h-0.5 ${isLicensing ? 'bg-gradient-to-r from-blue-500 to-blue-400' : 'bg-gradient-to-r from-violet-500 to-violet-400'}`} />
+        )}
+
+        <div className="p-5 sm:p-6">
           <div className="flex items-start gap-4">
             {/* Checkbox */}
             <button
               onClick={() => toggleStepComplete(step.id, stepType, step.is_completed)}
               disabled={isProcessing}
-              className={`
-                flex-shrink-0 mt-1 transition-all duration-200
-                ${isProcessing ? 'cursor-not-allowed' : 'cursor-pointer hover:scale-110'}
-              `}
+              className="flex-shrink-0 mt-0.5 transition-all duration-200 hover:scale-110 active:scale-95"
             >
               {step.is_completed ? (
-                <CheckCircle2 className="w-6 h-6 text-green-600" />
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-500 flex items-center justify-center shadow-sm shadow-emerald-500/25">
+                  <CheckCircle2 className="w-5 h-5 text-white" strokeWidth={2.5} />
+                </div>
+              ) : isNextStep ? (
+                <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-colors ${
+                  isLicensing ? 'border-blue-400 bg-blue-50' : 'border-violet-400 bg-violet-50'
+                }`}>
+                  <Circle className={`w-4 h-4 ${isLicensing ? 'text-blue-300' : 'text-violet-300'}`} />
+                </div>
               ) : (
-                <Circle className="w-6 h-6 text-gray-400 hover:text-blue-600" />
+                <div className="w-8 h-8 rounded-full border-2 border-slate-200 group-hover:border-slate-300 flex items-center justify-center transition-colors bg-white">
+                  <Circle className="w-4 h-4 text-transparent" />
+                </div>
               )}
             </button>
 
-            {/* Step Content */}
+            {/* Content */}
             <div className="flex-1 min-w-0">
-              {/* Title Row */}
-              <div className="flex items-start justify-between gap-3 mb-2">
+              <div
+                className={`flex items-start justify-between gap-3 mb-1 ${!step.is_completed && isExpanded ? 'cursor-pointer' : ''}`}
+                onClick={() => { if (!step.is_completed && isExpanded) toggleStepExpanded(step.id); }}
+              >
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">
+                  <div className="flex items-center gap-2.5 mb-1">
+                    <span className={`inline-flex items-center justify-center w-6 h-6 rounded-md text-[11px] font-bold tracking-tight ${
+                      step.is_completed
+                        ? 'bg-slate-200 text-slate-500'
+                        : isLicensing ? 'bg-blue-100 text-blue-700' : 'bg-violet-100 text-violet-700'
+                    }`}>
                       {step.step_number}
                     </span>
-                    <h3 className={`text-lg font-semibold ${step.is_completed ? 'text-gray-600 line-through' : 'text-gray-900'}`}>
+                    <h3 className={`text-[15px] font-semibold leading-snug ${
+                      step.is_completed ? 'text-slate-400 line-through decoration-slate-300' : 'text-slate-900'
+                    }`}>
                       {step.step_title}
                     </h3>
                   </div>
-                  <p className="text-sm text-gray-600">{step.description}</p>
+                  <p className={`text-sm leading-relaxed ml-[34px] ${step.is_completed ? 'text-slate-400' : 'text-slate-500'}`}>
+                    {step.description}
+                  </p>
                 </div>
-                <StatusBadge status={step.status} />
+                <div className="flex-shrink-0 mt-0.5 flex items-center gap-2">
+                  <StatusBadge status={step.status} size="sm" />
+                  {!step.is_completed && isExpanded && (
+                    <ChevronUp className="w-4 h-4 text-slate-300 hover:text-slate-400 transition-colors" />
+                  )}
+                </div>
               </div>
 
-              {/* Metadata */}
-              <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-3">
-                {step.deadline_date && (
-                  <div className="flex items-center gap-1.5">
-                    <Calendar className="w-4 h-4" />
-                    <span>Due: {new Date(step.deadline_date).toLocaleDateString()}</span>
+              {/* Meta row */}
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-3 ml-[34px]">
+                {step.deadline_date && !step.is_completed && (
+                  <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                    <Calendar className="w-3.5 h-3.5" />
+                    <span>Due {new Date(step.deadline_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
                   </div>
                 )}
                 {step.timeline_guidance && (
-                  <div className="flex items-center gap-1.5">
-                    <Clock className="w-4 h-4" />
+                  <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                    <Clock className="w-3.5 h-3.5" />
                     <span>{step.timeline_guidance}</span>
                   </div>
                 )}
                 {step.completed_date && (
-                  <div className="flex items-center gap-1.5 text-green-600">
-                    <CheckCheck className="w-4 h-4" />
-                    <span>Completed: {new Date(step.completed_date).toLocaleDateString()}</span>
+                  <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-medium">
+                    <CheckCheck className="w-3.5 h-3.5" />
+                    <span>Completed {new Date(step.completed_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
                   </div>
                 )}
               </div>
 
-              {/* Expand/Collapse Button */}
-              <button
-                onClick={() => toggleStepExpanded(step.id)}
-                className="flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
-              >
-                {isExpanded ? (
-                  <>
-                    <ChevronUp className="w-4 h-4" />
-                    Hide details
-                  </>
-                ) : (
-                  <>
-                    <ChevronDown className="w-4 h-4" />
-                    Show instructions
-                  </>
-                )}
-              </button>
             </div>
           </div>
 
-          {/* Expanded Content */}
-          {isExpanded && (
-            <div className="mt-4 pl-10 space-y-4 border-t border-gray-200 pt-4">
-              {/* Instructions */}
-              {instructions.length > 0 && (
-                <div>
-                  <h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                    <BookOpen className="w-4 h-4 text-blue-600" />
-                    Step-by-Step Instructions
-                  </h4>
-                  <ul className="space-y-2">
-                    {instructions.map((instruction, idx) => (
-                      <li key={idx} className="flex items-start gap-2 text-sm text-gray-700">
-                        <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-100 text-blue-700 text-xs flex items-center justify-center mt-0.5">
-                          {idx + 1}
-                        </span>
-                        <span>{instruction}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+          {/* Expanded content (for incomplete expanded steps) */}
+          {!step.is_completed && isExpanded && (
+            <div className="mt-5 ml-12 animate-fadeIn">
+              <div className={`rounded-xl p-5 ${isLicensing ? 'bg-blue-50/50 border border-blue-100/80' : 'bg-violet-50/50 border border-violet-100/80'}`}>
+                {instructions.length > 0 && (
+                  <div>
+                    <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center gap-2">
+                      <BookOpen className="w-3.5 h-3.5 text-slate-400" />
+                      Instructions
+                    </h4>
+                    <ol className="space-y-2.5">
+                      {instructions.map((instruction, idx) => (
+                        <li key={idx} className="flex items-start gap-3 text-sm text-slate-600 leading-relaxed">
+                          <span className={`flex-shrink-0 w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center mt-0.5 ${
+                            isLicensing ? 'bg-blue-100 text-blue-600' : 'bg-violet-100 text-violet-600'
+                          }`}>
+                            {idx + 1}
+                          </span>
+                          <span>{instruction}</span>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
 
-              {/* Resources */}
-              {step.resources && (
-                <div>
-                  <h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                    <ExternalLink className="w-4 h-4 text-blue-600" />
-                    Resources & Links
-                  </h4>
-                  <p className="text-sm text-gray-700 bg-blue-50 p-3 rounded-md border border-blue-100">
-                    {step.resources}
-                  </p>
-                </div>
-              )}
+                {step.resources && (
+                  <div className={instructions.length > 0 ? 'mt-4 pt-4 border-t border-dashed ' + (isLicensing ? 'border-blue-200/60' : 'border-violet-200/60') : ''}>
+                    <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-2">
+                      <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+                      Resources
+                    </h4>
+                    <p className="text-sm text-slate-600 leading-relaxed">
+                      {step.resources}
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -690,211 +653,226 @@ const WFGOnboardingApp = ({ initialRecruitId, initialRecruitEmail }) => {
     );
   };
 
-  // Loading state
+  // --- Loading State ---
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent mb-4"></div>
-          <p className="text-gray-600 font-medium">Loading your onboarding journey...</p>
+          <div className="relative w-12 h-12 mx-auto mb-5">
+            <div className="absolute inset-0 rounded-full border-[3px] border-slate-200" />
+            <div className="absolute inset-0 rounded-full border-[3px] border-blue-600 border-t-transparent animate-spin" />
+          </div>
+          <p className="text-slate-500 font-medium text-sm tracking-tight">Loading your journey...</p>
         </div>
       </div>
     );
   }
 
-  // Note: Removed error state since we now fall back to mock data
+  // --- Error State ---
+  if (error || !recruitData) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <div className="text-center max-w-sm">
+          <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-5">
+            <Shield className="w-7 h-7 text-slate-400" />
+          </div>
+          <h2 className="text-xl font-bold text-slate-900 mb-2">Link not recognized</h2>
+          <p className="text-sm text-slate-500 leading-relaxed mb-6">
+            {error || 'Something went wrong loading your data.'}
+          </p>
+          <button
+            onClick={() => { setError(null); fetchRecruitData(); }}
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-white text-sm font-semibold rounded-xl hover:bg-slate-800 transition-colors"
+          >
+            Try again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const { recruit, progress, licensing_steps, training_steps } = recruitData;
+  const totalCompleted = progress.licensing.completed + progress.training.completed;
+  const totalSteps = progress.licensing.total + progress.training.total;
+  const overallPercentage = Math.round((totalCompleted / totalSteps) * 100);
+
+  // Build the step list based on active tab
+  const getActiveSteps = () => {
+    if (activeTab === 'licensing') return licensing_steps;
+    if (activeTab === 'training') return training_steps;
+    // 'all' tab: merge both, sorted by due date
+    return [
+      ...licensing_steps.map(s => ({ ...s, _pathway: 'licensing' })),
+      ...training_steps.map(s => ({ ...s, _pathway: 'training' })),
+    ].sort((a, b) => {
+      const dateA = a.deadline_date ? new Date(a.deadline_date) : new Date('9999-12-31');
+      const dateB = b.deadline_date ? new Date(b.deadline_date) : new Date('9999-12-31');
+      return dateA - dateB;
+    });
+  };
+  const activeSteps = getActiveSteps();
+  const activeProgress = activeTab === 'licensing' ? progress.licensing
+    : activeTab === 'training' ? progress.training
+    : { total: totalSteps, completed: totalCompleted, percentage: overallPercentage };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-30 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
+    <div className="min-h-screen bg-slate-50">
+      {/* ===== HEADER ===== */}
+      <header className="bg-white/80 backdrop-blur-md border-b border-slate-200/60 sticky top-0 z-30">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6">
+          <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-                <Sparkles className="w-6 h-6 text-white" />
+              <div className="w-9 h-9 bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl flex items-center justify-center shadow-sm">
+                <Shield className="w-4.5 h-4.5 text-white" strokeWidth={2} />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">WFG Onboarding</h1>
-                <p className="text-sm text-gray-600">Your path to success</p>
+                <h1 className="text-[15px] font-bold text-slate-900 tracking-tight leading-none">WFG Onboarding</h1>
+                <p className="text-[11px] text-slate-400 font-medium mt-0.5">Agent Progress Tracker</p>
               </div>
             </div>
-            <div className="hidden sm:flex items-center gap-4">
-              <div className="text-right">
-                <p className="text-sm font-medium text-gray-900">{recruit.full_name}</p>
-                <p className="text-xs text-gray-500">{recruit.recruit_stage}</p>
+            <div className="flex items-center gap-3">
+              <div className="text-right hidden sm:block">
+                <p className="text-sm font-semibold text-slate-900 leading-none">{recruit.full_name}</p>
+                <p className="text-[11px] text-slate-400 mt-1">{recruit.upline_office}</p>
               </div>
-              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                <User className="w-5 h-5 text-blue-600" />
+              <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-violet-600 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm shadow-blue-500/25 ring-2 ring-white">
+                {recruit.full_name.split(' ').map(n => n[0]).join('')}
               </div>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Recruit Info Card */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Contact Info */}
-            <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Contact Information</h3>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm">
-                  <Mail className="w-4 h-4 text-gray-400" />
-                  <span className="text-gray-700">{recruit.email}</span>
-                </div>
-                {recruit.phone && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <Phone className="w-4 h-4 text-gray-400" />
-                    <span className="text-gray-700">{recruit.phone}</span>
-                  </div>
-                )}
-                {recruit.country && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <MapPin className="w-4 h-4 text-gray-400" />
-                    <span className="text-gray-700">
-                      {recruit.state_province}, {recruit.country}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
 
-            {/* Timeline Info */}
-            <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Timeline Status</h3>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm">
-                  <Calendar className="w-4 h-4 text-gray-400" />
-                  <span className="text-gray-700">
-                    Started: {new Date(recruit.start_date).toLocaleDateString()}
-                  </span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-sm text-gray-700">Health:</span>
-                  <StatusBadge status={recruit.timeline_health} />
-                </div>
-              </div>
+        {/* ===== HERO SECTION ===== */}
+        <div className="mb-8">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-sm font-medium text-slate-400 mb-1">Welcome back</p>
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+                {recruit.full_name.split(' ')[0]}
+              </h2>
             </div>
-
-            {/* Recruiter Info */}
-            <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Support Team</h3>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm">
-                  <User className="w-4 h-4 text-gray-400" />
-                  <span className="text-gray-700">{recruit.recruiter_name}</span>
-                </div>
-                {recruit.upline_office && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <MapPin className="w-4 h-4 text-gray-400" />
-                    <span className="text-gray-700">{recruit.upline_office}</span>
-                  </div>
-                )}
+            <div className="flex flex-col items-end gap-2 flex-shrink-0">
+              <StatusBadge status={recruit.timeline_health} />
+              <div className="hidden sm:flex items-center gap-3 text-[11px] text-slate-400">
+                <span className="flex items-center gap-1">
+                  <Calendar className="w-3 h-3" />
+                  {new Date(recruit.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                </span>
+                <span className="text-slate-200">|</span>
+                <span className="flex items-center gap-1">
+                  <Briefcase className="w-3 h-3" />
+                  {recruit.recruit_stage}
+                </span>
+                <span className="text-slate-200">|</span>
+                <span className="flex items-center gap-1">
+                  <MapPin className="w-3 h-3" />
+                  {recruit.state_province}
+                </span>
+                <span className="text-slate-200">|</span>
+                <span className="flex items-center gap-1">
+                  <User className="w-3 h-3" />
+                  {recruit.recruiter_name}
+                </span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Progress Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        {/* ===== PROGRESS OVERVIEW CARDS (clickable navigation) ===== */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          {/* Overall Progress */}
+          <button
+            onClick={() => setActiveTab('all')}
+            className={`glass-card-elevated rounded-2xl p-6 flex items-center gap-5 text-left transition-all duration-200 cursor-pointer ${
+              activeTab === 'all' ? 'ring-2 ring-slate-900/20 ring-offset-1' : 'hover:ring-1 hover:ring-slate-300'
+            }`}
+          >
+            <div className="relative flex-shrink-0">
+              <ProgressRing percentage={overallPercentage} size={72} strokeWidth={5} color="#0f172a" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-lg font-extrabold text-slate-900">{overallPercentage}%</span>
+              </div>
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Overall</p>
+              <p className="text-2xl font-extrabold text-slate-900 leading-none">{totalCompleted}/{totalSteps}</p>
+              <p className="text-xs text-slate-400 mt-1">steps completed</p>
+            </div>
+          </button>
+
           {/* Licensing Progress */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <GraduationCap className="w-5 h-5 text-blue-600" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Licensing</h3>
-                  <p className="text-sm text-gray-600">
-                    {progress.licensing.completed} of {progress.licensing.total} steps
-                  </p>
-                </div>
-              </div>
-              <ProgressRing percentage={progress.licensing.percentage} size={80} strokeWidth={6} />
-            </div>
-            
-            {/* Status Breakdown */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-green-50 rounded-lg p-3 border border-green-200">
-                <div className="text-2xl font-bold text-green-700">{progress.licensing.status_breakdown.completed}</div>
-                <div className="text-xs text-green-600 font-medium">Completed</div>
-              </div>
-              <div className="bg-red-50 rounded-lg p-3 border border-red-200">
-                <div className="text-2xl font-bold text-red-700">{progress.licensing.status_breakdown.overdue}</div>
-                <div className="text-xs text-red-600 font-medium">Overdue</div>
-              </div>
-              <div className="bg-orange-50 rounded-lg p-3 border border-orange-200">
-                <div className="text-2xl font-bold text-orange-700">{progress.licensing.status_breakdown.due_soon}</div>
-                <div className="text-xs text-orange-600 font-medium">Due Soon</div>
-              </div>
-              <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
-                <div className="text-2xl font-bold text-blue-700">{progress.licensing.status_breakdown.on_track}</div>
-                <div className="text-xs text-blue-600 font-medium">On Track</div>
+          <button
+            onClick={() => setActiveTab('licensing')}
+            className={`glass-card-elevated rounded-2xl p-6 flex items-center gap-5 text-left transition-all duration-200 cursor-pointer ${
+              activeTab === 'licensing' ? 'ring-2 ring-blue-500/30 ring-offset-1' : 'hover:ring-1 hover:ring-slate-300'
+            }`}
+          >
+            <div className="relative flex-shrink-0">
+              <ProgressRing percentage={progress.licensing.percentage} size={72} strokeWidth={5} color="#3b82f6" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <GraduationCap className="w-5 h-5 text-blue-600" />
               </div>
             </div>
-          </div>
+            <div>
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Licensing</p>
+              <p className="text-2xl font-extrabold text-slate-900 leading-none">{progress.licensing.completed}/{progress.licensing.total}</p>
+              <div className="flex items-center gap-1.5 mt-1">
+                <div className="w-16 bg-slate-100 rounded-full h-1.5">
+                  <div className="bg-blue-500 h-1.5 rounded-full transition-all duration-700" style={{ width: `${progress.licensing.percentage}%` }} />
+                </div>
+                <span className="text-[10px] font-bold text-blue-600">{progress.licensing.percentage}%</span>
+              </div>
+            </div>
+          </button>
 
           {/* Training Progress */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <Target className="w-5 h-5 text-purple-600" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Training</h3>
-                  <p className="text-sm text-gray-600">
-                    {progress.training.completed} of {progress.training.total} steps
-                  </p>
-                </div>
-              </div>
-              <ProgressRing percentage={progress.training.percentage} size={80} strokeWidth={6} />
-            </div>
-            
-            {/* Status Breakdown */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-green-50 rounded-lg p-3 border border-green-200">
-                <div className="text-2xl font-bold text-green-700">{progress.training.status_breakdown.completed}</div>
-                <div className="text-xs text-green-600 font-medium">Completed</div>
-              </div>
-              <div className="bg-red-50 rounded-lg p-3 border border-red-200">
-                <div className="text-2xl font-bold text-red-700">{progress.training.status_breakdown.overdue}</div>
-                <div className="text-xs text-red-600 font-medium">Overdue</div>
-              </div>
-              <div className="bg-orange-50 rounded-lg p-3 border border-orange-200">
-                <div className="text-2xl font-bold text-orange-700">{progress.training.status_breakdown.due_soon}</div>
-                <div className="text-xs text-orange-600 font-medium">Due Soon</div>
-              </div>
-              <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
-                <div className="text-2xl font-bold text-blue-700">{progress.training.status_breakdown.on_track}</div>
-                <div className="text-xs text-blue-600 font-medium">On Track</div>
+          <button
+            onClick={() => setActiveTab('training')}
+            className={`glass-card-elevated rounded-2xl p-6 flex items-center gap-5 text-left transition-all duration-200 cursor-pointer ${
+              activeTab === 'training' ? 'ring-2 ring-violet-500/30 ring-offset-1' : 'hover:ring-1 hover:ring-slate-300'
+            }`}
+          >
+            <div className="relative flex-shrink-0">
+              <ProgressRing percentage={progress.training.percentage} size={72} strokeWidth={5} color="#8b5cf6" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Target className="w-5 h-5 text-violet-600" />
               </div>
             </div>
-          </div>
+            <div>
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Training</p>
+              <p className="text-2xl font-extrabold text-slate-900 leading-none">{progress.training.completed}/{progress.training.total}</p>
+              <div className="flex items-center gap-1.5 mt-1">
+                <div className="w-16 bg-slate-100 rounded-full h-1.5">
+                  <div className="bg-violet-500 h-1.5 rounded-full transition-all duration-700" style={{ width: `${progress.training.percentage}%` }} />
+                </div>
+                <span className="text-[10px] font-bold text-violet-600">{progress.training.percentage}%</span>
+              </div>
+            </div>
+          </button>
         </div>
 
-        {/* Milestone Badges */}
+        {/* ===== MILESTONE BANNER ===== */}
         {(recruit.licensing_status === 'Licensed' || recruit.training_status === 'Completed') && (
-          <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl border-2 border-yellow-200 p-6 mb-8">
-            <div className="flex items-center gap-4">
-              <Award className="w-12 h-12 text-yellow-600" />
+          <div className="relative overflow-hidden rounded-2xl border border-amber-200/80 p-6 mb-8" style={{ background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 50%, #fde68a 100%)' }}>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-300/20 rounded-full blur-3xl -mr-10 -mt-10" />
+            <div className="flex items-center gap-4 relative">
+              <div className="w-14 h-14 rounded-2xl bg-white/80 backdrop-blur flex items-center justify-center flex-shrink-0 shadow-sm">
+                <Award className="w-7 h-7 text-amber-600" />
+              </div>
               <div className="flex-1">
-                <h3 className="text-lg font-bold text-gray-900 mb-1">🎉 Milestone Achieved!</h3>
-                <div className="flex flex-wrap gap-2">
+                <h3 className="text-base font-bold text-slate-900">Milestone Achieved!</h3>
+                <div className="flex flex-wrap gap-2 mt-2">
                   {recruit.licensing_status === 'Licensed' && (
-                    <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium border border-yellow-200">
-                      ✓ Fully Licensed
+                    <span className="px-3 py-1 bg-white/70 backdrop-blur text-amber-800 rounded-full text-xs font-bold shadow-sm">
+                      Fully Licensed
                     </span>
                   )}
                   {recruit.training_status === 'Completed' && (
-                    <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium border border-yellow-200">
-                      ✓ Training Complete
+                    <span className="px-3 py-1 bg-white/70 backdrop-blur text-amber-800 rounded-full text-xs font-bold shadow-sm">
+                      Training Complete
                     </span>
                   )}
                 </div>
@@ -903,88 +881,114 @@ const WFGOnboardingApp = ({ initialRecruitId, initialRecruitEmail }) => {
           </div>
         )}
 
-        {/* Pathway Tabs */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          {/* Tab Headers */}
-          <div className="flex border-b border-gray-200">
-            <button
-              onClick={() => setActiveTab('licensing')}
-              className={`flex-1 px-6 py-4 text-sm font-semibold transition-colors relative ${
-                activeTab === 'licensing'
-                  ? 'text-blue-600 bg-blue-50'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              }`}
-            >
-              <div className="flex items-center justify-center gap-2">
-                <GraduationCap className="w-5 h-5" />
-                <span>Licensing Pathway</span>
-                <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
-                  activeTab === 'licensing' ? 'bg-blue-200 text-blue-700' : 'bg-gray-200 text-gray-600'
-                }`}>
-                  {progress.licensing.completed}/{progress.licensing.total}
-                </span>
+        {/* ===== STEPS LIST ===== */}
+        <div className="glass-card-elevated rounded-2xl overflow-hidden">
+          {/* Content Header */}
+          <div className="px-5 sm:px-6 pt-5 pb-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-bold text-slate-900">
+                  {activeTab === 'all' ? 'All' : activeTab === 'licensing' ? 'Licensing' : 'Training'} Steps
+                </h3>
+                <p className="text-sm text-slate-400 mt-0.5">
+                  {activeProgress.completed} of {activeProgress.total} completed
+                </p>
               </div>
-              {activeTab === 'licensing' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600"></div>
-              )}
-            </button>
-            
-            <button
-              onClick={() => setActiveTab('training')}
-              className={`flex-1 px-6 py-4 text-sm font-semibold transition-colors relative ${
-                activeTab === 'training'
-                  ? 'text-purple-600 bg-purple-50'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              }`}
-            >
-              <div className="flex items-center justify-center gap-2">
-                <Target className="w-5 h-5" />
-                <span>Training Pathway</span>
-                <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
-                  activeTab === 'training' ? 'bg-purple-200 text-purple-700' : 'bg-gray-200 text-gray-600'
-                }`}>
-                  {progress.training.completed}/{progress.training.total}
-                </span>
-              </div>
-              {activeTab === 'training' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-600"></div>
-              )}
-            </button>
-          </div>
-
-          {/* Tab Content */}
-          <div className="p-6">
-            <div className="space-y-4">
-              {activeTab === 'licensing' ? (
-                licensing_steps.length > 0 ? (
-                  licensing_steps.map((step, index) => (
-                    <StepCard key={step.id} step={step} stepType="licensing" index={index} />
-                  ))
-                ) : (
-                  <div className="text-center py-12 text-gray-500">
-                    <GraduationCap className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-                    <p>No licensing steps available</p>
-                  </div>
-                )
-              ) : (
-                training_steps.length > 0 ? (
-                  training_steps.map((step, index) => (
-                    <StepCard key={step.id} step={step} stepType="training" index={index} />
-                  ))
-                ) : (
-                  <div className="text-center py-12 text-gray-500">
-                    <Target className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-                    <p>No training steps available</p>
-                  </div>
-                )
+              {activeTab === 'all' && (
+                <div className="flex items-center gap-3 text-[11px] font-semibold">
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded-full bg-blue-500" />
+                    Licensing
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded-full bg-violet-500" />
+                    Training
+                  </span>
+                </div>
               )}
             </div>
           </div>
+
+          {/* Steps List - Active (incomplete) */}
+          <div className="px-4 sm:px-5 pb-5 space-y-3">
+            {(() => {
+              const incompleteSteps = activeSteps.filter(s => !s.is_completed);
+              const completedSteps = activeSteps.filter(s => s.is_completed);
+
+              // Determine the stepType for a given step
+              const getStepType = (step) => {
+                if (activeTab === 'all') return step._pathway;
+                return activeTab;
+              };
+
+              return (
+                <>
+                  {incompleteSteps.length > 0 ? (
+                    incompleteSteps.map((step) => {
+                      const stepType = getStepType(step);
+                      // For 'all' view, look up index from the original array
+                      const sourceSteps = stepType === 'licensing' ? licensing_steps : training_steps;
+                      const origIndex = sourceSteps.findIndex(s => s.id === step.id);
+                      return (
+                        <StepCard key={step.id} step={step} stepType={stepType} index={origIndex} />
+                      );
+                    })
+                  ) : (
+                    <div className="text-center py-12 text-slate-400">
+                      <CheckCircle2 className="w-10 h-10 mx-auto mb-3 text-emerald-300" />
+                      <p className="text-sm font-semibold text-slate-500">All steps completed!</p>
+                      <p className="text-xs text-slate-400 mt-1">Great work on this pathway.</p>
+                    </div>
+                  )}
+
+                  {/* Completed Steps - Collapsible */}
+                  {completedSteps.length > 0 && (
+                    <div className="pt-2">
+                      <button
+                        onClick={() => setShowCompleted(!showCompleted)}
+                        className="w-full flex items-center gap-3 py-3 px-1 group"
+                      >
+                        <div className="flex-1 h-px bg-slate-200" />
+                        <div className="flex items-center gap-2 text-xs font-semibold text-slate-400 group-hover:text-slate-500 transition-colors">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                          <span>{completedSteps.length} completed</span>
+                          {showCompleted ? (
+                            <ChevronUp className="w-3.5 h-3.5" />
+                          ) : (
+                            <ChevronDown className="w-3.5 h-3.5" />
+                          )}
+                        </div>
+                        <div className="flex-1 h-px bg-slate-200" />
+                      </button>
+
+                      {showCompleted && (
+                        <div className="space-y-2 animate-fadeIn">
+                          {completedSteps.map((step) => {
+                            const stepType = getStepType(step);
+                            const sourceSteps = stepType === 'licensing' ? licensing_steps : training_steps;
+                            const origIndex = sourceSteps.findIndex(s => s.id === step.id);
+                            return (
+                              <StepCard key={step.id} step={step} stepType={stepType} index={origIndex} />
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </>
+              );
+            })()}
+          </div>
         </div>
 
-        {/* Footer Help Text */}
-        <div className="mt-8 text-center text-sm text-gray-500">
-          <p>Questions? Contact your trainer: <span className="font-medium text-gray-700">{recruit.recruiter_name}</span></p>
+        {/* ===== FOOTER ===== */}
+        <div className="mt-10 pb-10 text-center">
+          <div className="inline-flex items-center gap-2 text-xs text-slate-400">
+            <span>Questions? Contact</span>
+            <span className="font-semibold text-slate-500">{recruit.recruiter_name}</span>
+            <span className="text-slate-300">|</span>
+            <span className="font-semibold text-slate-500">{recruit.email}</span>
+          </div>
         </div>
       </main>
     </div>
