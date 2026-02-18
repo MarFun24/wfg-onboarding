@@ -8,11 +8,38 @@ import {
 
 // Configuration
 const CONFIG = {
-  n8nBaseUrl: 'https://mfunston.app.n8n.cloud',
+  n8nBaseUrl: import.meta.env.VITE_N8N_BASE_URL || 'https://mfunston.app.n8n.cloud',
   webhooks: {
     getData: '/webhook/wfg-app-get-recruit-data'
   }
 };
+
+// Normalize admin recruit data to handle GHL field mismatches and type coercion
+const normalizeAdminRecruit = (r) => ({
+  ...r,
+  days_since_start: typeof r.days_since_start === 'number' ? r.days_since_start : parseInt(r.days_since_start, 10) || 0,
+  licensing_progress: {
+    ...r.licensing_progress,
+    total: parseInt(r.licensing_progress?.total, 10) || 12,
+    completed: parseInt(r.licensing_progress?.completed, 10) || 0,
+    percentage: parseInt(r.licensing_progress?.percentage, 10) || 0,
+  },
+  training_progress: {
+    ...r.training_progress,
+    total: parseInt(r.training_progress?.total, 10) || 8,
+    completed: parseInt(r.training_progress?.completed, 10) || 0,
+    percentage: parseInt(r.training_progress?.percentage, 10) || 0,
+  },
+  current_licensing_step: {
+    step_number: parseInt(r.current_licensing_step?.step_number, 10) || 1,
+    step_title: r.current_licensing_step?.step_title || '',
+  },
+  current_training_step: {
+    step_number: parseInt(r.current_training_step?.step_number, 10) || 1,
+    step_title: r.current_training_step?.step_title || '',
+  },
+  timeline_health: ['On Track', 'Due Soon', 'Overdue'].includes(r.timeline_health) ? r.timeline_health : 'On Track',
+});
 
 // Mock admin data for demo
 const MOCK_ADMIN_DATA = {
@@ -447,17 +474,34 @@ const AdminDashboard = ({ token }) => {
     try {
       setLoading(true);
       setError(null);
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 15000);
       const response = await fetch(
         `${CONFIG.n8nBaseUrl}${CONFIG.webhooks.getData}`,
-        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token }) }
+        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token }), signal: controller.signal }
       );
+      clearTimeout(timeout);
+      if (response.status >= 500) throw new Error('server_error');
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      const data = await response.json();
+      let data;
+      try { data = await response.json(); } catch { throw new Error('bad_response'); }
       if (!data.success) throw new Error(data.error || 'Failed to fetch admin data');
-      setAdminData(data);
+      if (!data.admin || !Array.isArray(data.recruits)) throw new Error('bad_response');
+      setAdminData({
+        ...data,
+        recruits: data.recruits.map(normalizeAdminRecruit),
+      });
     } catch (err) {
       console.error('Error fetching admin data:', err);
-      setError('Could not load dashboard data. Please check your link or try again.');
+      if (err.name === 'AbortError') {
+        setError('The request timed out. Please check your internet connection and try again.');
+      } else if (err.message === 'server_error') {
+        setError('The server encountered an error. Please try again in a few minutes.');
+      } else if (err.message === 'bad_response') {
+        setError('We received an unexpected response from the server. Please try again.');
+      } else {
+        setError('Could not load dashboard data. Please check your link or try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -467,16 +511,36 @@ const AdminDashboard = ({ token }) => {
     setExpandedRecruits(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
-  // --- Loading ---
+  // --- Loading (Skeleton) ---
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="relative w-12 h-12 mx-auto mb-5">
-            <div className="absolute inset-0 rounded-full border-[3px] border-slate-200" />
-            <div className="absolute inset-0 rounded-full border-[3px] border-amber-500 border-t-transparent animate-spin" />
+      <div className="min-h-screen bg-slate-50">
+        <header className="bg-white/80 border-b border-slate-200/60 h-16" />
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+          <div className="mb-8">
+            <div className="h-4 w-24 bg-slate-200 rounded animate-pulse mb-2" />
+            <div className="h-10 w-48 bg-slate-200 rounded animate-pulse" />
           </div>
-          <p className="text-slate-500 font-medium text-sm">Loading dashboard...</p>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            {[0, 1, 2, 3].map(i => (
+              <div key={i} className="bg-white rounded-2xl border border-slate-200/80 p-5 h-32 animate-pulse">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 bg-slate-100 rounded-lg" />
+                  <div className="h-3 w-20 bg-slate-100 rounded" />
+                </div>
+                <div className="h-8 w-12 bg-slate-100 rounded" />
+              </div>
+            ))}
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
+            <div className="bg-white rounded-2xl border border-slate-200/80 p-6 h-64 animate-pulse" />
+            <div className="bg-white rounded-2xl border border-slate-200/80 p-6 h-64 animate-pulse" />
+          </div>
+          <div className="bg-white rounded-2xl border border-slate-200/80 p-5 space-y-3">
+            {[0, 1, 2, 3].map(i => (
+              <div key={i} className="h-16 bg-slate-50 rounded-xl animate-pulse" />
+            ))}
+          </div>
         </div>
       </div>
     );

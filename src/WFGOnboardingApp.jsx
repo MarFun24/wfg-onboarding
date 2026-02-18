@@ -9,12 +9,33 @@ import AdminDashboard from './AdminDashboard.jsx';
 
 // Configuration
 const CONFIG = {
-  n8nBaseUrl: 'https://mfunston.app.n8n.cloud',
+  n8nBaseUrl: import.meta.env.VITE_N8N_BASE_URL || 'https://mfunston.app.n8n.cloud',
   webhooks: {
     getData: '/webhook/wfg-app-get-recruit-data',
     updateStep: '/webhook/wfg-app-step-update'
   }
 };
+
+// Normalize step data from API to handle GHL field name mismatches and type coercion
+const normalizeStep = (step) => ({
+  ...step,
+  description: step.description || step.step_description || '',
+  step_number: typeof step.step_number === 'number' ? step.step_number : parseInt(step.step_number, 10) || 0,
+  is_completed: step.is_completed === true || step.is_completed === 'true',
+  instructions: Array.isArray(step.instructions)
+    ? step.instructions
+    : typeof step.instructions === 'string'
+      ? (() => { try { const parsed = JSON.parse(step.instructions); return Array.isArray(parsed) ? parsed : [step.instructions]; } catch { return step.instructions.split('\n').filter(i => i.trim()); } })()
+      : [],
+  status: ['Completed', 'On Track', 'Due Soon', 'Overdue'].includes(step.status) ? step.status : 'On Track',
+});
+
+// Normalize the full recruit API response
+const normalizeRecruitResponse = (data) => ({
+  ...data,
+  licensing_steps: (data.licensing_steps || []).map(normalizeStep),
+  training_steps: (data.training_steps || []).map(normalizeStep),
+});
 
 // Mock data for demo/fallback
 const MOCK_DATA = {
@@ -343,17 +364,31 @@ const WFGOnboardingApp = ({ token, isAdmin }) => {
     try {
       setLoading(true);
       setError(null);
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 15000);
       const response = await fetch(
         `${CONFIG.n8nBaseUrl}${CONFIG.webhooks.getData}`,
-        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token }) }
+        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token }), signal: controller.signal }
       );
+      clearTimeout(timeout);
+      if (response.status >= 500) throw new Error('server_error');
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      const data = await response.json();
+      let data;
+      try { data = await response.json(); } catch { throw new Error('bad_response'); }
       if (!data.success) throw new Error(data.error || 'Failed to fetch recruit data');
-      setRecruitData(data);
+      if (!data.recruit || !data.licensing_steps) throw new Error('bad_response');
+      setRecruitData(normalizeRecruitResponse(data));
     } catch (err) {
       console.error('Error fetching recruit data:', err);
-      setError('We couldn\u2019t find your onboarding record. Please check your link and try again, or contact your trainer for a new one.');
+      if (err.name === 'AbortError') {
+        setError('The request timed out. Please check your internet connection and try again.');
+      } else if (err.message === 'server_error') {
+        setError('The server encountered an error. Please try again in a few minutes.');
+      } else if (err.message === 'bad_response') {
+        setError('We received an unexpected response. Please try again or contact your trainer.');
+      } else {
+        setError('We couldn\u2019t find your onboarding record. Please check your link and try again, or contact your trainer for a new one.');
+      }
     } finally {
       setLoading(false);
     }
@@ -653,16 +688,34 @@ const WFGOnboardingApp = ({ token, isAdmin }) => {
     );
   };
 
-  // --- Loading State ---
+  // --- Loading State (Skeleton) ---
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="relative w-12 h-12 mx-auto mb-5">
-            <div className="absolute inset-0 rounded-full border-[3px] border-slate-200" />
-            <div className="absolute inset-0 rounded-full border-[3px] border-blue-600 border-t-transparent animate-spin" />
+      <div className="min-h-screen bg-slate-50">
+        <header className="bg-white/80 border-b border-slate-200/60 h-16" />
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+          <div className="mb-8">
+            <div className="h-4 w-24 bg-slate-200 rounded animate-pulse mb-2" />
+            <div className="h-10 w-48 bg-slate-200 rounded animate-pulse" />
           </div>
-          <p className="text-slate-500 font-medium text-sm tracking-tight">Loading your journey...</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            {[0, 1, 2].map(i => (
+              <div key={i} className="bg-white rounded-2xl border border-slate-200/80 p-6 h-28 animate-pulse">
+                <div className="flex items-center gap-5">
+                  <div className="w-[72px] h-[72px] bg-slate-100 rounded-full" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-3 w-16 bg-slate-100 rounded" />
+                    <div className="h-6 w-12 bg-slate-100 rounded" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="bg-white rounded-2xl border border-slate-200/80 p-5 space-y-3">
+            {[0, 1, 2, 3, 4].map(i => (
+              <div key={i} className="h-14 bg-slate-50 rounded-xl animate-pulse" />
+            ))}
+          </div>
         </div>
       </div>
     );
