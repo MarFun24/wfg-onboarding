@@ -3,14 +3,15 @@ import {
   Users, TrendingUp, Clock, ChevronDown, ChevronUp,
   GraduationCap, Target, Shield, Mail, MessageCircle,
   Phone, MapPin, Search, Calendar, Activity, AlertTriangle,
-  CheckCircle2, BarChart3, ArrowUpRight
+  CheckCircle2, BarChart3, ArrowUpRight, UserPlus, X, Copy, Loader2
 } from 'lucide-react';
 
 // Configuration
 const CONFIG = {
   n8nBaseUrl: import.meta.env.VITE_N8N_BASE_URL || 'https://mfunston.app.n8n.cloud',
   webhooks: {
-    getData: '/webhook/wfg-app-get-recruit-data'
+    getData: '/webhook/wfg-app-get-recruit-data',
+    createRecruit: '/webhook/wfg-recruit-created'
   }
 };
 
@@ -366,6 +367,223 @@ const RecruitRow = ({ recruit, isExpanded, onToggle }) => {
   );
 };
 
+// --- US States + Canadian Provinces for dropdown ---
+const REGIONS = {
+  'United States': [
+    'Alabama','Alaska','Arizona','Arkansas','California','Colorado','Connecticut','Delaware','Florida','Georgia',
+    'Hawaii','Idaho','Illinois','Indiana','Iowa','Kansas','Kentucky','Louisiana','Maine','Maryland',
+    'Massachusetts','Michigan','Minnesota','Mississippi','Missouri','Montana','Nebraska','Nevada','New Hampshire','New Jersey',
+    'New Mexico','New York','North Carolina','North Dakota','Ohio','Oklahoma','Oregon','Pennsylvania','Rhode Island','South Carolina',
+    'South Dakota','Tennessee','Texas','Utah','Vermont','Virginia','Washington','West Virginia','Wisconsin','Wyoming'
+  ],
+  'Canada': [
+    'Alberta','British Columbia','Manitoba','New Brunswick','Newfoundland and Labrador','Nova Scotia',
+    'Ontario','Prince Edward Island','Quebec','Saskatchewan','Northwest Territories','Nunavut','Yukon'
+  ]
+};
+
+// --- Add Recruit Modal ---
+const AddRecruitModal = ({ isOpen, onClose, onSuccess, admin }) => {
+  const [form, setForm] = useState({
+    full_name: '',
+    email: '',
+    phone: '',
+    country: 'United States',
+    state_province: '',
+    start_date: new Date().toISOString().split('T')[0],
+    recruiter_name: admin?.name || '',
+    upline_office: admin?.office || '',
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const [result, setResult] = useState(null); // { success, token, error }
+
+  const handleChange = (field, value) => {
+    setForm(prev => {
+      const updated = { ...prev, [field]: value };
+      if (field === 'country') updated.state_province = '';
+      return updated;
+    });
+  };
+
+  const isValid = form.full_name.trim() && form.email.trim() && form.country && form.state_province && form.start_date;
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!isValid || submitting) return;
+    setSubmitting(true);
+    setResult(null);
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 20000);
+      const response = await fetch(
+        `${CONFIG.n8nBaseUrl}${CONFIG.webhooks.createRecruit}`,
+        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form), signal: controller.signal }
+      );
+      clearTimeout(timeout);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      if (data.success && data.token) {
+        const link = `${window.location.origin}${window.location.pathname}?token=${data.token}`;
+        setResult({ success: true, token: data.token, link });
+      } else if (data.success) {
+        setResult({ success: true, token: null, link: null });
+      } else {
+        throw new Error(data.error || 'Failed to create recruit');
+      }
+    } catch (err) {
+      console.error('Error creating recruit:', err);
+      setResult({ success: false, error: err.name === 'AbortError' ? 'Request timed out. Please try again.' : (err.message || 'Something went wrong.') });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleCopyLink = () => {
+    if (result?.link) {
+      navigator.clipboard.writeText(result.link);
+    }
+  };
+
+  const handleDone = () => {
+    onSuccess();
+    onClose();
+  };
+
+  if (!isOpen) return null;
+
+  const regions = REGIONS[form.country] || [];
+  const inputClass = "w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 transition-colors";
+  const labelClass = "block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5";
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={!submitting ? onClose : undefined} />
+      <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-blue-50 rounded-xl flex items-center justify-center">
+              <UserPlus className="w-4.5 h-4.5 text-blue-600" />
+            </div>
+            <h3 className="text-lg font-bold text-slate-900">Add New Recruit</h3>
+          </div>
+          <button onClick={onClose} disabled={submitting} className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center transition-colors">
+            <X className="w-4 h-4 text-slate-400" />
+          </button>
+        </div>
+
+        {/* Success State */}
+        {result?.success ? (
+          <div className="px-6 py-8 text-center">
+            <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <CheckCircle2 className="w-7 h-7 text-emerald-500" />
+            </div>
+            <h4 className="text-lg font-bold text-slate-900 mb-1">Recruit Created</h4>
+            <p className="text-sm text-slate-500 mb-5">{form.full_name} has been added to the system.</p>
+            {result.link ? (
+              <div className="mb-6">
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Onboarding Link</p>
+                <div className="flex items-center gap-2 bg-slate-50 rounded-xl p-3 border border-slate-200">
+                  <code className="flex-1 text-xs text-slate-600 truncate">{result.link}</code>
+                  <button onClick={handleCopyLink} className="flex-shrink-0 w-8 h-8 bg-white rounded-lg border border-slate-200 hover:bg-slate-50 flex items-center justify-center transition-colors" title="Copy link">
+                    <Copy className="w-3.5 h-3.5 text-slate-500" />
+                  </button>
+                </div>
+                <p className="text-[11px] text-slate-400 mt-2">Send this link to the recruit to access their onboarding tracker.</p>
+              </div>
+            ) : (
+              <p className="text-sm text-slate-400 mb-6">The n8n workflow will generate and email their onboarding link.</p>
+            )}
+            <button onClick={handleDone} className="px-5 py-2.5 bg-slate-900 text-white text-sm font-semibold rounded-xl hover:bg-slate-800 transition-colors">
+              Done
+            </button>
+          </div>
+        ) : (
+          /* Form */
+          <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
+            {/* Error banner */}
+            {result?.error && (
+              <div className="flex items-center gap-2 px-4 py-3 bg-red-50 border border-red-100 rounded-xl text-sm text-red-700">
+                <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+                {result.error}
+              </div>
+            )}
+
+            {/* Name */}
+            <div>
+              <label className={labelClass}>Full Name *</label>
+              <input type="text" value={form.full_name} onChange={(e) => handleChange('full_name', e.target.value)} placeholder="e.g. Maria Santos" className={inputClass} required />
+            </div>
+
+            {/* Email + Phone */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className={labelClass}>Email *</label>
+                <input type="email" value={form.email} onChange={(e) => handleChange('email', e.target.value)} placeholder="maria@email.com" className={inputClass} required />
+              </div>
+              <div>
+                <label className={labelClass}>Phone</label>
+                <input type="tel" value={form.phone} onChange={(e) => handleChange('phone', e.target.value)} placeholder="(555) 123-4567" className={inputClass} />
+              </div>
+            </div>
+
+            {/* Country + State */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className={labelClass}>Country *</label>
+                <select value={form.country} onChange={(e) => handleChange('country', e.target.value)} className={inputClass}>
+                  <option value="United States">United States</option>
+                  <option value="Canada">Canada</option>
+                </select>
+              </div>
+              <div>
+                <label className={labelClass}>{form.country === 'Canada' ? 'Province' : 'State'} *</label>
+                <select value={form.state_province} onChange={(e) => handleChange('state_province', e.target.value)} className={inputClass} required>
+                  <option value="">Select...</option>
+                  {regions.map(r => <option key={r} value={r}>{r}</option>)}
+                </select>
+              </div>
+            </div>
+
+            {/* Start Date */}
+            <div>
+              <label className={labelClass}>Start Date *</label>
+              <input type="date" value={form.start_date} onChange={(e) => handleChange('start_date', e.target.value)} className={inputClass} required />
+            </div>
+
+            {/* Pre-filled fields (read-only context) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className={labelClass}>Recruiter</label>
+                <input type="text" value={form.recruiter_name} onChange={(e) => handleChange('recruiter_name', e.target.value)} className={inputClass} />
+              </div>
+              <div>
+                <label className={labelClass}>Office</label>
+                <input type="text" value={form.upline_office} onChange={(e) => handleChange('upline_office', e.target.value)} className={inputClass} />
+              </div>
+            </div>
+
+            {/* Submit */}
+            <div className="pt-2">
+              <button
+                type="submit"
+                disabled={!isValid || submitting}
+                className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-slate-900 text-white text-sm font-semibold rounded-xl hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {submitting ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Creating Recruit...</>
+                ) : (
+                  <><UserPlus className="w-4 h-4" /> Add Recruit</>
+                )}
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+    </div>
+  );
+};
+
 // ===== MAIN ADMIN DASHBOARD COMPONENT =====
 const AdminDashboard = ({ token }) => {
   const [adminData, setAdminData] = useState(null);
@@ -375,6 +593,7 @@ const AdminDashboard = ({ token }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterHealth, setFilterHealth] = useState('all');
   const [sortBy, setSortBy] = useState('name');
+  const [showAddRecruit, setShowAddRecruit] = useState(false);
 
   useEffect(() => { fetchAdminData(); }, []);
 
@@ -554,10 +773,19 @@ const AdminDashboard = ({ token }) => {
                 {admin.name.split(' ')[0]}
               </h2>
             </div>
-            <span className="inline-flex items-center gap-1.5 text-xs font-bold rounded-full px-3 py-1.5 bg-amber-50 text-amber-700 ring-1 ring-amber-500/20">
-              <Shield className="w-3.5 h-3.5" />
-              {admin.role}
-            </span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowAddRecruit(true)}
+                className="inline-flex items-center gap-1.5 text-xs font-bold rounded-full px-3 py-1.5 bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-sm shadow-blue-500/25"
+              >
+                <UserPlus className="w-3.5 h-3.5" />
+                Add Recruit
+              </button>
+              <span className="inline-flex items-center gap-1.5 text-xs font-bold rounded-full px-3 py-1.5 bg-amber-50 text-amber-700 ring-1 ring-amber-500/20">
+                <Shield className="w-3.5 h-3.5" />
+                {admin.role}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -745,6 +973,13 @@ const AdminDashboard = ({ token }) => {
           </div>
         </div>
       </main>
+
+      <AddRecruitModal
+        isOpen={showAddRecruit}
+        onClose={() => setShowAddRecruit(false)}
+        onSuccess={() => fetchAdminData()}
+        admin={admin}
+      />
     </div>
   );
 };
