@@ -37,330 +37,19 @@ const normalizeRecruitResponse = (data) => ({
   training_steps: (data.training_steps || []).map(normalizeStep),
 });
 
-// Mock data for demo/fallback
-const MOCK_DATA = {
-  success: true,
-  recruit: {
-    id: "demo_recruit_001",
-    full_name: "Jorge Maldonado",
-    email: "jorge.maldonado@wfg.com",
-    phone: "(555) 789-4321",
-    country: "United States",
-    state_province: "Texas",
-    start_date: "2024-01-15",
-    recruit_stage: "Active Onboarding",
-    timeline_health: "On Track",
-    licensing_status: "In Progress",
-    training_status: "In Progress",
-    recruiter_name: "Jorge Maldonado",
-    upline_office: "Houston Office"
-  },
-  progress: {
-    licensing: {
-      total: 12,
-      completed: 5,
-      percentage: 42,
-      status_breakdown: { completed: 5, overdue: 0, due_soon: 2, on_track: 5 }
-    },
-    training: {
-      total: 8,
-      completed: 2,
-      percentage: 25,
-      status_breakdown: { completed: 2, overdue: 0, due_soon: 2, on_track: 4 }
-    }
-  },
-  licensing_steps: [
-    {
-      id: "lic_1", step_number: 1,
-      step_title: "Sign Your Membership Agreement",
-      description: "Do the Associate Membership Agreement",
-      status: "Completed", is_completed: true,
-      deadline_date: "2024-01-16", completed_date: "2024-01-15",
-      timeline_guidance: "5 mins",
-      instructions: ["Type in your personal information"],
-      resources: "Your trainer and your ID - www.wfglaunch.com"
-    },
-    {
-      id: "lic_2", step_number: 2,
-      step_title: "Pay Your Membership Fees",
-      description: "Pay for your Associate Membership Agreement",
-      status: "Completed", is_completed: true,
-      deadline_date: "2024-01-16", completed_date: "2024-01-15",
-      timeline_guidance: "1 min",
-      instructions: ["Use your credit card to pay"],
-      resources: "Your trainer and your credit card"
-    },
-    {
-      id: "lic_3", step_number: 3,
-      step_title: "Register for Your Online Course",
-      description: "Sign up for the Life & Health pre-licensing course",
-      status: "Completed", is_completed: true,
-      deadline_date: "2024-01-18", completed_date: "2024-01-17",
-      timeline_guidance: "5 mins",
-      instructions: [
-        "Go to your WFG Launch webpage",
-        "Go to licensing",
-        "Pick your licensing provider",
-        "Sign up and pay for the course"
-      ],
-      resources: "Your trainer and your credit card - wfglaunch.com"
-    },
-    {
-      id: "lic_4", step_number: 4,
-      step_title: "Complete Your Pre-Licensing Course",
-      description: "Study and pass the pre-licensing course",
-      status: "Completed", is_completed: true,
-      deadline_date: "2024-01-25", completed_date: "2024-01-24",
-      timeline_guidance: "7 days",
-      instructions: ["Study and learn the material"],
-      resources: "The training course material"
-    },
-    {
-      id: "lic_5", step_number: 5,
-      step_title: "Book Your State Exam",
-      description: "Book a time to write the exam",
-      status: "Completed", is_completed: true,
-      deadline_date: "2024-01-26", completed_date: "2024-01-25",
-      timeline_guidance: "10 mins",
-      instructions: [
-        "Create an account at pearsonvue.com/tx/insurance",
-        "On the right side, click Create an account",
-        "Fill in your information and submit",
-        "Register for a test and schedule your examination",
-        "Pick exam: General Lines Life, Accident & Health: INS-TX-LAH05"
-      ],
-      resources: "Your ID and credit card - pearsonvue.com/tx/insurance"
-    },
-    {
-      id: "lic_6", step_number: 6,
-      step_title: "Complete Your State Exam",
-      description: "Write your state exam",
-      status: "Due Soon", is_completed: false,
-      deadline_date: "2024-02-10",
-      timeline_guidance: "Exam 2HRS: 150 Questions, Min. Score: 70%",
-      instructions: [
-        "Go to test centre and write exam",
-        "Bring your ID"
-      ],
-      resources: "Refer to your confirmation email for test centre location"
-    },
-    {
-      id: "lic_7", step_number: 7,
-      step_title: "Complete Your Fingerprints",
-      description: "Do your state fingerprint check",
-      status: "Due Soon", is_completed: false,
-      deadline_date: "2024-02-15",
-      timeline_guidance: "10 mins",
-      instructions: ["Go to fingerprint centre and have your fingerprints taken"],
-      resources: "https://www.identogo.com/locations/texas"
-    },
-    {
-      id: "lic_8", step_number: 8,
-      step_title: "Create Account With Sircon",
-      description: "Create account with Sircon to apply for license",
-      status: "On Track", is_completed: false,
-      deadline_date: "2024-02-16",
-      timeline_guidance: "10 mins",
-      instructions: ["Create username and password"],
-      resources: "sircon.com"
-    },
-    {
-      id: "lic_9", step_number: 9,
-      step_title: "Apply For Your State License",
-      description: "Apply to get license",
-      status: "On Track", is_completed: false,
-      deadline_date: "2024-02-17",
-      timeline_guidance: "30 mins",
-      instructions: [
-        "Go to Sircon.com \u2192 New Insurance \u2192 Resident \u2192 Individual",
-        "Enter your email \u2192 enter your last name \u2192 SSN \u2192 preparer then click applicant",
-        "Select Texas \u2192 payment method",
-        "License type \u2192 Insurance Producer \u2192 Life, Accident & Health",
-        "Continue to answer the questions",
-        "Pay the application fee"
-      ],
-      resources: "sircon.com"
-    },
-    {
-      id: "lic_10", step_number: 10,
-      step_title: "Sign Your WFG Agent Agreement",
-      description: "Complete the official WFG Agent Agreement",
-      status: "On Track", is_completed: false,
-      deadline_date: "2024-02-20",
-      timeline_guidance: "10 mins",
-      instructions: [
-        "Go to wfglaunch.com \u2192 Click LICENSING (BLUE COLUMN)",
-        "View process \u2192 start licensing process \u2192 view WFG Agreement",
-        "Start Application process \u2192 ok",
-        "Enter state life license number \u2192 verify",
-        "Docusign Pay fee $40",
-        "Wait for SMD approval and background check"
-      ],
-      resources: "Your trainer - wfglaunch.com"
-    },
-    {
-      id: "lic_11", step_number: 11,
-      step_title: "Complete Your Anti-Money Laundering and Long Term Care Test",
-      description: "Do the AML and LTC tests",
-      status: "On Track", is_completed: false,
-      deadline_date: "2024-02-25",
-      timeline_guidance: "10 hours",
-      instructions: [
-        "Go to mywfg.com",
-        "Click Menu",
-        "Go to Licensing & Appointments",
-        "Select Licensing, then Continuing Education",
-        "Pick your provider"
-      ],
-      resources: "mywfg.com"
-    },
-    {
-      id: "lic_12", step_number: 12,
-      step_title: "Get Appointed By Carriers",
-      description: "Be appointed by carriers to sell their products",
-      status: "On Track", is_completed: false,
-      deadline_date: "2024-03-01",
-      timeline_guidance: "20 mins",
-      instructions: [
-        "Log into www.mywfg.com",
-        "Click on Menu \u2192 Licensing & Appointments \u2192 Appointments",
-        "Carrier Appointments \u2192 Life & Disability \u2192 Non-NY life",
-        "Select the specific carrier you want to be appointed"
-      ],
-      resources: "www.mywfg.com"
-    }
-  ],
-  training_steps: [
-    {
-      id: "train_1", step_number: 1,
-      step_title: "Meet Spouse/Influential Person",
-      description: "In home meeting, campaign introduction",
-      status: "Completed", is_completed: true,
-      deadline_date: "2024-01-16", completed_date: "2024-01-16",
-      timeline_guidance: "24-48 hours",
-      instructions: [
-        "Learn how to introduce your trainer",
-        "Learn how to tell your story",
-        "Take notes on how to do the campaign introduction"
-      ],
-      resources: "Campaign introduction, notebook, uniform, survey card"
-    },
-    {
-      id: "train_2", step_number: 2,
-      step_title: "Get Your Startup Kit",
-      description: "Go through all materials in the startup kit",
-      status: "Completed", is_completed: true,
-      deadline_date: "2024-01-18", completed_date: "2024-01-17",
-      timeline_guidance: "1 day",
-      instructions: [
-        "Trainer to go through and explain all the materials",
-        "Read Moment of Truth",
-        "Read Saving Your Future book",
-        "Read first 100 pages of the System Builder"
-      ],
-      resources: "Your trainer, startup kit"
-    },
-    {
-      id: "train_3", step_number: 3,
-      step_title: "Start Your Licensing Path",
-      description: "Start pre-licensing",
-      status: "Due Soon", is_completed: false,
-      deadline_date: "2024-01-30",
-      timeline_guidance: "Set up in first meeting, licensing 30 days",
-      instructions: [
-        "Start the pre-licensing journey",
-        "Set up a gmail account (e.g. firstnamelastinitiawfg@gmail.com)",
-        "Set up WSB account with new gmail address"
-      ],
-      resources: "Pre-licensing material, worldsystembuilder.com, gmail.com"
-    },
-    {
-      id: "train_4", step_number: 4,
-      step_title: "Complete Your PFS",
-      description: "Go through your own personal financial strategy",
-      status: "Due Soon", is_completed: false,
-      deadline_date: "2024-02-05",
-      timeline_guidance: "24-48 hours",
-      instructions: [
-        "Meeting with your trainer",
-        "Go through client appointment 1, 2 and 3"
-      ],
-      resources: "Your trainer, PFS sheet, blue flip chart, accounts in Canada/3 circle 3 box (USA), Saving Your Future book, diversification and DCA"
-    },
-    {
-      id: "train_5", step_number: 5,
-      step_title: "Attend All Workshops and BPM",
-      description: "Attend all 6 workshops",
-      status: "On Track", is_completed: false,
-      deadline_date: "2024-02-15",
-      timeline_guidance: "30 days",
-      instructions: [
-        "Attend BPM on Tuesday/Wednesday nights and Saturday mornings",
-        "Attend Webinar Tuesday morning",
-        "Attend workshops throughout the week"
-      ],
-      resources: "Your trainer, worldsystembuilder.com/workshop, worldsystembuilder.com/meetings"
-    },
-    {
-      id: "train_6", step_number: 6,
-      step_title: "Complete Your Trainer Guidebook and Your Share List",
-      description: "Go through top 5 reasons, vision & mission, daily activities and actions",
-      status: "On Track", is_completed: false,
-      deadline_date: "2024-02-20",
-      timeline_guidance: "30 days",
-      instructions: ["Work with your trainer to build a share list"],
-      resources: "Trainer Guidebook, your trainer, trainer manual"
-    },
-    {
-      id: "train_7", step_number: 7,
-      step_title: "Complete Your Field Training",
-      description: "Go out to the field and book appointments",
-      status: "On Track", is_completed: false,
-      deadline_date: "2024-03-01",
-      timeline_guidance: "30 days",
-      instructions: [
-        "Go through share list with trainer",
-        "Book campaign introductions and/or client appointment 1"
-      ],
-      resources: "Trainer Guidebook, your trainer"
-    },
-    {
-      id: "train_8", step_number: 8,
-      step_title: "Complete Your GX 315",
-      description: "Complete 3 recruits and 15,000 points",
-      status: "On Track", is_completed: false,
-      deadline_date: "2024-03-15",
-      timeline_guidance: "30 days",
-      instructions: [
-        "Go through 30 contacts",
-        "Complete 10 campaign introductions/client appointments"
-      ],
-      resources: "Your trainer, trainer guidebook"
-    }
-  ]
-};
-
 const WFGOnboardingApp = ({ token, isAdmin }) => {
   if (isAdmin) return <AdminDashboard token={token} />;
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(!!token);
+  const [error, setError] = useState(!token ? 'no_token' : null);
   const [recruitData, setRecruitData] = useState(null);
   const [activeTab, setActiveTab] = useState('licensing');
   const [expandedSteps, setExpandedSteps] = useState({});
   const [processingSteps, setProcessingSteps] = useState(new Set());
   const [showCompleted, setShowCompleted] = useState(false);
 
-  // In dev/demo mode (no token), use mock data immediately
-  const isDemoMode = !token;
-
-  useEffect(() => { fetchRecruitData(); }, []);
+  useEffect(() => { if (token) fetchRecruitData(); }, []);
 
   const fetchRecruitData = async () => {
-    if (isDemoMode) {
-      setRecruitData(MOCK_DATA);
-      setLoading(false);
-      return;
-    }
     try {
       setLoading(true);
       setError(null);
@@ -723,22 +412,29 @@ const WFGOnboardingApp = ({ token, isAdmin }) => {
 
   // --- Error State ---
   if (error || !recruitData) {
+    const isNoToken = error === 'no_token';
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
         <div className="text-center max-w-sm">
           <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-5">
             <Shield className="w-7 h-7 text-slate-400" />
           </div>
-          <h2 className="text-xl font-bold text-slate-900 mb-2">Link not recognized</h2>
+          <h2 className="text-xl font-bold text-slate-900 mb-2">
+            {isNoToken ? 'Welcome to WFG Onboarding' : 'Link not recognized'}
+          </h2>
           <p className="text-sm text-slate-500 leading-relaxed mb-6">
-            {error || 'Something went wrong loading your data.'}
+            {isNoToken
+              ? 'To view your onboarding progress, please use the personalized link your trainer sent you.'
+              : (error || 'Something went wrong loading your data.')}
           </p>
-          <button
-            onClick={() => { setError(null); fetchRecruitData(); }}
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-white text-sm font-semibold rounded-xl hover:bg-slate-800 transition-colors"
-          >
-            Try again
-          </button>
+          {!isNoToken && (
+            <button
+              onClick={() => { setError(null); fetchRecruitData(); }}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-white text-sm font-semibold rounded-xl hover:bg-slate-800 transition-colors"
+            >
+              Try again
+            </button>
+          )}
         </div>
       </div>
     );

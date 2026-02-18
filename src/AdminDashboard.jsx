@@ -40,91 +40,6 @@ const normalizeAdminRecruit = (r) => ({
   },
   timeline_health: ['On Track', 'Due Soon', 'Overdue'].includes(r.timeline_health) ? r.timeline_health : 'On Track',
 });
-
-// Mock admin data for demo
-const MOCK_ADMIN_DATA = {
-  success: true,
-  admin: {
-    name: "Jorge Maldonado",
-    role: "Administrator",
-    office: "Houston Office"
-  },
-  recruits: [
-    {
-      id: "rec_001", full_name: "Maria Santos", email: "maria.santos@email.com", phone: "(555) 123-4567",
-      state_province: "Texas", start_date: "2024-01-10", timeline_health: "On Track",
-      licensing_progress: { total: 12, completed: 9, percentage: 75 },
-      training_progress: { total: 8, completed: 6, percentage: 75 },
-      current_licensing_step: { step_number: 10, step_title: "Sign Your WFG Agent Agreement" },
-      current_training_step: { step_number: 7, step_title: "Complete Your Field Training" },
-      days_since_start: 33, last_activity: "2 hours ago"
-    },
-    {
-      id: "rec_002", full_name: "David Chen", email: "david.chen@email.com", phone: "(555) 234-5678",
-      state_province: "California", start_date: "2024-01-15", timeline_health: "On Track",
-      licensing_progress: { total: 12, completed: 7, percentage: 58 },
-      training_progress: { total: 8, completed: 5, percentage: 63 },
-      current_licensing_step: { step_number: 8, step_title: "Create Account With Sircon" },
-      current_training_step: { step_number: 6, step_title: "Complete Your Trainer Guidebook" },
-      days_since_start: 28, last_activity: "1 day ago"
-    },
-    {
-      id: "rec_003", full_name: "Ashley Williams", email: "ashley.w@email.com", phone: "(555) 345-6789",
-      state_province: "Florida", start_date: "2024-01-05", timeline_health: "Due Soon",
-      licensing_progress: { total: 12, completed: 5, percentage: 42 },
-      training_progress: { total: 8, completed: 3, percentage: 38 },
-      current_licensing_step: { step_number: 6, step_title: "Complete Your State Exam" },
-      current_training_step: { step_number: 4, step_title: "Complete Your PFS" },
-      days_since_start: 38, last_activity: "3 days ago"
-    },
-    {
-      id: "rec_004", full_name: "Marcus Johnson", email: "m.johnson@email.com", phone: "(555) 456-7890",
-      state_province: "Texas", start_date: "2023-12-20", timeline_health: "Overdue",
-      licensing_progress: { total: 12, completed: 4, percentage: 33 },
-      training_progress: { total: 8, completed: 2, percentage: 25 },
-      current_licensing_step: { step_number: 5, step_title: "Book Your State Exam" },
-      current_training_step: { step_number: 3, step_title: "Start Your Licensing Path" },
-      days_since_start: 54, last_activity: "5 days ago"
-    },
-    {
-      id: "rec_005", full_name: "Priya Patel", email: "priya.patel@email.com", phone: "(555) 567-8901",
-      state_province: "New York", start_date: "2024-01-20", timeline_health: "On Track",
-      licensing_progress: { total: 12, completed: 6, percentage: 50 },
-      training_progress: { total: 8, completed: 4, percentage: 50 },
-      current_licensing_step: { step_number: 7, step_title: "Complete Your Fingerprints" },
-      current_training_step: { step_number: 5, step_title: "Attend All Workshops and BPM" },
-      days_since_start: 23, last_activity: "6 hours ago"
-    },
-    {
-      id: "rec_006", full_name: "James Rivera", email: "j.rivera@email.com", phone: "(555) 678-9012",
-      state_province: "Arizona", start_date: "2024-02-01", timeline_health: "On Track",
-      licensing_progress: { total: 12, completed: 3, percentage: 25 },
-      training_progress: { total: 8, completed: 2, percentage: 25 },
-      current_licensing_step: { step_number: 4, step_title: "Complete Your Pre-Licensing Course" },
-      current_training_step: { step_number: 3, step_title: "Start Your Licensing Path" },
-      days_since_start: 11, last_activity: "Today"
-    },
-    {
-      id: "rec_007", full_name: "Sarah Kim", email: "sarah.kim@email.com", phone: "(555) 789-0123",
-      state_province: "Washington", start_date: "2024-01-08", timeline_health: "Due Soon",
-      licensing_progress: { total: 12, completed: 6, percentage: 50 },
-      training_progress: { total: 8, completed: 2, percentage: 25 },
-      current_licensing_step: { step_number: 7, step_title: "Complete Your Fingerprints" },
-      current_training_step: { step_number: 3, step_title: "Start Your Licensing Path" },
-      days_since_start: 35, last_activity: "2 days ago"
-    },
-    {
-      id: "rec_008", full_name: "Carlos Mendez", email: "carlos.m@email.com", phone: "(555) 890-1234",
-      state_province: "Texas", start_date: "2023-12-28", timeline_health: "On Track",
-      licensing_progress: { total: 12, completed: 11, percentage: 92 },
-      training_progress: { total: 8, completed: 7, percentage: 88 },
-      current_licensing_step: { step_number: 12, step_title: "Get Appointed By Carriers" },
-      current_training_step: { step_number: 8, step_title: "Complete Your GX 315" },
-      days_since_start: 46, last_activity: "1 hour ago"
-    }
-  ]
-};
-
 // --- Reusable Sub-components ---
 
 const ProgressRing = ({ percentage, size = 80, strokeWidth = 6, color = '#3b82f6' }) => {
@@ -461,16 +376,9 @@ const AdminDashboard = ({ token }) => {
   const [filterHealth, setFilterHealth] = useState('all');
   const [sortBy, setSortBy] = useState('name');
 
-  const isDemoMode = token === 'admin_demo';
-
   useEffect(() => { fetchAdminData(); }, []);
 
   const fetchAdminData = async () => {
-    if (isDemoMode) {
-      setAdminData(MOCK_ADMIN_DATA);
-      setLoading(false);
-      return;
-    }
     try {
       setLoading(true);
       setError(null);
