@@ -51,8 +51,8 @@ const normalizeAdminRecruit = (r) => {
   const currentTrainingStep = trainingSteps.find(s => !s.is_completed) || trainingSteps[trainingSteps.length - 1];
 
   // Compute days since start
-  const startDate = new Date(r.start_date);
-  const daysSinceStart = Math.floor((new Date() - startDate) / (1000 * 60 * 60 * 24));
+  const startDate = r.start_date ? new Date(r.start_date) : new Date();
+  const daysSinceStart = isNaN(startDate.getTime()) ? 0 : Math.floor((new Date() - startDate) / (1000 * 60 * 60 * 24));
 
   // Use API-provided progress if available (transition period), otherwise compute locally
   const hasApiProgress = r.licensing_progress && r.licensing_progress.total > 0;
