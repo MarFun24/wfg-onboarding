@@ -5,6 +5,7 @@ import {
   Phone, MapPin, Search, Calendar, Activity, AlertTriangle,
   CheckCircle2, BarChart3, ArrowUpRight, UserPlus, X, Copy, Loader2
 } from 'lucide-react';
+import { getLicensingSteps, getTrainingSteps, mergeStepsWithCompletion } from './stepDefinitions';
 
 // Configuration
 const CONFIG = {
@@ -15,32 +16,74 @@ const CONFIG = {
   }
 };
 
-// Normalize admin recruit data to handle GHL field mismatches and type coercion
-const normalizeAdminRecruit = (r) => ({
-  ...r,
-  days_since_start: typeof r.days_since_start === 'number' ? r.days_since_start : parseInt(r.days_since_start, 10) || 0,
-  licensing_progress: {
-    ...r.licensing_progress,
-    total: parseInt(r.licensing_progress?.total, 10) || 12,
-    completed: parseInt(r.licensing_progress?.completed, 10) || 0,
-    percentage: parseInt(r.licensing_progress?.percentage, 10) || 0,
-  },
-  training_progress: {
-    ...r.training_progress,
-    total: parseInt(r.training_progress?.total, 10) || 8,
-    completed: parseInt(r.training_progress?.completed, 10) || 0,
-    percentage: parseInt(r.training_progress?.percentage, 10) || 0,
-  },
-  current_licensing_step: {
-    step_number: parseInt(r.current_licensing_step?.step_number, 10) || 1,
-    step_title: r.current_licensing_step?.step_title || '',
-  },
-  current_training_step: {
-    step_number: parseInt(r.current_training_step?.step_number, 10) || 1,
-    step_title: r.current_training_step?.step_title || '',
-  },
-  timeline_health: ['On Track', 'Due Soon', 'Overdue'].includes(r.timeline_health) ? r.timeline_health : 'On Track',
-});
+// Normalize admin recruit data, computing progress from local step definitions
+const normalizeAdminRecruit = (r) => {
+  // Default country to 'canada' if missing (WFG is Vancouver-based)
+  const country = r.country || 'canada';
+
+  // Parse completion arrays from recruit record
+  let completedLicensing = {};
+  let completedTraining = {};
+  try {
+    const lcArr = JSON.parse(r.completed_licensing_steps || '[]');
+    lcArr.forEach(id => { completedLicensing[id] = { is_completed: true }; });
+  } catch(e) {}
+  try {
+    const trArr = JSON.parse(r.completed_training_steps || '[]');
+    trArr.forEach(id => { completedTraining[id] = { is_completed: true }; });
+  } catch(e) {}
+
+  // Get step definitions and merge with completion data
+  const licensingSteps = mergeStepsWithCompletion(
+    getLicensingSteps(country, r.start_date),
+    completedLicensing
+  );
+  const trainingSteps = mergeStepsWithCompletion(
+    getTrainingSteps(r.start_date),
+    completedTraining
+  );
+
+  const licensingCompleted = licensingSteps.filter(s => s.is_completed).length;
+  const trainingCompleted = trainingSteps.filter(s => s.is_completed).length;
+
+  // Find first incomplete step in each pathway
+  const currentLicensingStep = licensingSteps.find(s => !s.is_completed) || licensingSteps[licensingSteps.length - 1];
+  const currentTrainingStep = trainingSteps.find(s => !s.is_completed) || trainingSteps[trainingSteps.length - 1];
+
+  // Compute days since start
+  const startDate = new Date(r.start_date);
+  const daysSinceStart = Math.floor((new Date() - startDate) / (1000 * 60 * 60 * 24));
+
+  // Use API-provided progress if available (transition period), otherwise compute locally
+  const hasApiProgress = r.licensing_progress && r.licensing_progress.total > 0;
+
+  return {
+    ...r,
+    country,
+    days_since_start: hasApiProgress
+      ? (typeof r.days_since_start === 'number' ? r.days_since_start : parseInt(r.days_since_start, 10) || daysSinceStart)
+      : daysSinceStart,
+    licensing_progress: {
+      total: licensingSteps.length,
+      completed: licensingCompleted,
+      percentage: licensingSteps.length > 0 ? Math.round((licensingCompleted / licensingSteps.length) * 100) : 0,
+    },
+    training_progress: {
+      total: trainingSteps.length,
+      completed: trainingCompleted,
+      percentage: trainingSteps.length > 0 ? Math.round((trainingCompleted / trainingSteps.length) * 100) : 0,
+    },
+    current_licensing_step: {
+      step_number: currentLicensingStep?.step_number || 1,
+      step_title: currentLicensingStep?.step_title || '',
+    },
+    current_training_step: {
+      step_number: currentTrainingStep?.step_number || 1,
+      step_title: currentTrainingStep?.step_title || '',
+    },
+    timeline_health: ['On Track', 'Due Soon', 'Overdue'].includes(r.timeline_health) ? r.timeline_health : 'On Track',
+  };
+};
 // --- Reusable Sub-components ---
 
 const ProgressRing = ({ percentage, size = 80, strokeWidth = 6, color = '#3b82f6' }) => {
@@ -78,15 +121,17 @@ const cleanPhone = (phone) => phone.replace(/\D/g, '');
 
 // --- Pipeline Chart: which licensing step are recruits on ---
 const PipelineChart = ({ recruits }) => {
-  const steps = Array.from({ length: 12 }, (_, i) => {
+  // Use max step count across all recruits (12 for US, 13 for Canada)
+  const maxStepNum = Math.max(...recruits.map(r => r.licensing_progress.total), 12);
+  const steps = Array.from({ length: maxStepNum }, (_, i) => {
     const stepNum = i + 1;
     const count = recruits.filter(r => r.current_licensing_step.step_number === stepNum).length;
     return { stepNum, count };
   });
   const maxCount = Math.max(...steps.map(s => s.count), 1);
   const stepLabels = [
-    'Membership', 'Pay Fees', 'Register Course', 'Pre-Licensing', 'Book Exam', 'State Exam',
-    'Fingerprints', 'Sircon', 'Apply License', 'WFG Agreement', 'AML/LTC', 'Carriers'
+    'Membership', 'Pay Fees', 'Register Course', 'Pre-Licensing', 'Book Exam', 'Exam',
+    'Background', 'Account Setup', 'Apply License', 'WFG Agreement', 'AML/Ethics', 'Carriers', 'Carriers'
   ];
 
   return (

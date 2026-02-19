@@ -6,6 +6,7 @@ import {
   ArrowRight, Zap, Star, TrendingUp, Briefcase
 } from 'lucide-react';
 import AdminDashboard from './AdminDashboard.jsx';
+import { getLicensingSteps, getTrainingSteps, mergeStepsWithCompletion } from './stepDefinitions';
 
 // Configuration
 const CONFIG = {
@@ -65,8 +66,68 @@ const WFGOnboardingApp = ({ token, isAdmin }) => {
       let data;
       try { data = await response.json(); } catch { throw new Error('bad_response'); }
       if (!data.success) throw new Error(data.error || 'Failed to fetch recruit data');
-      if (!data.recruit || !data.licensing_steps) throw new Error('bad_response');
-      setRecruitData(normalizeRecruitResponse(data));
+      if (!data.recruit) throw new Error('bad_response');
+
+      const recruit = data.recruit;
+
+      // Default country to 'canada' if missing (WFG is Vancouver-based)
+      const country = recruit.country || 'canada';
+
+      // Parse completion arrays from recruit record
+      let completedLicensing = {};
+      let completedTraining = {};
+      try {
+        const lcArr = JSON.parse(recruit.completed_licensing_steps || '[]');
+        lcArr.forEach(id => { completedLicensing[id] = { is_completed: true }; });
+      } catch(e) {}
+      try {
+        const trArr = JSON.parse(recruit.completed_training_steps || '[]');
+        trArr.forEach(id => { completedTraining[id] = { is_completed: true }; });
+      } catch(e) {}
+
+      // Get step definitions and merge with completion data
+      // Prefer local definitions; fall back to API data only during transition
+      let licensingSteps, trainingSteps;
+      if (!data.licensing_steps || data.licensing_steps.length === 0) {
+        licensingSteps = mergeStepsWithCompletion(
+          getLicensingSteps(country, recruit.start_date),
+          completedLicensing
+        );
+      } else {
+        licensingSteps = data.licensing_steps.map(normalizeStep);
+      }
+      if (!data.training_steps || data.training_steps.length === 0) {
+        trainingSteps = mergeStepsWithCompletion(
+          getTrainingSteps(recruit.start_date),
+          completedTraining
+        );
+      } else {
+        trainingSteps = data.training_steps.map(normalizeStep);
+      }
+
+      // Compute progress from the merged steps
+      const licensingCompleted = licensingSteps.filter(s => s.is_completed).length;
+      const trainingCompleted = trainingSteps.filter(s => s.is_completed).length;
+      const progress = {
+        licensing: {
+          total: licensingSteps.length,
+          completed: licensingCompleted,
+          percentage: licensingSteps.length > 0 ? Math.round((licensingCompleted / licensingSteps.length) * 100) : 0
+        },
+        training: {
+          total: trainingSteps.length,
+          completed: trainingCompleted,
+          percentage: trainingSteps.length > 0 ? Math.round((trainingCompleted / trainingSteps.length) * 100) : 0
+        }
+      };
+
+      setRecruitData({
+        ...data,
+        recruit: { ...recruit, country },
+        licensing_steps: licensingSteps,
+        training_steps: trainingSteps,
+        progress
+      });
     } catch (err) {
       console.error('Error fetching recruit data:', err);
       if (err.name === 'AbortError') {
@@ -87,6 +148,29 @@ const WFGOnboardingApp = ({ token, isAdmin }) => {
     if (processingSteps.has(stepId)) return;
     const newStatus = !currentStatus;
     setProcessingSteps(prev => new Set([...prev, stepId]));
+
+    // Optimistic update: immediately reflect the change in local state
+    setRecruitData(prev => {
+      if (!prev) return prev;
+      const stepsKey = stepType === 'licensing' ? 'licensing_steps' : 'training_steps';
+      const updatedSteps = prev[stepsKey].map(s =>
+        s.id === stepId ? { ...s, is_completed: newStatus, status: newStatus ? 'Completed' : (s._originalStatus || 'On Track') } : s
+      );
+      const completedCount = updatedSteps.filter(s => s.is_completed).length;
+      return {
+        ...prev,
+        [stepsKey]: updatedSteps,
+        progress: {
+          ...prev.progress,
+          [stepType]: {
+            total: updatedSteps.length,
+            completed: completedCount,
+            percentage: updatedSteps.length > 0 ? Math.round((completedCount / updatedSteps.length) * 100) : 0
+          }
+        }
+      };
+    });
+
     try {
       const response = await fetch(
         `${CONFIG.n8nBaseUrl}${CONFIG.webhooks.updateStep}`,
@@ -95,16 +179,17 @@ const WFGOnboardingApp = ({ token, isAdmin }) => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             token,
-            recruit_id: recruitData.recruit.id, step_record_id: stepId,
-            step_type: stepType, is_completed: newStatus,
-            user_email: recruitData.recruit.email, user_name: recruitData.recruit.full_name
+            step_id: stepId,
+            step_type: stepType,
+            is_completed: newStatus
           })
         }
       );
       if (!response.ok) throw new Error('Failed to update step');
-      await fetchRecruitData();
     } catch (err) {
       console.error('Error updating step:', err);
+      // Revert optimistic update on failure
+      await fetchRecruitData();
       alert('Failed to update step. Please try again.');
     } finally {
       setProcessingSteps(prev => { const next = new Set(prev); next.delete(stepId); return next; });
