@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import {
   Users, TrendingUp, Clock, ChevronDown, ChevronUp,
@@ -427,6 +428,154 @@ const REGIONS = {
   ]
 };
 
+// --- Add Admin Modal ---
+const generateAdminToken = (length = 26) => {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let token = '';
+  for (let i = 0; i < length; i++) token += chars[Math.floor(Math.random() * chars.length)];
+  return `admin_${token}`;
+};
+
+const AddAdminModal = ({ isOpen, onClose, onSuccess, admin }) => {
+  const [form, setForm] = useState({
+    full_name: '',
+    email: '',
+    upline_office: admin?.office || '',
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const [result, setResult] = useState(null);
+
+  const handleChange = (field, value) => setForm(prev => ({ ...prev, [field]: value }));
+
+  const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const isValid = form.full_name.trim() && form.email.trim() && isValidEmail(form.email);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!isValid || submitting) return;
+    setSubmitting(true);
+    setResult(null);
+    const token = generateAdminToken();
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 20000);
+      // Build properties, only including non-empty values
+      const properties = { full_name: form.full_name.trim(), email: form.email.trim(), role: 'admin', onboarding_token: token };
+      if (form.upline_office.trim()) properties.upline_office = form.upline_office.trim();
+
+      const response = await fetch(`${CONFIG.n8nBaseUrl}/webhook/ghl-proxy`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          version: 'v2', method: 'POST',
+          endpoint: 'objects/custom_objects.recruits/records',
+          data: { locationId: 'ig2lyOlMvCuYK8K9sOyb', properties }
+        }),
+        signal: controller.signal
+      });
+      clearTimeout(timeout);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      const record = data?.body?.record || data?.record;
+      if (record?.id) {
+        const link = `${window.location.origin}${window.location.pathname}?token=${token}`;
+        setResult({ success: true, token, link });
+      } else {
+        throw new Error('Admin creation failed — the record may not have been saved. Try again with fewer fields.');
+      }
+    } catch (err) {
+      console.error('Error creating admin:', err);
+      setResult({ success: false, error: err.name === 'AbortError' ? 'Request timed out. Please try again.' : (err.message || 'Something went wrong.') });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleCopyLink = () => { if (result?.link) navigator.clipboard.writeText(result.link); };
+  const handleDone = () => { onSuccess(); onClose(); };
+
+  if (!isOpen) return null;
+
+  const inputClass = "w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 transition-colors";
+  const labelClass = "block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5";
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={!submitting ? onClose : undefined} />
+      <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-amber-50 rounded-xl flex items-center justify-center">
+              <Shield className="w-4.5 h-4.5 text-amber-600" />
+            </div>
+            <h3 className="text-lg font-bold text-slate-900">Add New Admin</h3>
+          </div>
+          <button onClick={onClose} disabled={submitting} className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center transition-colors">
+            <X className="w-4 h-4 text-slate-400" />
+          </button>
+        </div>
+
+        {result?.success ? (
+          <div className="px-6 py-8 text-center">
+            <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <CheckCircle2 className="w-7 h-7 text-emerald-500" />
+            </div>
+            <h4 className="text-lg font-bold text-slate-900 mb-1">Admin Created</h4>
+            <p className="text-sm text-slate-500 mb-5">{form.full_name} now has admin access.</p>
+            <div className="mb-6">
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Admin Dashboard Link</p>
+              <div className="flex items-center gap-2 bg-slate-50 rounded-xl p-3 border border-slate-200">
+                <code className="flex-1 text-xs text-slate-600 truncate">{result.link}</code>
+                <button onClick={handleCopyLink} className="flex-shrink-0 w-8 h-8 bg-white rounded-lg border border-slate-200 hover:bg-slate-50 flex items-center justify-center transition-colors" title="Copy link">
+                  <Copy className="w-3.5 h-3.5 text-slate-500" />
+                </button>
+              </div>
+              <p className="text-[11px] text-slate-400 mt-2">Send this link to the new admin to access their dashboard.</p>
+            </div>
+            <button onClick={handleDone} className="px-5 py-2.5 bg-slate-900 text-white text-sm font-semibold rounded-xl hover:bg-slate-800 transition-colors">
+              Done
+            </button>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
+            {result?.error && (
+              <div className="flex items-center gap-2 px-4 py-3 bg-red-50 border border-red-100 rounded-xl text-sm text-red-700">
+                <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+                {result.error}
+              </div>
+            )}
+            <div>
+              <label className={labelClass}>Full Name *</label>
+              <input type="text" value={form.full_name} onChange={(e) => handleChange('full_name', e.target.value)} placeholder="e.g. Jane Smith" className={inputClass} required />
+            </div>
+            <div>
+              <label className={labelClass}>Email *</label>
+              <input type="email" value={form.email} onChange={(e) => handleChange('email', e.target.value)} placeholder="jane@example.com" className={inputClass} required />
+              {form.email && !isValidEmail(form.email) && (
+                <p className="text-xs text-red-500 mt-1">Please enter a valid email address.</p>
+              )}
+            </div>
+            <div>
+              <label className={labelClass}>Office</label>
+              <input type="text" value={form.upline_office} onChange={(e) => handleChange('upline_office', e.target.value)} placeholder="e.g. WFG Vancouver" className={inputClass} />
+            </div>
+            <div className="pt-2">
+              <button type="submit" disabled={!isValid || submitting}
+                className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-slate-900 text-white text-sm font-semibold rounded-xl hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                {submitting ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Creating Admin...</>
+                ) : (
+                  <><Shield className="w-4 h-4" /> Add Admin</>
+                )}
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+    </div>
+  );
+};
+
 // --- Add Recruit Modal ---
 const AddRecruitModal = ({ isOpen, onClose, onSuccess, admin }) => {
   const [form, setForm] = useState({
@@ -639,6 +788,7 @@ const AdminDashboard = ({ token }) => {
   const [filterHealth, setFilterHealth] = useState('all');
   const [sortBy, setSortBy] = useState('name');
   const [showAddRecruit, setShowAddRecruit] = useState(false);
+  const [showAddAdmin, setShowAddAdmin] = useState(false);
 
   useEffect(() => { fetchAdminData(); }, []);
 
@@ -825,6 +975,13 @@ const AdminDashboard = ({ token }) => {
               >
                 <UserPlus className="w-3.5 h-3.5" />
                 Add Recruit
+              </button>
+              <button
+                onClick={() => setShowAddAdmin(true)}
+                className="inline-flex items-center gap-1.5 text-xs font-bold rounded-full px-3 py-1.5 bg-amber-600 text-white hover:bg-amber-700 transition-colors shadow-sm shadow-amber-500/25"
+              >
+                <Shield className="w-3.5 h-3.5" />
+                Add Admin
               </button>
               <span className="inline-flex items-center gap-1.5 text-xs font-bold rounded-full px-3 py-1.5 bg-amber-50 text-amber-700 ring-1 ring-amber-500/20">
                 <Shield className="w-3.5 h-3.5" />
@@ -1022,6 +1179,12 @@ const AdminDashboard = ({ token }) => {
       <AddRecruitModal
         isOpen={showAddRecruit}
         onClose={() => setShowAddRecruit(false)}
+        onSuccess={() => fetchAdminData()}
+        admin={admin}
+      />
+      <AddAdminModal
+        isOpen={showAddAdmin}
+        onClose={() => setShowAddAdmin(false)}
         onSuccess={() => fetchAdminData()}
         admin={admin}
       />
