@@ -4,7 +4,7 @@ import {
   Users, TrendingUp, Clock, ChevronDown, ChevronUp,
   GraduationCap, Target, Shield, Mail, MessageCircle,
   Phone, MapPin, Search, Calendar, Activity, AlertTriangle,
-  CheckCircle2, BarChart3, ArrowUpRight, UserPlus, X, Copy, Loader2
+  CheckCircle2, BarChart3, ArrowUpRight, UserPlus, X, Copy, Loader2, Link
 } from 'lucide-react';
 import { getLicensingSteps, getTrainingSteps, mergeStepsWithCompletion } from './stepDefinitions';
 
@@ -247,10 +247,21 @@ const StepDots = ({ total, completed, color = 'blue' }) => {
 
 // --- Recruit Accordion Row ---
 const RecruitRow = ({ recruit, isExpanded, onToggle }) => {
+  const [linkCopied, setLinkCopied] = useState(false);
   const overallPct = Math.round(
     ((recruit.licensing_progress.completed + recruit.training_progress.completed) /
      (recruit.licensing_progress.total + recruit.training_progress.total)) * 100
   );
+  const onboardingLink = recruit.onboarding_token
+    ? `${window.location.origin}${window.location.pathname}?token=${recruit.onboarding_token}`
+    : null;
+  const handleCopyLink = (e) => {
+    e.stopPropagation();
+    if (!onboardingLink) return;
+    navigator.clipboard.writeText(onboardingLink);
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2000);
+  };
 
   return (
     <div className={`bg-white rounded-2xl border transition-all duration-300 overflow-hidden ${
@@ -381,6 +392,24 @@ const RecruitRow = ({ recruit, isExpanded, onToggle }) => {
             <span className="text-slate-200">|</span>
             <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> Day {recruit.days_since_start}</span>
           </div>
+
+          {/* Onboarding link */}
+          {onboardingLink && (
+            <div className="mt-3 flex items-center gap-2 bg-slate-50 rounded-xl p-2.5 border border-slate-200/80">
+              <Link className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+              <code className="flex-1 text-[11px] text-slate-500 truncate">{onboardingLink}</code>
+              <button
+                onClick={handleCopyLink}
+                className={`flex-shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-colors ${
+                  linkCopied
+                    ? 'bg-emerald-50 text-emerald-600'
+                    : 'bg-white text-slate-500 hover:bg-slate-100 border border-slate-200'
+                }`}
+              >
+                {linkCopied ? <><CheckCircle2 className="w-3 h-3" /> Copied</> : <><Copy className="w-3 h-3" /> Copy Link</>}
+              </button>
+            </div>
+          )}
 
           {/* Mobile message buttons */}
           <div className="flex sm:hidden items-center gap-2 mt-4 pt-3 border-t border-slate-100">
