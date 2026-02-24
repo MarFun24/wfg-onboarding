@@ -8,6 +8,33 @@ import {
 import AdminDashboard from './AdminDashboard.jsx';
 import { getLicensingSteps, getTrainingSteps, mergeStepsWithCompletion } from './stepDefinitions';
 
+// Auto-linkify: convert URLs and email addresses in text to clickable links
+const Linkify = ({ children }) => {
+  if (typeof children !== 'string') return children;
+  // Match URLs (with or without protocol) and email addresses
+  const urlRegex = /(https?:\/\/[^\s,)]+|www\.[^\s,)]+|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g;
+  const parts = children.split(urlRegex);
+  const matches = children.match(urlRegex) || [];
+  if (matches.length === 0) return children;
+
+  const result = [];
+  parts.forEach((part, i) => {
+    result.push(part);
+    if (i < matches.length) {
+      const match = matches[i];
+      const isEmail = match.includes('@') && !match.startsWith('http');
+      const href = isEmail ? `mailto:${match}` : (match.startsWith('http') ? match : `https://${match}`);
+      result.push(
+        <a key={i} href={href} target={isEmail ? undefined : '_blank'} rel="noopener noreferrer"
+          className="text-blue-600 underline hover:text-blue-800 break-all">
+          {match}
+        </a>
+      );
+    }
+  });
+  return <>{result}</>;
+};
+
 // Configuration
 const CONFIG = {
   n8nBaseUrl: import.meta.env.VITE_N8N_BASE_URL || 'https://mfunston.app.n8n.cloud',
@@ -436,7 +463,7 @@ const WFGOnboardingApp = ({ token, isAdmin }) => {
                           }`}>
                             {idx + 1}
                           </span>
-                          <span>{instruction}</span>
+                          <span><Linkify>{instruction}</Linkify></span>
                         </li>
                       ))}
                     </ol>
@@ -450,7 +477,7 @@ const WFGOnboardingApp = ({ token, isAdmin }) => {
                       Resources
                     </h4>
                     <p className="text-sm text-slate-600 leading-relaxed">
-                      {step.resources}
+                      <Linkify>{step.resources}</Linkify>
                     </p>
                   </div>
                 )}
