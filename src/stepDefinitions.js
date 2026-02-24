@@ -285,7 +285,7 @@ const CANADA_LICENSING_STEPS = [
     instructions: [
       'Sign up for an account at insurancecouncilofbc.com',
       'You must provide a service address and a mailing address',
-      'Service address: use the Burnaby office — 3665 Kingsway, Vancouver BC, V5R 5W2',
+      'Service address: use the Burnaby office — Unit 201, 3665 Kingsway, Vancouver BC, V5R 5W2',
       'Mailing address: use your home address'
     ],
     resources: 'insurancecouncilofbc.com',
@@ -300,6 +300,7 @@ const CANADA_LICENSING_STEPS = [
     instructions: [
       'Log into your ICBC online portal account',
       'Select "Register/Manage my LLQP exams"',
+      'Choose "Life and accident and sickness" as your exam category',
       'Follow the steps to enter your exam registrant information and upload a copy of your government-issued photo ID',
       'Wait up to 3 business days for the Exams team to review and approve your registration',
       'Once you receive the verification email, log back in to schedule and pay for your exams',
@@ -343,6 +344,22 @@ const CANADA_LICENSING_STEPS = [
   {
     step_id: 'l9',
     step_number: 9,
+    step_title: 'Complete Your Anti-Money Laundering Exam & Ethics',
+    step_description: 'Complete the Anti-Money Laundering and Canadian Ethics exams.',
+    instructions: [
+      'Go to your Olivers account under My Courses',
+      'Complete the Anti-Money Laundering course and exam',
+      'Complete the Canadian Ethics course and exam',
+      'There is no charge for these courses but they must be done before you can apply for your personal license',
+      'After passing, download a copy of the Certificate of Completion for both — you will need these later'
+    ],
+    resources: 'wfglaunch.com — Olivers platform',
+    timeline_guidance: '2 hours',
+    days_from_start: 32
+  },
+  {
+    step_id: 'l10',
+    step_number: 10,
     step_title: 'Sign Your WFG Agent Agreement',
     step_description: 'Sign the WFG Agent Agreement to transition from wfglaunch to mywfg.',
     instructions: [
@@ -350,37 +367,39 @@ const CANADA_LICENSING_STEPS = [
       'Click LICENSING (BLUE COLUMN)',
       'View process → Start licensing process → View WFG Agreement',
       'Start Application process → OK',
-      'Enter your provincial life license number → Verify',
+      'Enter your SIN number → Verify',
       'Complete Docusign and pay fee ($40)',
       'Wait for SMD approval and background check'
     ],
     resources: 'Your trainer — wfglaunch.com',
     timeline_guidance: '10 mins',
-    days_from_start: 32
+    days_from_start: 34
   },
   {
-    step_id: 'l10',
-    step_number: 10,
+    step_id: 'l11',
+    step_number: 11,
     step_title: 'IVARI E-CONTRACTING',
     step_description: 'Complete the Ivari e-contracting application process.',
     instructions: [
       'Sign into MyWFG.com → MENU → LICENSING & APPOINTMENTS → LICENSING → IVARI ECONTRACTING',
       'Prepare your exam marks (find the emails you received when you passed your provincials — screenshot or convert to PDF)',
       'Prepare your Criminal Record Check from Triton Canada',
-      'Use your local Branch Address (Burnaby/Kingsway office: 3665 Kingsway, Vancouver BC, V5R 5W2)',
+      'Use your local Branch Address (Burnaby/Kingsway office: Unit 201, 3665 Kingsway, Vancouver BC, V5R 5W2) — IMPORTANT: You must include "Unit 201" or your e-contracting will be delayed',
       'Start the Docusign application — ask your trainer for your Marketing Director name, code, and email',
       'Fill out OBA (Outside Business Activities) honestly — include all employment and self-employment activity',
-      'Questions 36-41 Regulatory Compliance: answer yes, no, yes, yes, yes, yes',
-      'Question 42: Province → British Columbia, Type → Accident and Sickness, Applying for → New Licence',
-      'Wait for Ivari approval email — if approved, save your acceptance letter and E&O insurance copy; let your trainer know either way'
+      'Questions 36-41 Regulatory Compliance: answer no, no, yes, yes, yes, yes. In the additional information section, write "requesting E&O now"',
+      'Question 42: Province → British Columbia, Check → Accident and Sickness & Life, Applying for → New Licence',
+      'Download the IVARI signed e-contracting application and email it to your SMD at wfg.impactvancouver@gmail.com',
+      'Wait for Ivari approval email — if approved, save your acceptance letter and E&O insurance copy; let your trainer know either way',
+      'If more than 7 business days have passed without hearing back, email wfgcontracting@ivari.ca with your AGENT code and the date your paperwork was submitted, requesting a follow-up. CC wfg.impactvancouver@gmail.com'
     ],
     resources: 'mywfg.com — Triton Canada background check — Your trainer for Marketing Director details',
     timeline_guidance: '45 mins (plus processing time for approval)',
-    days_from_start: 35
+    days_from_start: 37
   },
   {
-    step_id: 'l11',
-    step_number: 11,
+    step_id: 'l12',
+    step_number: 12,
     step_title: 'Apply For Your Provincial License',
     step_description: 'Apply to get your provincial license.',
     instructions: [
@@ -394,22 +413,6 @@ const CANADA_LICENSING_STEPS = [
     ],
     resources: 'insurancecouncilofbc.com',
     timeline_guidance: '45 mins',
-    days_from_start: 40
-  },
-  {
-    step_id: 'l12',
-    step_number: 12,
-    step_title: 'Complete Your Anti-Money Laundering Exam & Ethics',
-    step_description: 'Complete the Anti-Money Laundering and Canadian Ethics exams.',
-    instructions: [
-      'Go to your Olivers account under My Courses',
-      'Complete the Anti-Money Laundering course and exam',
-      'Complete the Canadian Ethics course and exam',
-      'There is no charge for these courses but they must be done before you can apply for your personal license',
-      'After passing, download a copy of the Certificate of Completion for both — you will need these later'
-    ],
-    resources: 'wfglaunch.com — Olivers platform',
-    timeline_guidance: '2 hours',
     days_from_start: 42
   },
   {
@@ -418,14 +421,15 @@ const CANADA_LICENSING_STEPS = [
     step_title: 'Get Appointed By Carriers',
     step_description: 'Be able to sell different products by different carriers.',
     instructions: [
+      'Yamila will provide you with the PDF registration form for each carrier',
       'For IA: Go to https://iaa.secureweb.inalco.com/mkmwpvp5 and click "Need a secure access" to register',
       'For Ivari: Go to www.ivari.ca and register with your wfgmail email — Branch Code: 9915',
       'Complete the appointment process for each carrier',
       'Notify your trainer once appointments are confirmed'
     ],
-    resources: 'https://iaa.secureweb.inalco.com/mkmwpvp5 — www.ivari.ca (Branch Code: 9915)',
+    resources: 'https://iaa.secureweb.inalco.com/mkmwpvp5 — www.ivari.ca (Branch Code: 9915) — Yamila for carrier registration PDFs',
     timeline_guidance: '30 mins',
-    days_from_start: 45
+    days_from_start: 47
   }
 ];
 
