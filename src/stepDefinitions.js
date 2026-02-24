@@ -445,12 +445,13 @@ const TRAINING_STEPS = [
     step_title: 'Meet Spouse/Influential Person',
     step_description: "Meet the spouse or influential person in the recruit's life.",
     instructions: [
+      'Book your meeting using our Calendly link: https://calendly.com/PLACEHOLDER-UPDATE-ME',
       'Schedule a 60-90 minute meeting with your assigned trainer',
       'Prepare questions about the business opportunity',
       'Discuss your personal financial goals',
       'Set clear 30/60/90 day objectives'
     ],
-    resources: 'Your trainer — meeting agenda template available from your upline',
+    resources: 'Your trainer — meeting agenda template available from your upline — Book here: https://calendly.com/PLACEHOLDER-UPDATE-ME',
     timeline_guidance: '24-48 hours',
     days_from_start: 1
   },
@@ -490,12 +491,12 @@ const TRAINING_STEPS = [
     step_title: 'Complete Your PFS',
     step_description: 'Finish your Personal Financial Strategy session and documentation.',
     instructions: [
-      'Schedule your PFS session with your trainer',
+      'Book your PFS session using our Calendly link: https://calendly.com/PLACEHOLDER-UPDATE-ME',
       'Gather your personal financial documents',
       'Complete the full PFS analysis process',
       'Review your own financial plan and protection gaps'
     ],
-    resources: 'PFS workbook and forms in your startup kit',
+    resources: 'PFS workbook and forms in your startup kit — Book here: https://calendly.com/PLACEHOLDER-UPDATE-ME',
     timeline_guidance: '24-48 hours',
     days_from_start: 21
   },
@@ -505,12 +506,13 @@ const TRAINING_STEPS = [
     step_title: 'Attend All Workshops and BPM',
     step_description: 'Participate in all required workshops and Business Presentation Meetings.',
     instructions: [
+      'Log in to your WSB dashboard to book workshops: https://worldsystembuilder.com/wsb-member-login/',
       'Get the workshop and BPM schedule from your trainer',
       'Attend all Saturday training workshops',
       'Attend weekly BPM meetings consistently',
       'Take notes and participate actively in all sessions'
     ],
-    resources: 'Workshop calendar available in team communications',
+    resources: 'Workshop calendar available in team communications — WSB Dashboard: https://worldsystembuilder.com/wsb-member-login/',
     timeline_guidance: 'Ongoing — attend all scheduled events for first 90 days',
     days_from_start: 31
   },
