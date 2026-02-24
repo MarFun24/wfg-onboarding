@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import {
   Users, TrendingUp, Clock, ChevronDown, ChevronUp,
@@ -807,6 +806,109 @@ const AddRecruitModal = ({ isOpen, onClose, onSuccess, admin }) => {
   );
 };
 
+// --- Find Link Modal ---
+const FindLinkModal = ({ isOpen, onClose, recruits }) => {
+  const [query, setQuery] = useState('');
+  const [copiedId, setCopiedId] = useState(null);
+
+  if (!isOpen) return null;
+
+  const q = query.toLowerCase().trim();
+  const results = q.length > 0
+    ? recruits.filter(r =>
+        r.full_name.toLowerCase().includes(q) ||
+        (r.email && r.email.toLowerCase().includes(q)) ||
+        (r.phone && r.phone.includes(q))
+      )
+    : [];
+
+  const handleCopy = (recruit) => {
+    if (!recruit.onboarding_token) return;
+    const link = `${window.location.origin}${window.location.pathname}?token=${recruit.onboarding_token}`;
+    navigator.clipboard.writeText(link);
+    setCopiedId(recruit.id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-violet-50 rounded-xl flex items-center justify-center">
+              <Link className="w-4.5 h-4.5 text-violet-600" />
+            </div>
+            <h3 className="text-lg font-bold text-slate-900">Find Onboarding Link</h3>
+          </div>
+          <button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center transition-colors">
+            <X className="w-4 h-4 text-slate-400" />
+          </button>
+        </div>
+
+        <div className="px-6 py-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search by name, email, or phone..."
+              className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-colors"
+              autoFocus
+            />
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto px-6 pb-6">
+          {q.length === 0 ? (
+            <p className="text-sm text-slate-400 text-center py-8">Start typing to search for a recruit.</p>
+          ) : results.length === 0 ? (
+            <p className="text-sm text-slate-400 text-center py-8">No recruits found matching "{query}".</p>
+          ) : (
+            <div className="space-y-2">
+              {results.map(r => {
+                const link = r.onboarding_token
+                  ? `${window.location.origin}${window.location.pathname}?token=${r.onboarding_token}`
+                  : null;
+                const isCopied = copiedId === r.id;
+                return (
+                  <div key={r.id} className="bg-slate-50 rounded-xl p-3 border border-slate-200/80">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div>
+                        <p className="text-sm font-semibold text-slate-900">{r.full_name}</p>
+                        <p className="text-[11px] text-slate-400">{r.email}</p>
+                      </div>
+                      <StatusBadge status={r.timeline_health} size="sm" />
+                    </div>
+                    {link ? (
+                      <div className="flex items-center gap-2 mt-2">
+                        <code className="flex-1 text-[11px] text-slate-500 truncate bg-white rounded-lg px-2.5 py-1.5 border border-slate-200">{link}</code>
+                        <button
+                          onClick={() => handleCopy(r)}
+                          className={`flex-shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition-colors ${
+                            isCopied
+                              ? 'bg-emerald-50 text-emerald-600'
+                              : 'bg-white text-slate-500 hover:bg-slate-100 border border-slate-200'
+                          }`}
+                        >
+                          {isCopied ? <><CheckCircle2 className="w-3 h-3" /> Copied</> : <><Copy className="w-3 h-3" /> Copy</>}
+                        </button>
+                      </div>
+                    ) : (
+                      <p className="text-[11px] text-slate-400 mt-2">No onboarding link available for this recruit.</p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // ===== MAIN ADMIN DASHBOARD COMPONENT =====
 const AdminDashboard = ({ token }) => {
   const [adminData, setAdminData] = useState(null);
@@ -818,6 +920,7 @@ const AdminDashboard = ({ token }) => {
   const [sortBy, setSortBy] = useState('name');
   const [showAddRecruit, setShowAddRecruit] = useState(false);
   const [showAddAdmin, setShowAddAdmin] = useState(false);
+  const [showFindLink, setShowFindLink] = useState(false);
 
   useEffect(() => { fetchAdminData(); }, []);
 
@@ -1011,6 +1114,13 @@ const AdminDashboard = ({ token }) => {
               >
                 <Shield className="w-3.5 h-3.5" />
                 Add Admin
+              </button>
+              <button
+                onClick={() => setShowFindLink(true)}
+                className="inline-flex items-center gap-1.5 text-xs font-bold rounded-full px-3 py-1.5 bg-violet-600 text-white hover:bg-violet-700 transition-colors shadow-sm shadow-violet-500/25"
+              >
+                <Link className="w-3.5 h-3.5" />
+                Find Link
               </button>
               <span className="inline-flex items-center gap-1.5 text-xs font-bold rounded-full px-3 py-1.5 bg-amber-50 text-amber-700 ring-1 ring-amber-500/20">
                 <Shield className="w-3.5 h-3.5" />
@@ -1216,6 +1326,11 @@ const AdminDashboard = ({ token }) => {
         onClose={() => setShowAddAdmin(false)}
         onSuccess={() => fetchAdminData()}
         admin={admin}
+      />
+      <FindLinkModal
+        isOpen={showFindLink}
+        onClose={() => setShowFindLink(false)}
+        recruits={recruits}
       />
     </div>
   );
