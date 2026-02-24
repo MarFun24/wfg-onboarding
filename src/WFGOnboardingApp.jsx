@@ -74,6 +74,7 @@ const WFGOnboardingApp = ({ token, isAdmin }) => {
   const [expandedSteps, setExpandedSteps] = useState({});
   const [processingSteps, setProcessingSteps] = useState(new Set());
   const [showCompleted, setShowCompleted] = useState(false);
+  const [confirmModal, setConfirmModal] = useState(null); // { stepId, stepType, currentStatus, stepTitle }
 
   useEffect(() => { if (token) fetchRecruitData(); }, []);
 
@@ -169,6 +170,19 @@ const WFGOnboardingApp = ({ token, isAdmin }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Show confirmation modal before toggling a step
+  const requestToggleStep = (stepId, stepType, currentStatus, stepTitle) => {
+    if (processingSteps.has(stepId)) return;
+    setConfirmModal({ stepId, stepType, currentStatus, stepTitle });
+  };
+
+  const confirmToggleStep = () => {
+    if (!confirmModal) return;
+    const { stepId, stepType, currentStatus } = confirmModal;
+    setConfirmModal(null);
+    toggleStepComplete(stepId, stepType, currentStatus);
   };
 
   const toggleStepComplete = async (stepId, stepType, currentStatus) => {
@@ -300,7 +314,7 @@ const WFGOnboardingApp = ({ token, isAdmin }) => {
           <div className="px-4 py-3 sm:px-5 flex items-center gap-3">
             {/* Checkbox */}
             <button
-              onClick={(e) => { e.stopPropagation(); toggleStepComplete(step.id, stepType, step.is_completed); }}
+              onClick={(e) => { e.stopPropagation(); requestToggleStep(step.id, stepType, step.is_completed, step.step_title); }}
               disabled={isProcessing}
               className="flex-shrink-0 transition-all duration-200 hover:scale-110 active:scale-95"
             >
@@ -366,7 +380,7 @@ const WFGOnboardingApp = ({ token, isAdmin }) => {
           <div className="flex items-start gap-4">
             {/* Checkbox */}
             <button
-              onClick={() => toggleStepComplete(step.id, stepType, step.is_completed)}
+              onClick={() => requestToggleStep(step.id, stepType, step.is_completed, step.step_title)}
               disabled={isProcessing}
               className="flex-shrink-0 mt-0.5 transition-all duration-200 hover:scale-110 active:scale-95"
             >
@@ -852,6 +866,56 @@ const WFGOnboardingApp = ({ token, isAdmin }) => {
           </div>
         </div>
       </main>
+
+      {/* ===== CONFIRMATION MODAL ===== */}
+      {confirmModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 space-y-4">
+            <div className="flex items-center gap-3">
+              {confirmModal.currentStatus ? (
+                <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
+                  <Clock className="w-5 h-5 text-amber-600" />
+                </div>
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                </div>
+              )}
+              <div>
+                <h3 className="text-base font-bold text-slate-900">
+                  {confirmModal.currentStatus ? 'Mark as incomplete?' : 'Mark as complete?'}
+                </h3>
+                <p className="text-sm text-slate-500 mt-0.5">
+                  {confirmModal.stepTitle}
+                </p>
+              </div>
+            </div>
+            <p className="text-sm text-slate-600">
+              {confirmModal.currentStatus
+                ? 'This will mark the step as not yet completed. You can always complete it again later.'
+                : 'Are you sure you have completed this step? Make sure you\'ve finished all the instructions before marking it done.'}
+            </p>
+            <div className="flex gap-3 pt-1">
+              <button
+                onClick={() => setConfirmModal(null)}
+                className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmToggleStep}
+                className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-colors ${
+                  confirmModal.currentStatus
+                    ? 'bg-amber-500 hover:bg-amber-600'
+                    : 'bg-emerald-500 hover:bg-emerald-600'
+                }`}
+              >
+                {confirmModal.currentStatus ? 'Yes, undo' : 'Yes, I\'m done'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
