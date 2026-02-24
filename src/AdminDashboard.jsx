@@ -862,9 +862,9 @@ const FindLinkModal = ({ isOpen, onClose, recruits }) => {
 
         <div className="flex-1 overflow-y-auto px-6 pb-6">
           {q.length === 0 ? (
-            <p className="text-sm text-slate-400 text-center py-8">Start typing to search for a recruit.</p>
+            <p className="text-sm text-slate-400 text-center py-8">Start typing to search.</p>
           ) : results.length === 0 ? (
-            <p className="text-sm text-slate-400 text-center py-8">No recruits found matching "{query}".</p>
+            <p className="text-sm text-slate-400 text-center py-8">No results found matching "{query}".</p>
           ) : (
             <div className="space-y-2">
               {results.map(r => {
@@ -879,10 +879,18 @@ const FindLinkModal = ({ isOpen, onClose, recruits }) => {
                         <p className="text-sm font-semibold text-slate-900">{r.full_name}</p>
                         <p className="text-[11px] text-slate-400">{r.email}</p>
                       </div>
-                      <StatusBadge status={r.timeline_health} size="sm" />
+                      <div className="flex items-center gap-1.5">
+                        {r.role === 'admin' && (
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-600 text-[10px] font-semibold">
+                            <Shield className="w-2.5 h-2.5" /> Admin
+                          </span>
+                        )}
+                        <StatusBadge status={r.timeline_health} size="sm" />
+                      </div>
                     </div>
                     {link ? (
                       <div className="flex items-center gap-2 mt-2">
+                        {r.role === 'admin' && <Shield className="w-3 h-3 text-amber-500 flex-shrink-0" />}
                         <code className="flex-1 text-[11px] text-slate-500 truncate bg-white rounded-lg px-2.5 py-1.5 border border-slate-200">{link}</code>
                         <button
                           onClick={() => handleCopy(r)}
@@ -896,7 +904,7 @@ const FindLinkModal = ({ isOpen, onClose, recruits }) => {
                         </button>
                       </div>
                     ) : (
-                      <p className="text-[11px] text-slate-400 mt-2">No onboarding link available for this recruit.</p>
+                      <p className="text-[11px] text-slate-400 mt-2">No onboarding link available.</p>
                     )}
                   </div>
                 );
