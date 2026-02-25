@@ -21,6 +21,9 @@ const normalizeAdminRecruit = (r) => {
   // Default country to 'canada' if missing (WFG is Vancouver-based)
   const country = r.country || 'canada';
 
+  // Default role to 'recruit' if missing
+  const role = r.role || 'recruit';
+
   // Parse completion arrays from recruit record
   let completedLicensing = {};
   let completedTraining = {};
@@ -60,6 +63,7 @@ const normalizeAdminRecruit = (r) => {
   return {
     ...r,
     country,
+    role,
     days_since_start: hasApiProgress
       ? (typeof r.days_since_start === 'number' ? r.days_since_start : parseInt(r.days_since_start, 10) || daysSinceStart)
       : daysSinceStart,
@@ -880,9 +884,13 @@ const FindLinkModal = ({ isOpen, onClose, recruits }) => {
                         <p className="text-[11px] text-slate-400">{r.email}</p>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        {r.role === 'admin' && (
+                        {r.role === 'admin' ? (
                           <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-600 text-[10px] font-semibold">
                             <Shield className="w-2.5 h-2.5" /> Admin
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-600 text-[10px] font-semibold">
+                            <Users className="w-2.5 h-2.5" /> Recruit
                           </span>
                         )}
                         <StatusBadge status={r.timeline_health} size="sm" />
