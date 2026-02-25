@@ -124,6 +124,17 @@ const StatusBadge = ({ status, size = 'default' }) => {
 const cleanPhone = (phone) => phone.replace(/\D/g, '');
 
 // --- Pipeline Chart: which licensing step are recruits on ---
+const LICENSING_LABELS = {
+  us: [
+    'Membership', 'Pay Fees', 'Register Course', 'Pre-Licensing', 'Book Exam', 'State Exam',
+    'Fingerprints', 'Sircon', 'Apply License', 'WFG Agreement', 'AML/LTC', 'Carriers'
+  ],
+  ca: [
+    'Membership', 'Pay Fees', 'Register Course', 'HLLQP', 'Provincial Acct', 'Book Exam',
+    'Provincial Exam', 'Background Check', 'WFG Agreement', 'IVARI', 'Apply License', 'AML/Ethics', 'Carriers'
+  ]
+};
+
 const PipelineChart = ({ recruits }) => {
   // Use max step count across all recruits (12 for US, 13 for Canada)
   const maxStepNum = Math.max(...recruits.map(r => r.licensing_progress.total), 12);
@@ -133,10 +144,9 @@ const PipelineChart = ({ recruits }) => {
     return { stepNum, count };
   });
   const maxCount = Math.max(...steps.map(s => s.count), 1);
-  const stepLabels = [
-    'Membership', 'Pay Fees', 'Register Course', 'Pre-Licensing', 'Book Exam', 'Exam',
-    'Background', 'Account Setup', 'Apply License', 'WFG Agreement', 'AML/Ethics', 'Carriers', 'Carriers'
-  ];
+  // Use CA labels if any recruit is Canadian, otherwise US
+  const hasCanadian = recruits.some(r => r.country && r.country !== 'united_states');
+  const stepLabels = hasCanadian ? LICENSING_LABELS.ca : LICENSING_LABELS.us;
 
   return (
     <div className="space-y-2">
@@ -153,7 +163,7 @@ const PipelineChart = ({ recruits }) => {
               )}
             </div>
           </div>
-          <span className="text-[10px] text-slate-400 w-20 truncate hidden sm:block">{stepLabels[stepNum - 1]}</span>
+          <span className="text-[10px] text-slate-400 w-20 truncate hidden sm:block">{stepLabels[stepNum - 1] || `Step ${stepNum}`}</span>
         </div>
       ))}
     </div>
