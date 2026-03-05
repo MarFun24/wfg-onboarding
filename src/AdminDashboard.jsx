@@ -130,8 +130,8 @@ const LICENSING_LABELS = {
     'Fingerprints', 'Sircon', 'Apply License', 'WFG Agreement', 'AML/LTC', 'Carriers'
   ],
   ca: [
-    'Membership', 'Pay Fees', 'Register Course', 'HLLQP', 'Provincial Acct', 'Book Exam',
-    'Provincial Exam', 'Background Check', 'WFG Agreement', 'IVARI', 'Apply License', 'AML/Ethics', 'Carriers'
+    'Membership', 'Register Course', 'CIPR', 'HLLQP', 'Prov Account', 'Book Exams',
+    'Prov Exams', 'Background', 'AML/Ethics', 'WFG Agreement', 'IVARI', 'Apply License', 'Carriers'
   ]
 };
 

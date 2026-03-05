@@ -228,7 +228,7 @@ const CANADA_LICENSING_STEPS = [
     step_id: 'l2',
     step_number: 2,
     step_title: 'Register for Your Online Course',
-    step_description: 'Register for the HLLQP course through Olivers.',
+    step_description: 'Register for the HLLQP course through Olivers. You will be asked what office you are in and your SMD.',
     instructions: [
       'Go to www.wfglaunch.com — create a profile if you have not already',
       'Click on Create Password',
@@ -236,31 +236,53 @@ const CANADA_LICENSING_STEPS = [
       'Click on Licensing, scroll down and click on Olivers (this is the course provider)',
       'Create an account with Olivers',
       'After signing in, click the top-right red button to do an identity check',
-      'You can use your computer camera for the photo — make sure the name matches your ID exactly'
+      'You can use your computer camera for the photo — make sure the name matches your ID exactly',
+      'When asked for your office, use the address: Unit 201, 3665 Kingsway, Vancouver BC, V5R 5W2 — contact your trainer for your SMD name'
     ],
-    resources: 'www.wfglaunch.com — Olivers course provider',
+    resources: 'www.wfglaunch.com — Olivers course provider — Office address: Unit 201, 3665 Kingsway, Vancouver BC, V5R 5W2',
     timeline_guidance: '20 mins',
     days_from_start: 5
   },
   {
     step_id: 'l3',
     step_number: 3,
-    step_title: 'Complete Your HLLQP Course',
-    step_description: 'Study and pass the HLLQP pre-licensing course.',
+    step_title: 'Create Your CIPR Number',
+    step_description: 'Register for your CIPR (Canadian Insurance Participant Registry) number.',
     instructions: [
+      'Create your CIPR number — your trainer will guide you through the process',
+      'Save your CIPR number for future licensing steps'
+    ],
+    resources: 'Your trainer',
+    timeline_guidance: '10 mins',
+    days_from_start: 7
+  },
+  {
+    step_id: 'l4',
+    step_number: 4,
+    step_title: 'Complete Your HLLQP Course',
+    step_description: 'Complete the ethics exam first, then study and pass the 4 HLLQP course modules.',
+    instructions: [
+      'You must complete the Ethics exam before starting the other modules',
+      'After Ethics, complete the remaining 4 modules in any order',
       'Exams for the modules are all open book — 20 or 30 questions, multiple choice, 60% to pass',
       'You have 3 chances to pass each module — if you fail three times on any module, you must restart the entire course from the beginning (and pay again)',
       'Study the material using reading, videos, and/or flashcards',
       'The mock exams are a huge help — go through them a few times to get a feel for the questions',
       'Get familiar with the layout of each section so you can quickly reference material during the open-book exam'
     ],
+    sub_steps: [
+      { id: 'ethics', label: 'Ethics (must be completed first)' },
+      { id: 'life', label: 'Life Insurance' },
+      { id: 'as', label: 'Accident and Sickness' },
+      { id: 'seg', label: 'Segregated Funds' }
+    ],
     resources: 'The training course material — Olivers platform',
     timeline_guidance: '14 days',
-    days_from_start: 19
+    days_from_start: 21
   },
   {
-    step_id: 'l4',
-    step_number: 4,
+    step_id: 'l5',
+    step_number: 5,
     step_title: 'Create a Provincial Licensing Account',
     step_description: 'Create account with Insurance Council of BC to apply for license.',
     instructions: [
@@ -271,13 +293,13 @@ const CANADA_LICENSING_STEPS = [
     ],
     resources: 'www.insurancecouncilofbc.com',
     timeline_guidance: '10 mins',
-    days_from_start: 21
+    days_from_start: 23
   },
   {
-    step_id: 'l5',
-    step_number: 5,
-    step_title: 'Book Your Provincial Exam',
-    step_description: 'Book a time to write your provincial exams.',
+    step_id: 'l6',
+    step_number: 6,
+    step_title: 'Book Your Provincial Exams',
+    step_description: 'Book a time to write your 4 provincial exams.',
     instructions: [
       'Log into your ICBC online portal account',
       'Select "Register/Manage my LLQP exams"',
@@ -289,35 +311,28 @@ const CANADA_LICENSING_STEPS = [
     ],
     resources: 'www.insurancecouncilofbc.com',
     timeline_guidance: '10 mins (plus up to 3 business days for approval)',
-    days_from_start: 23
-  },
-  {
-    step_id: 'l6',
-    step_number: 6,
-    step_title: 'Complete Your Provincial Exam',
-    step_description: 'Write your provincial exams.',
-    instructions: [
-      'Go to the exam location on your scheduled date',
-      'Bring your valid government-issued photo ID',
-      'Write the exams',
-      'Refer to your email confirmation for location and time details'
-    ],
-    resources: 'Refer to email confirmation',
-    timeline_guidance: '1 day',
-    days_from_start: 28
+    days_from_start: 25
   },
   {
     step_id: 'l7',
     step_number: 7,
-    step_title: 'Create Your CIPR Number',
-    step_description: 'Register for your CIPR (Canadian Insurance Participant Registry) number.',
+    step_title: 'Complete Your Provincial Exams',
+    step_description: 'Write and pass all 4 provincial exams.',
     instructions: [
-      'Create your CIPR number — your trainer will guide you through the process',
-      'Save your CIPR number for future licensing steps'
+      'Go to the exam location on your scheduled date',
+      'Bring your valid government-issued photo ID',
+      'You must pass all 4 provincial exams — check off each one as you pass it',
+      'Refer to your email confirmation for location and time details'
     ],
-    resources: 'Your trainer',
-    timeline_guidance: '10 mins',
-    days_from_start: 29
+    sub_steps: [
+      { id: 'ethics', label: 'Ethics', has_date: true },
+      { id: 'life', label: 'Life Insurance', has_date: true },
+      { id: 'as', label: 'Accident and Sickness', has_date: true },
+      { id: 'seg', label: 'Segregated Funds', has_date: true }
+    ],
+    resources: 'Refer to email confirmation — Your government-issued photo ID',
+    timeline_guidance: 'Varies by exam schedule',
+    days_from_start: 30
   },
   {
     step_id: 'l8',
@@ -333,7 +348,7 @@ const CANADA_LICENSING_STEPS = [
     ],
     resources: 'https://secure.tritoncanada.ca/v/public/landing/InsuranceCouncilofBritishColumbi/home',
     timeline_guidance: '30 mins',
-    days_from_start: 30
+    days_from_start: 32
   },
   {
     step_id: 'l9',
@@ -349,7 +364,7 @@ const CANADA_LICENSING_STEPS = [
     ],
     resources: 'www.wfglaunch.com — Olivers platform',
     timeline_guidance: '2 hours',
-    days_from_start: 32
+    days_from_start: 34
   },
   {
     step_id: 'l10',
@@ -367,7 +382,7 @@ const CANADA_LICENSING_STEPS = [
     ],
     resources: 'Your trainer — www.wfglaunch.com',
     timeline_guidance: '10 mins',
-    days_from_start: 34
+    days_from_start: 36
   },
   {
     step_id: 'l11',
@@ -389,7 +404,7 @@ const CANADA_LICENSING_STEPS = [
     ],
     resources: 'www.mywfg.com — Triton Canada background check — Your trainer for Marketing Director details',
     timeline_guidance: '45 mins (plus processing time for approval)',
-    days_from_start: 37
+    days_from_start: 39
   },
   {
     step_id: 'l12',
@@ -407,7 +422,7 @@ const CANADA_LICENSING_STEPS = [
     ],
     resources: 'www.insurancecouncilofbc.com',
     timeline_guidance: '45 mins',
-    days_from_start: 42
+    days_from_start: 44
   },
   {
     step_id: 'l13',
@@ -415,15 +430,15 @@ const CANADA_LICENSING_STEPS = [
     step_title: 'Get Appointed By Carriers',
     step_description: 'Be able to sell different products by different carriers.',
     instructions: [
-      'Yamila will provide you with the PDF registration form for each carrier',
+      'Your trainer will provide you with the PDF registration form for each carrier',
       'For IA: Go to https://iaa.secureweb.inalco.com/mkmwpvp5 and click "Need a secure access" to register',
       'For Ivari: Go to www.ivari.ca and register with your wfgmail email — Branch Code: 9915',
       'Complete the appointment process for each carrier',
       'Notify your trainer once appointments are confirmed'
     ],
-    resources: 'https://iaa.secureweb.inalco.com/mkmwpvp5 — www.ivari.ca (Branch Code: 9915) — Yamila for carrier registration PDFs',
+    resources: 'https://iaa.secureweb.inalco.com/mkmwpvp5 — www.ivari.ca (Branch Code: 9915) — Contact your trainer for carrier registration PDFs',
     timeline_guidance: '30 mins',
-    days_from_start: 47
+    days_from_start: 49
   }
 ];
 
@@ -439,14 +454,14 @@ const TRAINING_STEPS = [
     step_title: 'Meet Spouse/Influential Person',
     step_description: "Meet the spouse or influential person in the recruit's life.",
     instructions: [
-      'Book your meeting using our Calendly link: https://calendly.com/PLACEHOLDER-UPDATE-ME',
+      'Contact your trainer to book this meeting',
       'This meeting requires approximately 3 hours to fully onboard the new agent',
       'Prepare questions about the business opportunity',
       'Do the campaign introduction for the spouse/influential person — take notes on how the trainer is doing the presentation',
       'Go through personal business goals in the trainer guidebook',
       'Set up a Gmail address in this format: firstnamelastinitial@gmail.com (e.g., jorgemwfg@gmail.com) — this should be done by the new agent before the meeting'
     ],
-    resources: 'Your trainer — meeting agenda template available from your upline — Book here: https://calendly.com/PLACEHOLDER-UPDATE-ME',
+    resources: 'Your trainer — meeting agenda template available from your upline',
     timeline_guidance: '24-48 hours',
     days_from_start: 1
   },
@@ -487,12 +502,12 @@ const TRAINING_STEPS = [
     step_title: 'Complete Your PFS',
     step_description: 'Finish your Personal Financial Strategy session and documentation.',
     instructions: [
-      'Book your PFS session using our Calendly link: https://calendly.com/PLACEHOLDER-UPDATE-ME',
+      'Contact your trainer to book your PFS session',
       'Gather your personal financial documents',
       'Complete the full PFS analysis process',
       'Review your own financial plan and protection gaps'
     ],
-    resources: 'PFS workbook and forms in your startup kit — Book here: https://calendly.com/PLACEHOLDER-UPDATE-ME',
+    resources: 'PFS workbook and forms in your startup kit — Contact your trainer to book your session',
     timeline_guidance: '24-48 hours',
     days_from_start: 21
   },
