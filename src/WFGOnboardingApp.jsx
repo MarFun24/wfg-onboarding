@@ -6,363 +6,212 @@ import {
   ArrowRight, Zap, Star, TrendingUp, Briefcase
 } from 'lucide-react';
 import AdminDashboard from './AdminDashboard.jsx';
+import { getLicensingSteps, getTrainingSteps, mergeStepsWithCompletion } from './stepDefinitions';
+
+// Auto-linkify: convert URLs and email addresses in text to clickable links
+const Linkify = ({ children }) => {
+  if (typeof children !== 'string') return children;
+  // Match URLs (with or without protocol) and email addresses
+  const urlRegex = /(https?:\/\/[^\s,)]+|www\.[^\s,)]+|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g;
+  const parts = children.split(urlRegex);
+  const matches = children.match(urlRegex) || [];
+  if (matches.length === 0) return children;
+
+  const result = [];
+  parts.forEach((part, i) => {
+    result.push(part);
+    if (i < matches.length) {
+      const match = matches[i];
+      const isEmail = match.includes('@') && !match.startsWith('http');
+      const href = isEmail ? `mailto:${match}` : (match.startsWith('http') ? match : `https://${match}`);
+      result.push(
+        <a key={i} href={href} target={isEmail ? undefined : '_blank'} rel="noopener noreferrer"
+          className="text-blue-600 underline hover:text-blue-800 break-all">
+          {match}
+        </a>
+      );
+    }
+  });
+  return <>{result}</>;
+};
 
 // Configuration
 const CONFIG = {
-  n8nBaseUrl: 'https://mfunston.app.n8n.cloud',
+  n8nBaseUrl: import.meta.env.VITE_N8N_BASE_URL || 'https://mfunston.app.n8n.cloud',
   webhooks: {
     getData: '/webhook/wfg-app-get-recruit-data',
     updateStep: '/webhook/wfg-app-step-update'
   }
 };
 
-// Mock data for demo/fallback
-const MOCK_DATA = {
-  success: true,
-  recruit: {
-    id: "demo_recruit_001",
-    full_name: "Jorge Maldonado",
-    email: "jorge.maldonado@wfg.com",
-    phone: "(555) 789-4321",
-    country: "United States",
-    state_province: "Texas",
-    start_date: "2024-01-15",
-    recruit_stage: "Active Onboarding",
-    timeline_health: "On Track",
-    licensing_status: "In Progress",
-    training_status: "In Progress",
-    recruiter_name: "Jorge Maldonado",
-    upline_office: "Houston Office"
-  },
-  progress: {
-    licensing: {
-      total: 12,
-      completed: 5,
-      percentage: 42,
-      status_breakdown: { completed: 5, overdue: 0, due_soon: 2, on_track: 5 }
-    },
-    training: {
-      total: 8,
-      completed: 2,
-      percentage: 25,
-      status_breakdown: { completed: 2, overdue: 0, due_soon: 2, on_track: 4 }
-    }
-  },
-  licensing_steps: [
-    {
-      id: "lic_1", step_number: 1,
-      step_title: "Sign Your Membership Agreement",
-      description: "Do the Associate Membership Agreement",
-      status: "Completed", is_completed: true,
-      deadline_date: "2024-01-16", completed_date: "2024-01-15",
-      timeline_guidance: "5 mins",
-      instructions: ["Type in your personal information"],
-      resources: "Your trainer and your ID - www.wfglaunch.com"
-    },
-    {
-      id: "lic_2", step_number: 2,
-      step_title: "Pay Your Membership Fees",
-      description: "Pay for your Associate Membership Agreement",
-      status: "Completed", is_completed: true,
-      deadline_date: "2024-01-16", completed_date: "2024-01-15",
-      timeline_guidance: "1 min",
-      instructions: ["Use your credit card to pay"],
-      resources: "Your trainer and your credit card"
-    },
-    {
-      id: "lic_3", step_number: 3,
-      step_title: "Register for Your Online Course",
-      description: "Sign up for the Life & Health pre-licensing course",
-      status: "Completed", is_completed: true,
-      deadline_date: "2024-01-18", completed_date: "2024-01-17",
-      timeline_guidance: "5 mins",
-      instructions: [
-        "Go to your WFG Launch webpage",
-        "Go to licensing",
-        "Pick your licensing provider",
-        "Sign up and pay for the course"
-      ],
-      resources: "Your trainer and your credit card - wfglaunch.com"
-    },
-    {
-      id: "lic_4", step_number: 4,
-      step_title: "Complete Your Pre-Licensing Course",
-      description: "Study and pass the pre-licensing course",
-      status: "Completed", is_completed: true,
-      deadline_date: "2024-01-25", completed_date: "2024-01-24",
-      timeline_guidance: "7 days",
-      instructions: ["Study and learn the material"],
-      resources: "The training course material"
-    },
-    {
-      id: "lic_5", step_number: 5,
-      step_title: "Book Your State Exam",
-      description: "Book a time to write the exam",
-      status: "Completed", is_completed: true,
-      deadline_date: "2024-01-26", completed_date: "2024-01-25",
-      timeline_guidance: "10 mins",
-      instructions: [
-        "Create an account at pearsonvue.com/tx/insurance",
-        "On the right side, click Create an account",
-        "Fill in your information and submit",
-        "Register for a test and schedule your examination",
-        "Pick exam: General Lines Life, Accident & Health: INS-TX-LAH05"
-      ],
-      resources: "Your ID and credit card - pearsonvue.com/tx/insurance"
-    },
-    {
-      id: "lic_6", step_number: 6,
-      step_title: "Complete Your State Exam",
-      description: "Write your state exam",
-      status: "Due Soon", is_completed: false,
-      deadline_date: "2024-02-10",
-      timeline_guidance: "Exam 2HRS: 150 Questions, Min. Score: 70%",
-      instructions: [
-        "Go to test centre and write exam",
-        "Bring your ID"
-      ],
-      resources: "Refer to your confirmation email for test centre location"
-    },
-    {
-      id: "lic_7", step_number: 7,
-      step_title: "Complete Your Fingerprints",
-      description: "Do your state fingerprint check",
-      status: "Due Soon", is_completed: false,
-      deadline_date: "2024-02-15",
-      timeline_guidance: "10 mins",
-      instructions: ["Go to fingerprint centre and have your fingerprints taken"],
-      resources: "https://www.identogo.com/locations/texas"
-    },
-    {
-      id: "lic_8", step_number: 8,
-      step_title: "Create Account With Sircon",
-      description: "Create account with Sircon to apply for license",
-      status: "On Track", is_completed: false,
-      deadline_date: "2024-02-16",
-      timeline_guidance: "10 mins",
-      instructions: ["Create username and password"],
-      resources: "sircon.com"
-    },
-    {
-      id: "lic_9", step_number: 9,
-      step_title: "Apply For Your State License",
-      description: "Apply to get license",
-      status: "On Track", is_completed: false,
-      deadline_date: "2024-02-17",
-      timeline_guidance: "30 mins",
-      instructions: [
-        "Go to Sircon.com \u2192 New Insurance \u2192 Resident \u2192 Individual",
-        "Enter your email \u2192 enter your last name \u2192 SSN \u2192 preparer then click applicant",
-        "Select Texas \u2192 payment method",
-        "License type \u2192 Insurance Producer \u2192 Life, Accident & Health",
-        "Continue to answer the questions",
-        "Pay the application fee"
-      ],
-      resources: "sircon.com"
-    },
-    {
-      id: "lic_10", step_number: 10,
-      step_title: "Sign Your WFG Agent Agreement",
-      description: "Complete the official WFG Agent Agreement",
-      status: "On Track", is_completed: false,
-      deadline_date: "2024-02-20",
-      timeline_guidance: "10 mins",
-      instructions: [
-        "Go to wfglaunch.com \u2192 Click LICENSING (BLUE COLUMN)",
-        "View process \u2192 start licensing process \u2192 view WFG Agreement",
-        "Start Application process \u2192 ok",
-        "Enter state life license number \u2192 verify",
-        "Docusign Pay fee $40",
-        "Wait for SMD approval and background check"
-      ],
-      resources: "Your trainer - wfglaunch.com"
-    },
-    {
-      id: "lic_11", step_number: 11,
-      step_title: "Complete Your Anti-Money Laundering and Long Term Care Test",
-      description: "Do the AML and LTC tests",
-      status: "On Track", is_completed: false,
-      deadline_date: "2024-02-25",
-      timeline_guidance: "10 hours",
-      instructions: [
-        "Go to mywfg.com",
-        "Click Menu",
-        "Go to Licensing & Appointments",
-        "Select Licensing, then Continuing Education",
-        "Pick your provider"
-      ],
-      resources: "mywfg.com"
-    },
-    {
-      id: "lic_12", step_number: 12,
-      step_title: "Get Appointed By Carriers",
-      description: "Be appointed by carriers to sell their products",
-      status: "On Track", is_completed: false,
-      deadline_date: "2024-03-01",
-      timeline_guidance: "20 mins",
-      instructions: [
-        "Log into www.mywfg.com",
-        "Click on Menu \u2192 Licensing & Appointments \u2192 Appointments",
-        "Carrier Appointments \u2192 Life & Disability \u2192 Non-NY life",
-        "Select the specific carrier you want to be appointed"
-      ],
-      resources: "www.mywfg.com"
-    }
-  ],
-  training_steps: [
-    {
-      id: "train_1", step_number: 1,
-      step_title: "Meet Spouse/Influential Person",
-      description: "In home meeting, campaign introduction",
-      status: "Completed", is_completed: true,
-      deadline_date: "2024-01-16", completed_date: "2024-01-16",
-      timeline_guidance: "24-48 hours",
-      instructions: [
-        "Learn how to introduce your trainer",
-        "Learn how to tell your story",
-        "Take notes on how to do the campaign introduction"
-      ],
-      resources: "Campaign introduction, notebook, uniform, survey card"
-    },
-    {
-      id: "train_2", step_number: 2,
-      step_title: "Get Your Startup Kit",
-      description: "Go through all materials in the startup kit",
-      status: "Completed", is_completed: true,
-      deadline_date: "2024-01-18", completed_date: "2024-01-17",
-      timeline_guidance: "1 day",
-      instructions: [
-        "Trainer to go through and explain all the materials",
-        "Read Moment of Truth",
-        "Read Saving Your Future book",
-        "Read first 100 pages of the System Builder"
-      ],
-      resources: "Your trainer, startup kit"
-    },
-    {
-      id: "train_3", step_number: 3,
-      step_title: "Start Your Licensing Path",
-      description: "Start pre-licensing",
-      status: "Due Soon", is_completed: false,
-      deadline_date: "2024-01-30",
-      timeline_guidance: "Set up in first meeting, licensing 30 days",
-      instructions: [
-        "Start the pre-licensing journey",
-        "Set up a gmail account (e.g. firstnamelastinitiawfg@gmail.com)",
-        "Set up WSB account with new gmail address"
-      ],
-      resources: "Pre-licensing material, worldsystembuilder.com, gmail.com"
-    },
-    {
-      id: "train_4", step_number: 4,
-      step_title: "Complete Your PFS",
-      description: "Go through your own personal financial strategy",
-      status: "Due Soon", is_completed: false,
-      deadline_date: "2024-02-05",
-      timeline_guidance: "24-48 hours",
-      instructions: [
-        "Meeting with your trainer",
-        "Go through client appointment 1, 2 and 3"
-      ],
-      resources: "Your trainer, PFS sheet, blue flip chart, accounts in Canada/3 circle 3 box (USA), Saving Your Future book, diversification and DCA"
-    },
-    {
-      id: "train_5", step_number: 5,
-      step_title: "Attend All Workshops and BPM",
-      description: "Attend all 6 workshops",
-      status: "On Track", is_completed: false,
-      deadline_date: "2024-02-15",
-      timeline_guidance: "30 days",
-      instructions: [
-        "Attend BPM on Tuesday/Wednesday nights and Saturday mornings",
-        "Attend Webinar Tuesday morning",
-        "Attend workshops throughout the week"
-      ],
-      resources: "Your trainer, worldsystembuilder.com/workshop, worldsystembuilder.com/meetings"
-    },
-    {
-      id: "train_6", step_number: 6,
-      step_title: "Complete Your Trainer Guidebook and Your Share List",
-      description: "Go through top 5 reasons, vision & mission, daily activities and actions",
-      status: "On Track", is_completed: false,
-      deadline_date: "2024-02-20",
-      timeline_guidance: "30 days",
-      instructions: ["Work with your trainer to build a share list"],
-      resources: "Trainer Guidebook, your trainer, trainer manual"
-    },
-    {
-      id: "train_7", step_number: 7,
-      step_title: "Complete Your Field Training",
-      description: "Go out to the field and book appointments",
-      status: "On Track", is_completed: false,
-      deadline_date: "2024-03-01",
-      timeline_guidance: "30 days",
-      instructions: [
-        "Go through share list with trainer",
-        "Book campaign introductions and/or client appointment 1"
-      ],
-      resources: "Trainer Guidebook, your trainer"
-    },
-    {
-      id: "train_8", step_number: 8,
-      step_title: "Complete Your GX 315",
-      description: "Complete 3 recruits and 15,000 points",
-      status: "On Track", is_completed: false,
-      deadline_date: "2024-03-15",
-      timeline_guidance: "30 days",
-      instructions: [
-        "Go through 30 contacts",
-        "Complete 10 campaign introductions/client appointments"
-      ],
-      resources: "Your trainer, trainer guidebook"
-    }
-  ]
-};
+// Normalize step data from API to handle GHL field name mismatches and type coercion
+const normalizeStep = (step) => ({
+  ...step,
+  description: step.description || step.step_description || '',
+  step_number: typeof step.step_number === 'number' ? step.step_number : parseInt(step.step_number, 10) || 0,
+  is_completed: step.is_completed === true || step.is_completed === 'true',
+  instructions: Array.isArray(step.instructions)
+    ? step.instructions
+    : typeof step.instructions === 'string'
+      ? (() => { try { const parsed = JSON.parse(step.instructions); return Array.isArray(parsed) ? parsed : [step.instructions]; } catch { return step.instructions.split('\n').filter(i => i.trim()); } })()
+      : [],
+  status: ['Completed', 'On Track', 'Due Soon', 'Overdue'].includes(step.status) ? step.status : 'On Track',
+});
+
+// Normalize the full recruit API response
+const normalizeRecruitResponse = (data) => ({
+  ...data,
+  licensing_steps: (data.licensing_steps || []).map(normalizeStep),
+  training_steps: (data.training_steps || []).map(normalizeStep),
+});
 
 const WFGOnboardingApp = ({ token, isAdmin }) => {
   if (isAdmin) return <AdminDashboard token={token} />;
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(!!token);
+  const [error, setError] = useState(!token ? 'no_token' : null);
   const [recruitData, setRecruitData] = useState(null);
   const [activeTab, setActiveTab] = useState('licensing');
   const [expandedSteps, setExpandedSteps] = useState({});
   const [processingSteps, setProcessingSteps] = useState(new Set());
   const [showCompleted, setShowCompleted] = useState(false);
+  const [confirmModal, setConfirmModal] = useState(null); // { stepId, stepType, currentStatus, stepTitle }
 
-  // In dev/demo mode (no token), use mock data immediately
-  const isDemoMode = !token;
-
-  useEffect(() => { fetchRecruitData(); }, []);
+  useEffect(() => { if (token) fetchRecruitData(); }, []);
 
   const fetchRecruitData = async () => {
-    if (isDemoMode) {
-      setRecruitData(MOCK_DATA);
-      setLoading(false);
-      return;
-    }
     try {
       setLoading(true);
       setError(null);
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 15000);
       const response = await fetch(
         `${CONFIG.n8nBaseUrl}${CONFIG.webhooks.getData}`,
-        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token }) }
+        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token }), signal: controller.signal }
       );
+      clearTimeout(timeout);
+      if (response.status >= 500) throw new Error('server_error');
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      const data = await response.json();
+      let data;
+      try { data = await response.json(); } catch { throw new Error('bad_response'); }
       if (!data.success) throw new Error(data.error || 'Failed to fetch recruit data');
-      setRecruitData(data);
+      if (!data.recruit) throw new Error('bad_response');
+
+      const recruit = data.recruit;
+
+      // Default country to 'canada' if missing (WFG is Vancouver-based)
+      const country = recruit.country || 'canada';
+
+      // Parse completion arrays from recruit record
+      let completedLicensing = {};
+      let completedTraining = {};
+      try {
+        const lcArr = JSON.parse(recruit.completed_licensing_steps || '[]');
+        lcArr.forEach(id => { completedLicensing[id] = { is_completed: true }; });
+      } catch(e) {}
+      try {
+        const trArr = JSON.parse(recruit.completed_training_steps || '[]');
+        trArr.forEach(id => { completedTraining[id] = { is_completed: true }; });
+      } catch(e) {}
+
+      // Get step definitions and merge with completion data
+      // Prefer local definitions; fall back to API data only during transition
+      let licensingSteps, trainingSteps;
+      if (!data.licensing_steps || data.licensing_steps.length === 0) {
+        licensingSteps = mergeStepsWithCompletion(
+          getLicensingSteps(country, recruit.start_date),
+          completedLicensing
+        );
+      } else {
+        licensingSteps = data.licensing_steps.map(normalizeStep);
+      }
+      if (!data.training_steps || data.training_steps.length === 0) {
+        trainingSteps = mergeStepsWithCompletion(
+          getTrainingSteps(recruit.start_date),
+          completedTraining
+        );
+      } else {
+        trainingSteps = data.training_steps.map(normalizeStep);
+      }
+
+      // Compute progress from the merged steps
+      const licensingCompleted = licensingSteps.filter(s => s.is_completed).length;
+      const trainingCompleted = trainingSteps.filter(s => s.is_completed).length;
+      const progress = {
+        licensing: {
+          total: licensingSteps.length,
+          completed: licensingCompleted,
+          percentage: licensingSteps.length > 0 ? Math.round((licensingCompleted / licensingSteps.length) * 100) : 0
+        },
+        training: {
+          total: trainingSteps.length,
+          completed: trainingCompleted,
+          percentage: trainingSteps.length > 0 ? Math.round((trainingCompleted / trainingSteps.length) * 100) : 0
+        }
+      };
+
+      setRecruitData({
+        ...data,
+        recruit: { ...recruit, country },
+        licensing_steps: licensingSteps,
+        training_steps: trainingSteps,
+        progress
+      });
     } catch (err) {
       console.error('Error fetching recruit data:', err);
-      setError('We couldn\u2019t find your onboarding record. Please check your link and try again, or contact your trainer for a new one.');
+      if (err.name === 'AbortError') {
+        setError('The request timed out. Please check your internet connection and try again.');
+      } else if (err.message === 'server_error') {
+        setError('The server encountered an error. Please try again in a few minutes.');
+      } else if (err.message === 'bad_response') {
+        setError('We received an unexpected response. Please try again or contact your trainer.');
+      } else {
+        setError('We couldn\u2019t find your onboarding record. Please check your link and try again, or contact your trainer for a new one.');
+      }
     } finally {
       setLoading(false);
     }
+  };
+
+  // Show confirmation modal before toggling a step
+  const requestToggleStep = (stepId, stepType, currentStatus, stepTitle) => {
+    if (processingSteps.has(stepId)) return;
+    setConfirmModal({ stepId, stepType, currentStatus, stepTitle });
+  };
+
+  const confirmToggleStep = () => {
+    if (!confirmModal) return;
+    const { stepId, stepType, currentStatus } = confirmModal;
+    setConfirmModal(null);
+    toggleStepComplete(stepId, stepType, currentStatus);
   };
 
   const toggleStepComplete = async (stepId, stepType, currentStatus) => {
     if (processingSteps.has(stepId)) return;
     const newStatus = !currentStatus;
     setProcessingSteps(prev => new Set([...prev, stepId]));
+
+    // Optimistic update: immediately reflect the change in local state
+    setRecruitData(prev => {
+      if (!prev) return prev;
+      const stepsKey = stepType === 'licensing' ? 'licensing_steps' : 'training_steps';
+      const updatedSteps = prev[stepsKey].map(s =>
+        s.id === stepId ? { ...s, is_completed: newStatus, status: newStatus ? 'Completed' : (s._originalStatus || 'On Track') } : s
+      );
+      const completedCount = updatedSteps.filter(s => s.is_completed).length;
+      return {
+        ...prev,
+        [stepsKey]: updatedSteps,
+        progress: {
+          ...prev.progress,
+          [stepType]: {
+            total: updatedSteps.length,
+            completed: completedCount,
+            percentage: updatedSteps.length > 0 ? Math.round((completedCount / updatedSteps.length) * 100) : 0
+          }
+        }
+      };
+    });
+
     try {
       const response = await fetch(
         `${CONFIG.n8nBaseUrl}${CONFIG.webhooks.updateStep}`,
@@ -371,16 +220,17 @@ const WFGOnboardingApp = ({ token, isAdmin }) => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             token,
-            recruit_id: recruitData.recruit.id, step_record_id: stepId,
-            step_type: stepType, is_completed: newStatus,
-            user_email: recruitData.recruit.email, user_name: recruitData.recruit.full_name
+            step_id: stepId,
+            step_type: stepType,
+            is_completed: newStatus
           })
         }
       );
       if (!response.ok) throw new Error('Failed to update step');
-      await fetchRecruitData();
     } catch (err) {
       console.error('Error updating step:', err);
+      // Revert optimistic update on failure
+      await fetchRecruitData();
       alert('Failed to update step. Please try again.');
     } finally {
       setProcessingSteps(prev => { const next = new Set(prev); next.delete(stepId); return next; });
@@ -464,7 +314,7 @@ const WFGOnboardingApp = ({ token, isAdmin }) => {
           <div className="px-4 py-3 sm:px-5 flex items-center gap-3">
             {/* Checkbox */}
             <button
-              onClick={(e) => { e.stopPropagation(); toggleStepComplete(step.id, stepType, step.is_completed); }}
+              onClick={(e) => { e.stopPropagation(); requestToggleStep(step.id, stepType, step.is_completed, step.step_title); }}
               disabled={isProcessing}
               className="flex-shrink-0 transition-all duration-200 hover:scale-110 active:scale-95"
             >
@@ -530,7 +380,7 @@ const WFGOnboardingApp = ({ token, isAdmin }) => {
           <div className="flex items-start gap-4">
             {/* Checkbox */}
             <button
-              onClick={() => toggleStepComplete(step.id, stepType, step.is_completed)}
+              onClick={() => requestToggleStep(step.id, stepType, step.is_completed, step.step_title)}
               disabled={isProcessing}
               className="flex-shrink-0 mt-0.5 transition-all duration-200 hover:scale-110 active:scale-95"
             >
@@ -627,7 +477,7 @@ const WFGOnboardingApp = ({ token, isAdmin }) => {
                           }`}>
                             {idx + 1}
                           </span>
-                          <span>{instruction}</span>
+                          <span><Linkify>{instruction}</Linkify></span>
                         </li>
                       ))}
                     </ol>
@@ -641,7 +491,7 @@ const WFGOnboardingApp = ({ token, isAdmin }) => {
                       Resources
                     </h4>
                     <p className="text-sm text-slate-600 leading-relaxed">
-                      {step.resources}
+                      <Linkify>{step.resources}</Linkify>
                     </p>
                   </div>
                 )}
@@ -653,16 +503,34 @@ const WFGOnboardingApp = ({ token, isAdmin }) => {
     );
   };
 
-  // --- Loading State ---
+  // --- Loading State (Skeleton) ---
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="relative w-12 h-12 mx-auto mb-5">
-            <div className="absolute inset-0 rounded-full border-[3px] border-slate-200" />
-            <div className="absolute inset-0 rounded-full border-[3px] border-blue-600 border-t-transparent animate-spin" />
+      <div className="min-h-screen bg-slate-50">
+        <header className="bg-white/80 border-b border-slate-200/60 h-16" />
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+          <div className="mb-8">
+            <div className="h-4 w-24 bg-slate-200 rounded animate-pulse mb-2" />
+            <div className="h-10 w-48 bg-slate-200 rounded animate-pulse" />
           </div>
-          <p className="text-slate-500 font-medium text-sm tracking-tight">Loading your journey...</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            {[0, 1, 2].map(i => (
+              <div key={i} className="bg-white rounded-2xl border border-slate-200/80 p-6 h-28 animate-pulse">
+                <div className="flex items-center gap-5">
+                  <div className="w-[72px] h-[72px] bg-slate-100 rounded-full" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-3 w-16 bg-slate-100 rounded" />
+                    <div className="h-6 w-12 bg-slate-100 rounded" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="bg-white rounded-2xl border border-slate-200/80 p-5 space-y-3">
+            {[0, 1, 2, 3, 4].map(i => (
+              <div key={i} className="h-14 bg-slate-50 rounded-xl animate-pulse" />
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -670,22 +538,29 @@ const WFGOnboardingApp = ({ token, isAdmin }) => {
 
   // --- Error State ---
   if (error || !recruitData) {
+    const isNoToken = error === 'no_token';
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
         <div className="text-center max-w-sm">
           <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-5">
             <Shield className="w-7 h-7 text-slate-400" />
           </div>
-          <h2 className="text-xl font-bold text-slate-900 mb-2">Link not recognized</h2>
+          <h2 className="text-xl font-bold text-slate-900 mb-2">
+            {isNoToken ? 'Welcome to WFG Onboarding' : 'Link not recognized'}
+          </h2>
           <p className="text-sm text-slate-500 leading-relaxed mb-6">
-            {error || 'Something went wrong loading your data.'}
+            {isNoToken
+              ? 'To view your onboarding progress, please use the personalized link your trainer sent you.'
+              : (error || 'Something went wrong loading your data.')}
           </p>
-          <button
-            onClick={() => { setError(null); fetchRecruitData(); }}
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-white text-sm font-semibold rounded-xl hover:bg-slate-800 transition-colors"
-          >
-            Try again
-          </button>
+          {!isNoToken && (
+            <button
+              onClick={() => { setError(null); fetchRecruitData(); }}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-white text-sm font-semibold rounded-xl hover:bg-slate-800 transition-colors"
+            >
+              Try again
+            </button>
+          )}
         </div>
       </div>
     );
@@ -991,6 +866,56 @@ const WFGOnboardingApp = ({ token, isAdmin }) => {
           </div>
         </div>
       </main>
+
+      {/* ===== CONFIRMATION MODAL ===== */}
+      {confirmModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 space-y-4">
+            <div className="flex items-center gap-3">
+              {confirmModal.currentStatus ? (
+                <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
+                  <Clock className="w-5 h-5 text-amber-600" />
+                </div>
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                </div>
+              )}
+              <div>
+                <h3 className="text-base font-bold text-slate-900">
+                  {confirmModal.currentStatus ? 'Mark as incomplete?' : 'Mark as complete?'}
+                </h3>
+                <p className="text-sm text-slate-500 mt-0.5">
+                  {confirmModal.stepTitle}
+                </p>
+              </div>
+            </div>
+            <p className="text-sm text-slate-600">
+              {confirmModal.currentStatus
+                ? 'This will mark the step as not yet completed. You can always complete it again later.'
+                : 'Are you sure you have completed this step? Make sure you\'ve finished all the instructions before marking it done.'}
+            </p>
+            <div className="flex gap-3 pt-1">
+              <button
+                onClick={() => setConfirmModal(null)}
+                className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmToggleStep}
+                className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-colors ${
+                  confirmModal.currentStatus
+                    ? 'bg-amber-500 hover:bg-amber-600'
+                    : 'bg-emerald-500 hover:bg-emerald-600'
+                }`}
+              >
+                {confirmModal.currentStatus ? 'Yes, undo' : 'Yes, I\'m done'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

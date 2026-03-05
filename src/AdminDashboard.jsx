@@ -3,101 +3,91 @@ import {
   Users, TrendingUp, Clock, ChevronDown, ChevronUp,
   GraduationCap, Target, Shield, Mail, MessageCircle,
   Phone, MapPin, Search, Calendar, Activity, AlertTriangle,
-  CheckCircle2, BarChart3, ArrowUpRight
+  CheckCircle2, BarChart3, ArrowUpRight, UserPlus, X, Copy, Loader2, Link
 } from 'lucide-react';
+import { getLicensingSteps, getTrainingSteps, mergeStepsWithCompletion } from './stepDefinitions';
 
 // Configuration
 const CONFIG = {
-  n8nBaseUrl: 'https://mfunston.app.n8n.cloud',
+  n8nBaseUrl: import.meta.env.VITE_N8N_BASE_URL || 'https://mfunston.app.n8n.cloud',
   webhooks: {
-    getData: '/webhook/wfg-app-get-recruit-data'
+    getData: '/webhook/wfg-app-get-recruit-data',
+    createRecruit: '/webhook/wfg-recruit-created'
   }
 };
 
-// Mock admin data for demo
-const MOCK_ADMIN_DATA = {
-  success: true,
-  admin: {
-    name: "Jorge Maldonado",
-    role: "Administrator",
-    office: "Houston Office"
-  },
-  recruits: [
-    {
-      id: "rec_001", full_name: "Maria Santos", email: "maria.santos@email.com", phone: "(555) 123-4567",
-      state_province: "Texas", start_date: "2024-01-10", timeline_health: "On Track",
-      licensing_progress: { total: 12, completed: 9, percentage: 75 },
-      training_progress: { total: 8, completed: 6, percentage: 75 },
-      current_licensing_step: { step_number: 10, step_title: "Sign Your WFG Agent Agreement" },
-      current_training_step: { step_number: 7, step_title: "Complete Your Field Training" },
-      days_since_start: 33, last_activity: "2 hours ago"
-    },
-    {
-      id: "rec_002", full_name: "David Chen", email: "david.chen@email.com", phone: "(555) 234-5678",
-      state_province: "California", start_date: "2024-01-15", timeline_health: "On Track",
-      licensing_progress: { total: 12, completed: 7, percentage: 58 },
-      training_progress: { total: 8, completed: 5, percentage: 63 },
-      current_licensing_step: { step_number: 8, step_title: "Create Account With Sircon" },
-      current_training_step: { step_number: 6, step_title: "Complete Your Trainer Guidebook" },
-      days_since_start: 28, last_activity: "1 day ago"
-    },
-    {
-      id: "rec_003", full_name: "Ashley Williams", email: "ashley.w@email.com", phone: "(555) 345-6789",
-      state_province: "Florida", start_date: "2024-01-05", timeline_health: "Due Soon",
-      licensing_progress: { total: 12, completed: 5, percentage: 42 },
-      training_progress: { total: 8, completed: 3, percentage: 38 },
-      current_licensing_step: { step_number: 6, step_title: "Complete Your State Exam" },
-      current_training_step: { step_number: 4, step_title: "Complete Your PFS" },
-      days_since_start: 38, last_activity: "3 days ago"
-    },
-    {
-      id: "rec_004", full_name: "Marcus Johnson", email: "m.johnson@email.com", phone: "(555) 456-7890",
-      state_province: "Texas", start_date: "2023-12-20", timeline_health: "Overdue",
-      licensing_progress: { total: 12, completed: 4, percentage: 33 },
-      training_progress: { total: 8, completed: 2, percentage: 25 },
-      current_licensing_step: { step_number: 5, step_title: "Book Your State Exam" },
-      current_training_step: { step_number: 3, step_title: "Start Your Licensing Path" },
-      days_since_start: 54, last_activity: "5 days ago"
-    },
-    {
-      id: "rec_005", full_name: "Priya Patel", email: "priya.patel@email.com", phone: "(555) 567-8901",
-      state_province: "New York", start_date: "2024-01-20", timeline_health: "On Track",
-      licensing_progress: { total: 12, completed: 6, percentage: 50 },
-      training_progress: { total: 8, completed: 4, percentage: 50 },
-      current_licensing_step: { step_number: 7, step_title: "Complete Your Fingerprints" },
-      current_training_step: { step_number: 5, step_title: "Attend All Workshops and BPM" },
-      days_since_start: 23, last_activity: "6 hours ago"
-    },
-    {
-      id: "rec_006", full_name: "James Rivera", email: "j.rivera@email.com", phone: "(555) 678-9012",
-      state_province: "Arizona", start_date: "2024-02-01", timeline_health: "On Track",
-      licensing_progress: { total: 12, completed: 3, percentage: 25 },
-      training_progress: { total: 8, completed: 2, percentage: 25 },
-      current_licensing_step: { step_number: 4, step_title: "Complete Your Pre-Licensing Course" },
-      current_training_step: { step_number: 3, step_title: "Start Your Licensing Path" },
-      days_since_start: 11, last_activity: "Today"
-    },
-    {
-      id: "rec_007", full_name: "Sarah Kim", email: "sarah.kim@email.com", phone: "(555) 789-0123",
-      state_province: "Washington", start_date: "2024-01-08", timeline_health: "Due Soon",
-      licensing_progress: { total: 12, completed: 6, percentage: 50 },
-      training_progress: { total: 8, completed: 2, percentage: 25 },
-      current_licensing_step: { step_number: 7, step_title: "Complete Your Fingerprints" },
-      current_training_step: { step_number: 3, step_title: "Start Your Licensing Path" },
-      days_since_start: 35, last_activity: "2 days ago"
-    },
-    {
-      id: "rec_008", full_name: "Carlos Mendez", email: "carlos.m@email.com", phone: "(555) 890-1234",
-      state_province: "Texas", start_date: "2023-12-28", timeline_health: "On Track",
-      licensing_progress: { total: 12, completed: 11, percentage: 92 },
-      training_progress: { total: 8, completed: 7, percentage: 88 },
-      current_licensing_step: { step_number: 12, step_title: "Get Appointed By Carriers" },
-      current_training_step: { step_number: 8, step_title: "Complete Your GX 315" },
-      days_since_start: 46, last_activity: "1 hour ago"
-    }
-  ]
-};
+// Normalize admin recruit data, computing progress from local step definitions
+const normalizeAdminRecruit = (r) => {
+  // Default country to 'canada' if missing (WFG is Vancouver-based)
+  const country = r.country || 'canada';
 
+  // Default role to 'recruit' if missing
+  const role = r.role || 'recruit';
+
+  // Parse completion arrays from recruit record
+  let completedLicensing = {};
+  let completedTraining = {};
+  try {
+    const lcArr = JSON.parse(r.completed_licensing_steps || '[]');
+    lcArr.forEach(id => { completedLicensing[id] = { is_completed: true }; });
+  } catch(e) {}
+  try {
+    const trArr = JSON.parse(r.completed_training_steps || '[]');
+    trArr.forEach(id => { completedTraining[id] = { is_completed: true }; });
+  } catch(e) {}
+
+  // Get step definitions and merge with completion data
+  const licensingSteps = mergeStepsWithCompletion(
+    getLicensingSteps(country, r.start_date),
+    completedLicensing
+  );
+  const trainingSteps = mergeStepsWithCompletion(
+    getTrainingSteps(r.start_date),
+    completedTraining
+  );
+
+  const licensingCompleted = licensingSteps.filter(s => s.is_completed).length;
+  const trainingCompleted = trainingSteps.filter(s => s.is_completed).length;
+
+  // Find first incomplete step in each pathway
+  const currentLicensingStep = licensingSteps.find(s => !s.is_completed) || licensingSteps[licensingSteps.length - 1];
+  const currentTrainingStep = trainingSteps.find(s => !s.is_completed) || trainingSteps[trainingSteps.length - 1];
+
+  // Compute days since start
+  const startDate = r.start_date ? new Date(r.start_date) : new Date();
+  const daysSinceStart = isNaN(startDate.getTime()) ? 0 : Math.floor((new Date() - startDate) / (1000 * 60 * 60 * 24));
+
+  // Use API-provided progress if available (transition period), otherwise compute locally
+  const hasApiProgress = r.licensing_progress && r.licensing_progress.total > 0;
+
+  return {
+    ...r,
+    country,
+    role,
+    days_since_start: hasApiProgress
+      ? (typeof r.days_since_start === 'number' ? r.days_since_start : parseInt(r.days_since_start, 10) || daysSinceStart)
+      : daysSinceStart,
+    licensing_progress: {
+      total: licensingSteps.length,
+      completed: licensingCompleted,
+      percentage: licensingSteps.length > 0 ? Math.round((licensingCompleted / licensingSteps.length) * 100) : 0,
+    },
+    training_progress: {
+      total: trainingSteps.length,
+      completed: trainingCompleted,
+      percentage: trainingSteps.length > 0 ? Math.round((trainingCompleted / trainingSteps.length) * 100) : 0,
+    },
+    current_licensing_step: {
+      step_number: currentLicensingStep?.step_number || 1,
+      step_title: currentLicensingStep?.step_title || '',
+    },
+    current_training_step: {
+      step_number: currentTrainingStep?.step_number || 1,
+      step_title: currentTrainingStep?.step_title || '',
+    },
+    timeline_health: ['On Track', 'Due Soon', 'Overdue'].includes(r.timeline_health) ? r.timeline_health : 'On Track',
+  };
+};
 // --- Reusable Sub-components ---
 
 const ProgressRing = ({ percentage, size = 80, strokeWidth = 6, color = '#3b82f6' }) => {
@@ -134,17 +124,29 @@ const StatusBadge = ({ status, size = 'default' }) => {
 const cleanPhone = (phone) => phone.replace(/\D/g, '');
 
 // --- Pipeline Chart: which licensing step are recruits on ---
+const LICENSING_LABELS = {
+  us: [
+    'Membership', 'Pay Fees', 'Register Course', 'Pre-Licensing', 'Book Exam', 'State Exam',
+    'Fingerprints', 'Sircon', 'Apply License', 'WFG Agreement', 'AML/LTC', 'Carriers'
+  ],
+  ca: [
+    'Membership', 'Pay Fees', 'Register Course', 'HLLQP', 'Provincial Acct', 'Book Exam',
+    'Provincial Exam', 'Background Check', 'WFG Agreement', 'IVARI', 'Apply License', 'AML/Ethics', 'Carriers'
+  ]
+};
+
 const PipelineChart = ({ recruits }) => {
-  const steps = Array.from({ length: 12 }, (_, i) => {
+  // Use max step count across all recruits (12 for US, 13 for Canada)
+  const maxStepNum = Math.max(...recruits.map(r => r.licensing_progress.total), 12);
+  const steps = Array.from({ length: maxStepNum }, (_, i) => {
     const stepNum = i + 1;
     const count = recruits.filter(r => r.current_licensing_step.step_number === stepNum).length;
     return { stepNum, count };
   });
   const maxCount = Math.max(...steps.map(s => s.count), 1);
-  const stepLabels = [
-    'Membership', 'Pay Fees', 'Register Course', 'Pre-Licensing', 'Book Exam', 'State Exam',
-    'Fingerprints', 'Sircon', 'Apply License', 'WFG Agreement', 'AML/LTC', 'Carriers'
-  ];
+  // Use CA labels if any recruit is Canadian, otherwise US
+  const hasCanadian = recruits.some(r => r.country && r.country !== 'united_states');
+  const stepLabels = hasCanadian ? LICENSING_LABELS.ca : LICENSING_LABELS.us;
 
   return (
     <div className="space-y-2">
@@ -161,7 +163,7 @@ const PipelineChart = ({ recruits }) => {
               )}
             </div>
           </div>
-          <span className="text-[10px] text-slate-400 w-20 truncate hidden sm:block">{stepLabels[stepNum - 1]}</span>
+          <span className="text-[10px] text-slate-400 w-20 truncate hidden sm:block">{stepLabels[stepNum - 1] || `Step ${stepNum}`}</span>
         </div>
       ))}
     </div>
@@ -258,10 +260,21 @@ const StepDots = ({ total, completed, color = 'blue' }) => {
 
 // --- Recruit Accordion Row ---
 const RecruitRow = ({ recruit, isExpanded, onToggle }) => {
+  const [linkCopied, setLinkCopied] = useState(false);
   const overallPct = Math.round(
     ((recruit.licensing_progress.completed + recruit.training_progress.completed) /
      (recruit.licensing_progress.total + recruit.training_progress.total)) * 100
   );
+  const onboardingLink = recruit.onboarding_token
+    ? `${window.location.origin}${window.location.pathname}?token=${recruit.onboarding_token}`
+    : null;
+  const handleCopyLink = (e) => {
+    e.stopPropagation();
+    if (!onboardingLink) return;
+    navigator.clipboard.writeText(onboardingLink);
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2000);
+  };
 
   return (
     <div className={`bg-white rounded-2xl border transition-all duration-300 overflow-hidden ${
@@ -393,6 +406,24 @@ const RecruitRow = ({ recruit, isExpanded, onToggle }) => {
             <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> Day {recruit.days_since_start}</span>
           </div>
 
+          {/* Onboarding link */}
+          {onboardingLink && (
+            <div className="mt-3 flex items-center gap-2 bg-slate-50 rounded-xl p-2.5 border border-slate-200/80">
+              <Link className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+              <code className="flex-1 text-[11px] text-slate-500 truncate">{onboardingLink}</code>
+              <button
+                onClick={handleCopyLink}
+                className={`flex-shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-colors ${
+                  linkCopied
+                    ? 'bg-emerald-50 text-emerald-600'
+                    : 'bg-white text-slate-500 hover:bg-slate-100 border border-slate-200'
+                }`}
+              >
+                {linkCopied ? <><CheckCircle2 className="w-3 h-3" /> Copied</> : <><Copy className="w-3 h-3" /> Copy Link</>}
+              </button>
+            </div>
+          )}
+
           {/* Mobile message buttons */}
           <div className="flex sm:hidden items-center gap-2 mt-4 pt-3 border-t border-slate-100">
             {recruit.phone && (
@@ -424,6 +455,486 @@ const RecruitRow = ({ recruit, isExpanded, onToggle }) => {
   );
 };
 
+// --- US States + Canadian Provinces for dropdown ---
+const REGIONS = {
+  'United States': [
+    'Alabama','Alaska','Arizona','Arkansas','California','Colorado','Connecticut','Delaware','Florida','Georgia',
+    'Hawaii','Idaho','Illinois','Indiana','Iowa','Kansas','Kentucky','Louisiana','Maine','Maryland',
+    'Massachusetts','Michigan','Minnesota','Mississippi','Missouri','Montana','Nebraska','Nevada','New Hampshire','New Jersey',
+    'New Mexico','New York','North Carolina','North Dakota','Ohio','Oklahoma','Oregon','Pennsylvania','Rhode Island','South Carolina',
+    'South Dakota','Tennessee','Texas','Utah','Vermont','Virginia','Washington','West Virginia','Wisconsin','Wyoming'
+  ],
+  'Canada': [
+    'Alberta','British Columbia','Manitoba','New Brunswick','Newfoundland and Labrador','Nova Scotia',
+    'Ontario','Prince Edward Island','Quebec','Saskatchewan','Northwest Territories','Nunavut','Yukon'
+  ]
+};
+
+// --- Add Admin Modal ---
+const generateAdminToken = (length = 26) => {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let token = '';
+  for (let i = 0; i < length; i++) token += chars[Math.floor(Math.random() * chars.length)];
+  return `admin_${token}`;
+};
+
+const AddAdminModal = ({ isOpen, onClose, onSuccess, admin }) => {
+  const [form, setForm] = useState({
+    full_name: '',
+    email: '',
+    upline_office: admin?.office || '',
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const [result, setResult] = useState(null);
+
+  const handleChange = (field, value) => setForm(prev => ({ ...prev, [field]: value }));
+
+  const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const isValid = form.full_name.trim() && form.email.trim() && isValidEmail(form.email);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!isValid || submitting) return;
+    setSubmitting(true);
+    setResult(null);
+    const token = generateAdminToken();
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 20000);
+      // Build properties, only including non-empty values
+      const properties = { full_name: form.full_name.trim(), email: form.email.trim(), role: 'admin', onboarding_token: token };
+      if (form.upline_office.trim()) properties.upline_office = form.upline_office.trim();
+
+      const response = await fetch(`${CONFIG.n8nBaseUrl}/webhook/ghl-proxy`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          version: 'v2', method: 'POST',
+          endpoint: 'objects/custom_objects.recruits/records',
+          data: { locationId: 'ig2lyOlMvCuYK8K9sOyb', properties }
+        }),
+        signal: controller.signal
+      });
+      clearTimeout(timeout);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      const record = data?.body?.record || data?.record;
+      if (record?.id) {
+        const link = `${window.location.origin}${window.location.pathname}?token=${token}`;
+        setResult({ success: true, token, link });
+      } else {
+        throw new Error('Admin creation failed — the record may not have been saved. Try again with fewer fields.');
+      }
+    } catch (err) {
+      console.error('Error creating admin:', err);
+      setResult({ success: false, error: err.name === 'AbortError' ? 'Request timed out. Please try again.' : (err.message || 'Something went wrong.') });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleCopyLink = () => { if (result?.link) navigator.clipboard.writeText(result.link); };
+  const handleDone = () => { onSuccess(); onClose(); };
+
+  if (!isOpen) return null;
+
+  const inputClass = "w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 transition-colors";
+  const labelClass = "block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5";
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={!submitting ? onClose : undefined} />
+      <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-amber-50 rounded-xl flex items-center justify-center">
+              <Shield className="w-4.5 h-4.5 text-amber-600" />
+            </div>
+            <h3 className="text-lg font-bold text-slate-900">Add New Admin</h3>
+          </div>
+          <button onClick={onClose} disabled={submitting} className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center transition-colors">
+            <X className="w-4 h-4 text-slate-400" />
+          </button>
+        </div>
+
+        {result?.success ? (
+          <div className="px-6 py-8 text-center">
+            <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <CheckCircle2 className="w-7 h-7 text-emerald-500" />
+            </div>
+            <h4 className="text-lg font-bold text-slate-900 mb-1">Admin Created</h4>
+            <p className="text-sm text-slate-500 mb-5">{form.full_name} now has admin access.</p>
+            <div className="mb-6">
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Admin Dashboard Link</p>
+              <div className="flex items-center gap-2 bg-slate-50 rounded-xl p-3 border border-slate-200">
+                <code className="flex-1 text-xs text-slate-600 truncate">{result.link}</code>
+                <button onClick={handleCopyLink} className="flex-shrink-0 w-8 h-8 bg-white rounded-lg border border-slate-200 hover:bg-slate-50 flex items-center justify-center transition-colors" title="Copy link">
+                  <Copy className="w-3.5 h-3.5 text-slate-500" />
+                </button>
+              </div>
+              <p className="text-[11px] text-slate-400 mt-2">Send this link to the new admin to access their dashboard.</p>
+            </div>
+            <button onClick={handleDone} className="px-5 py-2.5 bg-slate-900 text-white text-sm font-semibold rounded-xl hover:bg-slate-800 transition-colors">
+              Done
+            </button>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
+            {result?.error && (
+              <div className="flex items-center gap-2 px-4 py-3 bg-red-50 border border-red-100 rounded-xl text-sm text-red-700">
+                <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+                {result.error}
+              </div>
+            )}
+            <div>
+              <label className={labelClass}>Full Name *</label>
+              <input type="text" value={form.full_name} onChange={(e) => handleChange('full_name', e.target.value)} placeholder="e.g. Jane Smith" className={inputClass} required />
+            </div>
+            <div>
+              <label className={labelClass}>Email *</label>
+              <input type="email" value={form.email} onChange={(e) => handleChange('email', e.target.value)} placeholder="jane@example.com" className={inputClass} required />
+              {form.email && !isValidEmail(form.email) && (
+                <p className="text-xs text-red-500 mt-1">Please enter a valid email address.</p>
+              )}
+            </div>
+            <div>
+              <label className={labelClass}>Office</label>
+              <input type="text" value={form.upline_office} onChange={(e) => handleChange('upline_office', e.target.value)} placeholder="e.g. WFG Vancouver" className={inputClass} />
+            </div>
+            <div className="pt-2">
+              <button type="submit" disabled={!isValid || submitting}
+                className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-slate-900 text-white text-sm font-semibold rounded-xl hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                {submitting ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Creating Admin...</>
+                ) : (
+                  <><Shield className="w-4 h-4" /> Add Admin</>
+                )}
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// --- Add Recruit Modal ---
+const AddRecruitModal = ({ isOpen, onClose, onSuccess, admin }) => {
+  const [form, setForm] = useState({
+    full_name: '',
+    email: '',
+    phone: '',
+    country: 'United States',
+    state_province: '',
+    start_date: new Date().toISOString().split('T')[0],
+    recruiter_name: admin?.name || '',
+    upline_office: admin?.office || '',
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const [result, setResult] = useState(null); // { success, token, error }
+
+  const handleChange = (field, value) => {
+    setForm(prev => {
+      const updated = { ...prev, [field]: value };
+      if (field === 'country') updated.state_province = '';
+      return updated;
+    });
+  };
+
+  const isValid = form.full_name.trim() && form.email.trim() && form.country && form.state_province && form.start_date;
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!isValid || submitting) return;
+    setSubmitting(true);
+    setResult(null);
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 20000);
+      const response = await fetch(
+        `${CONFIG.n8nBaseUrl}${CONFIG.webhooks.createRecruit}`,
+        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form), signal: controller.signal }
+      );
+      clearTimeout(timeout);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      if (data.success && data.token) {
+        const link = `${window.location.origin}${window.location.pathname}?token=${data.token}`;
+        setResult({ success: true, token: data.token, link });
+      } else if (data.success) {
+        setResult({ success: true, token: null, link: null });
+      } else {
+        throw new Error(data.error || 'Failed to create recruit');
+      }
+    } catch (err) {
+      console.error('Error creating recruit:', err);
+      setResult({ success: false, error: err.name === 'AbortError' ? 'Request timed out. Please try again.' : (err.message || 'Something went wrong.') });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleCopyLink = () => {
+    if (result?.link) {
+      navigator.clipboard.writeText(result.link);
+    }
+  };
+
+  const handleDone = () => {
+    onSuccess();
+    onClose();
+  };
+
+  if (!isOpen) return null;
+
+  const regions = REGIONS[form.country] || [];
+  const inputClass = "w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 transition-colors";
+  const labelClass = "block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5";
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={!submitting ? onClose : undefined} />
+      <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-blue-50 rounded-xl flex items-center justify-center">
+              <UserPlus className="w-4.5 h-4.5 text-blue-600" />
+            </div>
+            <h3 className="text-lg font-bold text-slate-900">Add New Recruit</h3>
+          </div>
+          <button onClick={onClose} disabled={submitting} className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center transition-colors">
+            <X className="w-4 h-4 text-slate-400" />
+          </button>
+        </div>
+
+        {/* Success State */}
+        {result?.success ? (
+          <div className="px-6 py-8 text-center">
+            <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <CheckCircle2 className="w-7 h-7 text-emerald-500" />
+            </div>
+            <h4 className="text-lg font-bold text-slate-900 mb-1">Recruit Created</h4>
+            <p className="text-sm text-slate-500 mb-5">{form.full_name} has been added to the system.</p>
+            {result.link ? (
+              <div className="mb-6">
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Onboarding Link</p>
+                <div className="flex items-center gap-2 bg-slate-50 rounded-xl p-3 border border-slate-200">
+                  <code className="flex-1 text-xs text-slate-600 truncate">{result.link}</code>
+                  <button onClick={handleCopyLink} className="flex-shrink-0 w-8 h-8 bg-white rounded-lg border border-slate-200 hover:bg-slate-50 flex items-center justify-center transition-colors" title="Copy link">
+                    <Copy className="w-3.5 h-3.5 text-slate-500" />
+                  </button>
+                </div>
+                <p className="text-[11px] text-slate-400 mt-2">Send this link to the recruit to access their onboarding tracker.</p>
+              </div>
+            ) : (
+              <p className="text-sm text-slate-400 mb-6">The n8n workflow will generate and email their onboarding link.</p>
+            )}
+            <button onClick={handleDone} className="px-5 py-2.5 bg-slate-900 text-white text-sm font-semibold rounded-xl hover:bg-slate-800 transition-colors">
+              Done
+            </button>
+          </div>
+        ) : (
+          /* Form */
+          <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
+            {/* Error banner */}
+            {result?.error && (
+              <div className="flex items-center gap-2 px-4 py-3 bg-red-50 border border-red-100 rounded-xl text-sm text-red-700">
+                <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+                {result.error}
+              </div>
+            )}
+
+            {/* Name */}
+            <div>
+              <label className={labelClass}>Full Name *</label>
+              <input type="text" value={form.full_name} onChange={(e) => handleChange('full_name', e.target.value)} placeholder="e.g. Maria Santos" className={inputClass} required />
+            </div>
+
+            {/* Email + Phone */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className={labelClass}>Email *</label>
+                <input type="email" value={form.email} onChange={(e) => handleChange('email', e.target.value)} placeholder="maria@email.com" className={inputClass} required />
+              </div>
+              <div>
+                <label className={labelClass}>Phone</label>
+                <input type="tel" value={form.phone} onChange={(e) => handleChange('phone', e.target.value)} placeholder="(555) 123-4567" className={inputClass} />
+              </div>
+            </div>
+
+            {/* Country + State */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className={labelClass}>Country *</label>
+                <select value={form.country} onChange={(e) => handleChange('country', e.target.value)} className={inputClass}>
+                  <option value="United States">United States</option>
+                  <option value="Canada">Canada</option>
+                </select>
+              </div>
+              <div>
+                <label className={labelClass}>{form.country === 'Canada' ? 'Province' : 'State'} *</label>
+                <select value={form.state_province} onChange={(e) => handleChange('state_province', e.target.value)} className={inputClass} required>
+                  <option value="">Select...</option>
+                  {regions.map(r => <option key={r} value={r}>{r}</option>)}
+                </select>
+              </div>
+            </div>
+
+            {/* Start Date */}
+            <div>
+              <label className={labelClass}>Start Date *</label>
+              <input type="date" value={form.start_date} onChange={(e) => handleChange('start_date', e.target.value)} className={inputClass} required />
+            </div>
+
+            {/* Pre-filled fields (read-only context) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className={labelClass}>Recruiter</label>
+                <input type="text" value={form.recruiter_name} onChange={(e) => handleChange('recruiter_name', e.target.value)} className={inputClass} />
+              </div>
+              <div>
+                <label className={labelClass}>Office</label>
+                <input type="text" value={form.upline_office} onChange={(e) => handleChange('upline_office', e.target.value)} className={inputClass} />
+              </div>
+            </div>
+
+            {/* Submit */}
+            <div className="pt-2">
+              <button
+                type="submit"
+                disabled={!isValid || submitting}
+                className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-slate-900 text-white text-sm font-semibold rounded-xl hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {submitting ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Creating Recruit...</>
+                ) : (
+                  <><UserPlus className="w-4 h-4" /> Add Recruit</>
+                )}
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// --- Find Link Modal ---
+const FindLinkModal = ({ isOpen, onClose, recruits }) => {
+  const [query, setQuery] = useState('');
+  const [copiedId, setCopiedId] = useState(null);
+
+  if (!isOpen) return null;
+
+  const q = query.toLowerCase().trim();
+  const results = q.length > 0
+    ? recruits.filter(r =>
+        r.full_name.toLowerCase().includes(q) ||
+        (r.email && r.email.toLowerCase().includes(q)) ||
+        (r.phone && r.phone.includes(q))
+      )
+    : [];
+
+  const handleCopy = (recruit) => {
+    if (!recruit.onboarding_token) return;
+    const link = `${window.location.origin}${window.location.pathname}?token=${recruit.onboarding_token}`;
+    navigator.clipboard.writeText(link);
+    setCopiedId(recruit.id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-violet-50 rounded-xl flex items-center justify-center">
+              <Link className="w-4.5 h-4.5 text-violet-600" />
+            </div>
+            <h3 className="text-lg font-bold text-slate-900">Find Onboarding Link</h3>
+          </div>
+          <button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center transition-colors">
+            <X className="w-4 h-4 text-slate-400" />
+          </button>
+        </div>
+
+        <div className="px-6 py-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search by name, email, or phone..."
+              className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-colors"
+              autoFocus
+            />
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto px-6 pb-6">
+          {q.length === 0 ? (
+            <p className="text-sm text-slate-400 text-center py-8">Start typing to search.</p>
+          ) : results.length === 0 ? (
+            <p className="text-sm text-slate-400 text-center py-8">No results found matching "{query}".</p>
+          ) : (
+            <div className="space-y-2">
+              {results.map(r => {
+                const link = r.onboarding_token
+                  ? `${window.location.origin}${window.location.pathname}?token=${r.onboarding_token}`
+                  : null;
+                const isCopied = copiedId === r.id;
+                return (
+                  <div key={r.id} className="bg-slate-50 rounded-xl p-3 border border-slate-200/80">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div>
+                        <p className="text-sm font-semibold text-slate-900">{r.full_name}</p>
+                        <p className="text-[11px] text-slate-400">{r.email}</p>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        {r.role === 'admin' ? (
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-600 text-[10px] font-semibold">
+                            <Shield className="w-2.5 h-2.5" /> Admin
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-600 text-[10px] font-semibold">
+                            <Users className="w-2.5 h-2.5" /> Recruit
+                          </span>
+                        )}
+                        <StatusBadge status={r.timeline_health} size="sm" />
+                      </div>
+                    </div>
+                    {link ? (
+                      <div className="flex items-center gap-2 mt-2">
+                        {r.role === 'admin' && <Shield className="w-3 h-3 text-amber-500 flex-shrink-0" />}
+                        <code className="flex-1 text-[11px] text-slate-500 truncate bg-white rounded-lg px-2.5 py-1.5 border border-slate-200">{link}</code>
+                        <button
+                          onClick={() => handleCopy(r)}
+                          className={`flex-shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition-colors ${
+                            isCopied
+                              ? 'bg-emerald-50 text-emerald-600'
+                              : 'bg-white text-slate-500 hover:bg-slate-100 border border-slate-200'
+                          }`}
+                        >
+                          {isCopied ? <><CheckCircle2 className="w-3 h-3" /> Copied</> : <><Copy className="w-3 h-3" /> Copy</>}
+                        </button>
+                      </div>
+                    ) : (
+                      <p className="text-[11px] text-slate-400 mt-2">No onboarding link available.</p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // ===== MAIN ADMIN DASHBOARD COMPONENT =====
 const AdminDashboard = ({ token }) => {
   const [adminData, setAdminData] = useState(null);
@@ -433,31 +944,44 @@ const AdminDashboard = ({ token }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterHealth, setFilterHealth] = useState('all');
   const [sortBy, setSortBy] = useState('name');
-
-  const isDemoMode = token === 'admin_demo';
+  const [showAddRecruit, setShowAddRecruit] = useState(false);
+  const [showAddAdmin, setShowAddAdmin] = useState(false);
+  const [showFindLink, setShowFindLink] = useState(false);
 
   useEffect(() => { fetchAdminData(); }, []);
 
   const fetchAdminData = async () => {
-    if (isDemoMode) {
-      setAdminData(MOCK_ADMIN_DATA);
-      setLoading(false);
-      return;
-    }
     try {
       setLoading(true);
       setError(null);
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 15000);
       const response = await fetch(
         `${CONFIG.n8nBaseUrl}${CONFIG.webhooks.getData}`,
-        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token }) }
+        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token }), signal: controller.signal }
       );
+      clearTimeout(timeout);
+      if (response.status >= 500) throw new Error('server_error');
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      const data = await response.json();
+      let data;
+      try { data = await response.json(); } catch { throw new Error('bad_response'); }
       if (!data.success) throw new Error(data.error || 'Failed to fetch admin data');
-      setAdminData(data);
+      if (!data.admin || !Array.isArray(data.recruits)) throw new Error('bad_response');
+      setAdminData({
+        ...data,
+        recruits: data.recruits.map(normalizeAdminRecruit),
+      });
     } catch (err) {
       console.error('Error fetching admin data:', err);
-      setError('Could not load dashboard data. Please check your link or try again.');
+      if (err.name === 'AbortError') {
+        setError('The request timed out. Please check your internet connection and try again.');
+      } else if (err.message === 'server_error') {
+        setError('The server encountered an error. Please try again in a few minutes.');
+      } else if (err.message === 'bad_response') {
+        setError('We received an unexpected response from the server. Please try again.');
+      } else {
+        setError('Could not load dashboard data. Please check your link or try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -467,16 +991,36 @@ const AdminDashboard = ({ token }) => {
     setExpandedRecruits(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
-  // --- Loading ---
+  // --- Loading (Skeleton) ---
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="relative w-12 h-12 mx-auto mb-5">
-            <div className="absolute inset-0 rounded-full border-[3px] border-slate-200" />
-            <div className="absolute inset-0 rounded-full border-[3px] border-amber-500 border-t-transparent animate-spin" />
+      <div className="min-h-screen bg-slate-50">
+        <header className="bg-white/80 border-b border-slate-200/60 h-16" />
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+          <div className="mb-8">
+            <div className="h-4 w-24 bg-slate-200 rounded animate-pulse mb-2" />
+            <div className="h-10 w-48 bg-slate-200 rounded animate-pulse" />
           </div>
-          <p className="text-slate-500 font-medium text-sm">Loading dashboard...</p>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            {[0, 1, 2, 3].map(i => (
+              <div key={i} className="bg-white rounded-2xl border border-slate-200/80 p-5 h-32 animate-pulse">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 bg-slate-100 rounded-lg" />
+                  <div className="h-3 w-20 bg-slate-100 rounded" />
+                </div>
+                <div className="h-8 w-12 bg-slate-100 rounded" />
+              </div>
+            ))}
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
+            <div className="bg-white rounded-2xl border border-slate-200/80 p-6 h-64 animate-pulse" />
+            <div className="bg-white rounded-2xl border border-slate-200/80 p-6 h-64 animate-pulse" />
+          </div>
+          <div className="bg-white rounded-2xl border border-slate-200/80 p-5 space-y-3">
+            {[0, 1, 2, 3].map(i => (
+              <div key={i} className="h-16 bg-slate-50 rounded-xl animate-pulse" />
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -582,10 +1126,33 @@ const AdminDashboard = ({ token }) => {
                 {admin.name.split(' ')[0]}
               </h2>
             </div>
-            <span className="inline-flex items-center gap-1.5 text-xs font-bold rounded-full px-3 py-1.5 bg-amber-50 text-amber-700 ring-1 ring-amber-500/20">
-              <Shield className="w-3.5 h-3.5" />
-              {admin.role}
-            </span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowAddRecruit(true)}
+                className="inline-flex items-center gap-1.5 text-xs font-bold rounded-full px-3 py-1.5 bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-sm shadow-blue-500/25"
+              >
+                <UserPlus className="w-3.5 h-3.5" />
+                Add Recruit
+              </button>
+              <button
+                onClick={() => setShowAddAdmin(true)}
+                className="inline-flex items-center gap-1.5 text-xs font-bold rounded-full px-3 py-1.5 bg-amber-600 text-white hover:bg-amber-700 transition-colors shadow-sm shadow-amber-500/25"
+              >
+                <Shield className="w-3.5 h-3.5" />
+                Add Admin
+              </button>
+              <button
+                onClick={() => setShowFindLink(true)}
+                className="inline-flex items-center gap-1.5 text-xs font-bold rounded-full px-3 py-1.5 bg-violet-600 text-white hover:bg-violet-700 transition-colors shadow-sm shadow-violet-500/25"
+              >
+                <Link className="w-3.5 h-3.5" />
+                Find Link
+              </button>
+              <span className="inline-flex items-center gap-1.5 text-xs font-bold rounded-full px-3 py-1.5 bg-amber-50 text-amber-700 ring-1 ring-amber-500/20">
+                <Shield className="w-3.5 h-3.5" />
+                {admin.role}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -773,6 +1340,24 @@ const AdminDashboard = ({ token }) => {
           </div>
         </div>
       </main>
+
+      <AddRecruitModal
+        isOpen={showAddRecruit}
+        onClose={() => setShowAddRecruit(false)}
+        onSuccess={() => fetchAdminData()}
+        admin={admin}
+      />
+      <AddAdminModal
+        isOpen={showAddAdmin}
+        onClose={() => setShowAddAdmin(false)}
+        onSuccess={() => fetchAdminData()}
+        admin={admin}
+      />
+      <FindLinkModal
+        isOpen={showFindLink}
+        onClose={() => setShowFindLink(false)}
+        recruits={recruits}
+      />
     </div>
   );
 };
