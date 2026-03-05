@@ -12,41 +12,30 @@
 // =============================================================================
 
 // -----------------------------------------------------------------------------
-// US Licensing Steps (12 steps)
+// US Licensing Steps (11 steps)
 // -----------------------------------------------------------------------------
 const US_LICENSING_STEPS = [
   {
     step_id: 'l1',
     step_number: 1,
-    step_title: 'Sign Your Membership Agreement',
-    step_description: 'Do the Associate Membership Agreement.',
+    step_title: 'Sign & Pay Your Membership Agreement',
+    step_description: 'Complete and pay for your Associate Membership Agreement.',
     instructions: [
       'Go to www.wfglaunch.com',
       'Type in your personal information accurately',
       'Review and sign the Associate Membership Agreement',
-      'Ensure all details match your government-issued ID'
+      'Ensure all details match your government-issued ID',
+      'Pay the membership fee using your credit card',
+      'Keep your payment confirmation for your records',
+      'Notify your trainer once complete'
     ],
-    resources: 'Your trainer and your ID — www.wfglaunch.com',
-    timeline_guidance: '5 mins',
+    resources: 'Your trainer, your ID, and your credit card — www.wfglaunch.com',
+    timeline_guidance: '10 mins',
     days_from_start: 1
   },
   {
     step_id: 'l2',
     step_number: 2,
-    step_title: 'Pay Your Membership Fees',
-    step_description: 'Pay for your Associate Membership Agreement.',
-    instructions: [
-      'Use your credit card to pay the membership fee',
-      'Keep your payment confirmation for your records',
-      'Notify your trainer once payment is complete'
-    ],
-    resources: 'Your trainer and your credit card',
-    timeline_guidance: '1 min',
-    days_from_start: 1
-  },
-  {
-    step_id: 'l3',
-    step_number: 3,
     step_title: 'Register for Your Online Course',
     step_description: 'Sign up for the Life & Health pre-licensing course.',
     instructions: [
@@ -61,8 +50,8 @@ const US_LICENSING_STEPS = [
     days_from_start: 5
   },
   {
-    step_id: 'l4',
-    step_number: 4,
+    step_id: 'l3',
+    step_number: 3,
     step_title: 'Complete Your Pre-Licensing Course',
     step_description: 'Study and pass the pre-licensing course.',
     instructions: [
@@ -77,8 +66,8 @@ const US_LICENSING_STEPS = [
     days_from_start: 10
   },
   {
-    step_id: 'l5',
-    step_number: 5,
+    step_id: 'l4',
+    step_number: 4,
     step_title: 'Book Your State Exam',
     step_description: 'Book a time to write the exam.',
     instructions: [
@@ -94,8 +83,8 @@ const US_LICENSING_STEPS = [
     days_from_start: 11
   },
   {
-    step_id: 'l6',
-    step_number: 6,
+    step_id: 'l5',
+    step_number: 5,
     step_title: 'Complete Your State Exam',
     step_description: 'Write your state exam.',
     instructions: [
@@ -110,8 +99,8 @@ const US_LICENSING_STEPS = [
     days_from_start: 26
   },
   {
-    step_id: 'l7',
-    step_number: 7,
+    step_id: 'l6',
+    step_number: 6,
     step_title: 'Complete Your Fingerprints',
     step_description: 'Do your state fingerprint check.',
     instructions: [
@@ -125,8 +114,8 @@ const US_LICENSING_STEPS = [
     days_from_start: 31
   },
   {
-    step_id: 'l8',
-    step_number: 8,
+    step_id: 'l7',
+    step_number: 7,
     step_title: 'Create Account With Sircon',
     step_description: 'Create account with Sircon to apply for license.',
     instructions: [
@@ -140,8 +129,8 @@ const US_LICENSING_STEPS = [
     days_from_start: 32
   },
   {
-    step_id: 'l9',
-    step_number: 9,
+    step_id: 'l8',
+    step_number: 8,
     step_title: 'Apply For Your State License',
     step_description: 'Apply to get your state license.',
     instructions: [
@@ -158,8 +147,8 @@ const US_LICENSING_STEPS = [
     days_from_start: 33
   },
   {
-    step_id: 'l10',
-    step_number: 10,
+    step_id: 'l9',
+    step_number: 9,
     step_title: 'Sign Your WFG Agent Agreement',
     step_description: 'Sign the official WFG Agent Agreement.',
     instructions: [
@@ -176,8 +165,8 @@ const US_LICENSING_STEPS = [
     days_from_start: 36
   },
   {
-    step_id: 'l11',
-    step_number: 11,
+    step_id: 'l10',
+    step_number: 10,
     step_title: 'Complete AML and LTC Tests',
     step_description: 'Do the AML and LTC tests.',
     instructions: [
@@ -193,8 +182,8 @@ const US_LICENSING_STEPS = [
     days_from_start: 41
   },
   {
-    step_id: 'l12',
-    step_number: 12,
+    step_id: 'l11',
+    step_number: 11,
     step_title: 'Get Appointed By Carriers',
     step_description: 'Be appointed by carriers to sell their products.',
     instructions: [
@@ -212,41 +201,30 @@ const US_LICENSING_STEPS = [
 ];
 
 // -----------------------------------------------------------------------------
-// Canada Licensing Steps (13 steps)
+// Canada Licensing Steps (12 steps)
 // -----------------------------------------------------------------------------
 const CANADA_LICENSING_STEPS = [
   {
     step_id: 'l1',
     step_number: 1,
-    step_title: 'Sign Your Membership Agreement',
-    step_description: 'Do the Associate Membership Agreement.',
+    step_title: 'Sign & Pay Your Membership Agreement',
+    step_description: 'Complete and pay for your Associate Membership Agreement.',
     instructions: [
       'Go to www.wfglaunch.com',
       'Type in your personal information accurately',
       'Review and sign the Associate Membership Agreement',
-      'Ensure all details match your government-issued ID'
+      'Ensure all details match your government-issued ID',
+      'Pay the membership fee using your credit card',
+      'Keep your payment confirmation for your records',
+      'Notify your trainer once complete'
     ],
-    resources: 'Your trainer and your ID — www.wfglaunch.com',
-    timeline_guidance: '5 mins',
+    resources: 'Your trainer, your ID, and your credit card — www.wfglaunch.com',
+    timeline_guidance: '10 mins',
     days_from_start: 1
   },
   {
     step_id: 'l2',
     step_number: 2,
-    step_title: 'Pay Your Membership Fees',
-    step_description: 'Pay for your Associate Membership Agreement.',
-    instructions: [
-      'Use your credit card to pay the membership fee',
-      'Keep your payment confirmation for your records',
-      'Notify your trainer once payment is complete'
-    ],
-    resources: 'Your trainer and your credit card',
-    timeline_guidance: '1 min',
-    days_from_start: 1
-  },
-  {
-    step_id: 'l3',
-    step_number: 3,
     step_title: 'Register for Your Online Course',
     step_description: 'Register for the HLLQP course through Olivers.',
     instructions: [
@@ -262,8 +240,8 @@ const CANADA_LICENSING_STEPS = [
     days_from_start: 5
   },
   {
-    step_id: 'l4',
-    step_number: 4,
+    step_id: 'l3',
+    step_number: 3,
     step_title: 'Complete Your HLLQP Course',
     step_description: 'Study and pass the HLLQP pre-licensing course.',
     instructions: [
@@ -278,8 +256,8 @@ const CANADA_LICENSING_STEPS = [
     days_from_start: 19
   },
   {
-    step_id: 'l5',
-    step_number: 5,
+    step_id: 'l4',
+    step_number: 4,
     step_title: 'Create a Provincial Licensing Account',
     step_description: 'Create account with Insurance Council of BC to apply for license.',
     instructions: [
@@ -293,8 +271,8 @@ const CANADA_LICENSING_STEPS = [
     days_from_start: 21
   },
   {
-    step_id: 'l6',
-    step_number: 6,
+    step_id: 'l5',
+    step_number: 5,
     step_title: 'Book Your Provincial Exam',
     step_description: 'Book a time to write your provincial exams.',
     instructions: [
@@ -311,8 +289,8 @@ const CANADA_LICENSING_STEPS = [
     days_from_start: 23
   },
   {
-    step_id: 'l7',
-    step_number: 7,
+    step_id: 'l6',
+    step_number: 6,
     step_title: 'Complete Your Provincial Exam',
     step_description: 'Write your provincial exams.',
     instructions: [
@@ -326,8 +304,8 @@ const CANADA_LICENSING_STEPS = [
     days_from_start: 28
   },
   {
-    step_id: 'l8',
-    step_number: 8,
+    step_id: 'l7',
+    step_number: 7,
     step_title: 'Complete Your Background Check',
     step_description: 'Complete your background check through Triton Canada.',
     instructions: [
@@ -342,8 +320,8 @@ const CANADA_LICENSING_STEPS = [
     days_from_start: 30
   },
   {
-    step_id: 'l9',
-    step_number: 9,
+    step_id: 'l8',
+    step_number: 8,
     step_title: 'Complete Your Anti-Money Laundering Exam & Ethics',
     step_description: 'Complete the Anti-Money Laundering and Canadian Ethics exams.',
     instructions: [
@@ -358,8 +336,8 @@ const CANADA_LICENSING_STEPS = [
     days_from_start: 32
   },
   {
-    step_id: 'l10',
-    step_number: 10,
+    step_id: 'l9',
+    step_number: 9,
     step_title: 'Sign Your WFG Agent Agreement',
     step_description: 'Sign the WFG Agent Agreement to transition from wfglaunch to mywfg.',
     instructions: [
@@ -376,8 +354,8 @@ const CANADA_LICENSING_STEPS = [
     days_from_start: 34
   },
   {
-    step_id: 'l11',
-    step_number: 11,
+    step_id: 'l10',
+    step_number: 10,
     step_title: 'IVARI E-CONTRACTING',
     step_description: 'Complete the Ivari e-contracting application process.',
     instructions: [
@@ -398,8 +376,8 @@ const CANADA_LICENSING_STEPS = [
     days_from_start: 37
   },
   {
-    step_id: 'l12',
-    step_number: 12,
+    step_id: 'l11',
+    step_number: 11,
     step_title: 'Apply For Your Provincial License',
     step_description: 'Apply to get your provincial license.',
     instructions: [
@@ -416,8 +394,8 @@ const CANADA_LICENSING_STEPS = [
     days_from_start: 42
   },
   {
-    step_id: 'l13',
-    step_number: 13,
+    step_id: 'l12',
+    step_number: 12,
     step_title: 'Get Appointed By Carriers',
     step_description: 'Be able to sell different products by different carriers.',
     instructions: [

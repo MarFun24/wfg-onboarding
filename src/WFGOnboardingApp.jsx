@@ -3,7 +3,7 @@ import {
   CheckCircle2, Circle, Clock, ChevronDown, ChevronUp,
   BookOpen, GraduationCap, Calendar, Award, ExternalLink,
   Mail, Phone, MapPin, User, Target, CheckCheck, Shield,
-  ArrowRight, Zap, Star, TrendingUp, Briefcase
+  ArrowRight, Zap, Star, TrendingUp, Briefcase, Lock
 } from 'lucide-react';
 import AdminDashboard from './AdminDashboard.jsx';
 import { getLicensingSteps, getTrainingSteps, mergeStepsWithCompletion } from './stepDefinitions';
@@ -297,39 +297,50 @@ const WFGOnboardingApp = ({ token, isAdmin }) => {
     const firstIncompleteIdx = allSteps.findIndex(s => !s.is_completed);
     const isNextStep = !step.is_completed && index === firstIncompleteIdx;
 
+    // Sequential locking: only applies to licensing steps
+    const isLocked = isLicensing && !step.is_completed && index > firstIncompleteIdx;
+
     // --- Compact row for incomplete, non-expanded steps ---
-    if (!step.is_completed && !isExpanded) {
+    if (!step.is_completed && (!isExpanded || isLocked)) {
       return (
         <div
-          className={`group relative rounded-xl transition-all duration-300 overflow-hidden cursor-pointer ${
+          className={`group relative rounded-xl transition-all duration-300 overflow-hidden ${
+            isLocked ? 'pointer-events-none opacity-50' : 'cursor-pointer'
+          } ${
             isNextStep
               ? 'glass-card-elevated ring-2 ring-offset-1 ' + (isLicensing ? 'ring-blue-500/30' : 'ring-violet-500/30')
               : 'bg-white border border-slate-200/80 hover:border-slate-300'
           } ${isProcessing ? 'opacity-50 pointer-events-none' : ''}`}
-          onClick={() => hasDetails && toggleStepExpanded(step.id)}
+          onClick={() => !isLocked && hasDetails && toggleStepExpanded(step.id)}
         >
           {isNextStep && (
             <div className={`absolute top-0 left-0 right-0 h-0.5 ${isLicensing ? 'bg-gradient-to-r from-blue-500 to-blue-400' : 'bg-gradient-to-r from-violet-500 to-violet-400'}`} />
           )}
           <div className="px-4 py-3 sm:px-5 flex items-center gap-3">
-            {/* Checkbox */}
-            <button
-              onClick={(e) => { e.stopPropagation(); requestToggleStep(step.id, stepType, step.is_completed, step.step_title); }}
-              disabled={isProcessing}
-              className="flex-shrink-0 transition-all duration-200 hover:scale-110 active:scale-95"
-            >
-              {isNextStep ? (
-                <div className={`w-7 h-7 rounded-full border-2 flex items-center justify-center ${
-                  isLicensing ? 'border-blue-400 bg-blue-50' : 'border-violet-400 bg-violet-50'
-                }`}>
-                  <Circle className={`w-3.5 h-3.5 ${isLicensing ? 'text-blue-300' : 'text-violet-300'}`} />
-                </div>
-              ) : (
-                <div className="w-7 h-7 rounded-full border-2 border-slate-200 group-hover:border-slate-300 flex items-center justify-center bg-white">
-                  <Circle className="w-3.5 h-3.5 text-transparent" />
-                </div>
-              )}
-            </button>
+            {/* Checkbox or lock indicator */}
+            {isLocked ? (
+              <div className="flex-shrink-0 w-7 h-7 rounded-full border-2 border-slate-200 flex items-center justify-center bg-slate-50">
+                <Lock className="w-3.5 h-3.5 text-slate-300" />
+              </div>
+            ) : (
+              <button
+                onClick={(e) => { e.stopPropagation(); requestToggleStep(step.id, stepType, step.is_completed, step.step_title); }}
+                disabled={isProcessing}
+                className="flex-shrink-0 transition-all duration-200 hover:scale-110 active:scale-95"
+              >
+                {isNextStep ? (
+                  <div className={`w-7 h-7 rounded-full border-2 flex items-center justify-center ${
+                    isLicensing ? 'border-blue-400 bg-blue-50' : 'border-violet-400 bg-violet-50'
+                  }`}>
+                    <Circle className={`w-3.5 h-3.5 ${isLicensing ? 'text-blue-300' : 'text-violet-300'}`} />
+                  </div>
+                ) : (
+                  <div className="w-7 h-7 rounded-full border-2 border-slate-200 group-hover:border-slate-300 flex items-center justify-center bg-white">
+                    <Circle className="w-3.5 h-3.5 text-transparent" />
+                  </div>
+                )}
+              </button>
+            )}
 
             {/* Pathway dot (all view) + Step number + title */}
             {activeTab === 'all' && (
@@ -352,7 +363,7 @@ const WFGOnboardingApp = ({ token, isAdmin }) => {
                 </span>
               )}
               <StatusBadge status={step.status} size="sm" />
-              {hasDetails && (
+              {hasDetails && !isLocked && (
                 <ChevronDown className="w-4 h-4 text-slate-300 group-hover:text-slate-400 transition-colors" />
               )}
             </div>
