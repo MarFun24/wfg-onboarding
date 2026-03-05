@@ -552,11 +552,11 @@ const TRAINING_STEPS = [
       'Register for the GX 315 program',
       'Refer to the trainer manual for instructions on how to complete GX',
       'Complete all online modules and assessments',
-      'Track your progress using the GX tracking PDF (PLACEHOLDER — PDF coming soon)',
+      'Track your progress using the GX Monitoring Sheet: /gx-monitoring-sheet.pdf',
       'Attend any required live training sessions',
       'Pass the final certification exam'
     ],
-    resources: 'Trainer manual — GX tracking PDF (PLACEHOLDER — coming soon)',
+    resources: 'Trainer manual — GX Monitoring Sheet: /gx-monitoring-sheet.pdf',
     timeline_guidance: '30 days',
     days_from_start: 60
   }

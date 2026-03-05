@@ -12,7 +12,7 @@ import { getLicensingSteps, getTrainingSteps, mergeStepsWithCompletion } from '.
 const Linkify = ({ children }) => {
   if (typeof children !== 'string') return children;
   // Match URLs (with or without protocol) and email addresses
-  const urlRegex = /(https?:\/\/[^\s,)]+|www\.[^\s,)]+|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g;
+  const urlRegex = /(https?:\/\/[^\s,)]+|www\.[^\s,)]+|\/[\w-]+\.pdf|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g;
   const parts = children.split(urlRegex);
   const matches = children.match(urlRegex) || [];
   if (matches.length === 0) return children;
@@ -23,7 +23,8 @@ const Linkify = ({ children }) => {
     if (i < matches.length) {
       const match = matches[i];
       const isEmail = match.includes('@') && !match.startsWith('http');
-      const href = isEmail ? `mailto:${match}` : (match.startsWith('http') ? match : `https://${match}`);
+      const isRelative = match.startsWith('/');
+      const href = isEmail ? `mailto:${match}` : (match.startsWith('http') || isRelative ? match : `https://${match}`);
       result.push(
         <a key={i} href={href} target={isEmail ? undefined : '_blank'} rel="noopener noreferrer"
           className="text-blue-600 underline hover:text-blue-800 break-all">
