@@ -130,8 +130,8 @@ const LICENSING_LABELS = {
     'Fingerprints', 'Sircon', 'Apply License', 'WFG Agreement', 'AML/LTC', 'Carriers'
   ],
   ca: [
-    'Membership', 'Pay Fees', 'Register Course', 'HLLQP', 'Provincial Acct', 'Book Exam',
-    'Provincial Exam', 'Background Check', 'WFG Agreement', 'IVARI', 'Apply License', 'AML/Ethics', 'Carriers'
+    'Membership', 'Register Course', 'CIPR', 'HLLQP', 'Prov Account', 'Book Exams',
+    'Prov Exams', 'Background', 'AML/Ethics', 'WFG Agreement', 'IVARI', 'Apply License', 'Carriers'
   ]
 };
 
@@ -145,7 +145,7 @@ const PipelineChart = ({ recruits }) => {
   });
   const maxCount = Math.max(...steps.map(s => s.count), 1);
   // Use CA labels if any recruit is Canadian, otherwise US
-  const hasCanadian = recruits.some(r => r.country && r.country !== 'united_states');
+  const hasCanadian = recruits.some(r => r.country && r.country.toLowerCase().replace(/\s+/g, '_') !== 'united_states');
   const stepLabels = hasCanadian ? LICENSING_LABELS.ca : LICENSING_LABELS.us;
 
   return (

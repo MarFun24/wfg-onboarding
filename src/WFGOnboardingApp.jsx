@@ -12,7 +12,7 @@ import { getLicensingSteps, getTrainingSteps, mergeStepsWithCompletion } from '.
 const Linkify = ({ children }) => {
   if (typeof children !== 'string') return children;
   // Match URLs (with or without protocol) and email addresses
-  const urlRegex = /(https?:\/\/[^\s,)]+|www\.[^\s,)]+|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g;
+  const urlRegex = /(https?:\/\/[^\s,)]+|www\.[^\s,)]+|\/[\w-]+\.pdf|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g;
   const parts = children.split(urlRegex);
   const matches = children.match(urlRegex) || [];
   if (matches.length === 0) return children;
@@ -23,7 +23,8 @@ const Linkify = ({ children }) => {
     if (i < matches.length) {
       const match = matches[i];
       const isEmail = match.includes('@') && !match.startsWith('http');
-      const href = isEmail ? `mailto:${match}` : (match.startsWith('http') ? match : `https://${match}`);
+      const isRelative = match.startsWith('/');
+      const href = isEmail ? `mailto:${match}` : (match.startsWith('http') || isRelative ? match : `https://${match}`);
       result.push(
         <a key={i} href={href} target={isEmail ? undefined : '_blank'} rel="noopener noreferrer"
           className="text-blue-600 underline hover:text-blue-800 break-all">
@@ -75,6 +76,10 @@ const WFGOnboardingApp = ({ token, isAdmin }) => {
   const [processingSteps, setProcessingSteps] = useState(new Set());
   const [showCompleted, setShowCompleted] = useState(false);
   const [confirmModal, setConfirmModal] = useState(null); // { stepId, stepType, currentStatus, stepTitle }
+  const [subStepCompletions, setSubStepCompletions] = useState({});  // { 'l4:ethics': true, ... }
+  const [examDates, setExamDates] = useState(() => {
+    try { return JSON.parse(localStorage.getItem(`exam_dates_${token}`) || '{}'); } catch { return {}; }
+  });
 
   useEffect(() => { if (token) fetchRecruitData(); }, []);
 
@@ -104,14 +109,22 @@ const WFGOnboardingApp = ({ token, isAdmin }) => {
       // Parse completion arrays from recruit record
       let completedLicensing = {};
       let completedTraining = {};
+      const subSteps = {};
       try {
         const lcArr = JSON.parse(recruit.completed_licensing_steps || '[]');
-        lcArr.forEach(id => { completedLicensing[id] = { is_completed: true }; });
+        lcArr.forEach(id => {
+          if (id.includes(':')) {
+            subSteps[id] = true;
+          } else {
+            completedLicensing[id] = { is_completed: true };
+          }
+        });
       } catch(e) {}
       try {
         const trArr = JSON.parse(recruit.completed_training_steps || '[]');
         trArr.forEach(id => { completedTraining[id] = { is_completed: true }; });
       } catch(e) {}
+      setSubStepCompletions(subSteps);
 
       // Get step definitions and merge with completion data
       // Prefer local definitions; fall back to API data only during transition
@@ -239,6 +252,38 @@ const WFGOnboardingApp = ({ token, isAdmin }) => {
 
   const toggleStepExpanded = (stepId) => {
     setExpandedSteps(prev => ({ ...prev, [stepId]: !prev[stepId] }));
+  };
+
+  const toggleSubStep = async (stepId, subStepId, stepType) => {
+    const compositeId = `${stepId}:${subStepId}`;
+    const newStatus = !subStepCompletions[compositeId];
+    setSubStepCompletions(prev => ({ ...prev, [compositeId]: newStatus }));
+    try {
+      await fetch(
+        `${CONFIG.n8nBaseUrl}${CONFIG.webhooks.updateStep}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            token,
+            step_id: compositeId,
+            step_type: stepType,
+            is_completed: newStatus
+          })
+        }
+      );
+    } catch (err) {
+      console.error('Error updating sub-step:', err);
+      setSubStepCompletions(prev => ({ ...prev, [compositeId]: !newStatus }));
+    }
+  };
+
+  const updateExamDate = (compositeId, date) => {
+    setExamDates(prev => {
+      const updated = { ...prev, [compositeId]: date };
+      localStorage.setItem(`exam_dates_${token}`, JSON.stringify(updated));
+      return updated;
+    });
   };
 
   // --- Circular Progress Ring ---
@@ -495,8 +540,51 @@ const WFGOnboardingApp = ({ token, isAdmin }) => {
                   </div>
                 )}
 
-                {step.resources && (
+                {step.sub_steps && step.sub_steps.length > 0 && (
                   <div className={instructions.length > 0 ? 'mt-4 pt-4 border-t border-dashed ' + (isLicensing ? 'border-blue-200/60' : 'border-violet-200/60') : ''}>
+                    <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center gap-2">
+                      <CheckCheck className="w-3.5 h-3.5 text-slate-400" />
+                      Progress
+                    </h4>
+                    <div className="space-y-2">
+                      {step.sub_steps.map((sub) => {
+                        const compositeId = `${step.id}:${sub.id}`;
+                        const isChecked = !!subStepCompletions[compositeId];
+                        return (
+                          <div key={sub.id} className="flex items-center gap-3">
+                            <button
+                              onClick={() => toggleSubStep(step.id, sub.id, stepType)}
+                              className="flex-shrink-0 transition-all duration-200 hover:scale-110 active:scale-95"
+                            >
+                              {isChecked ? (
+                                <div className="w-5 h-5 rounded bg-emerald-500 flex items-center justify-center">
+                                  <CheckCircle2 className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
+                                </div>
+                              ) : (
+                                <div className={`w-5 h-5 rounded border-2 ${isLicensing ? 'border-blue-300' : 'border-violet-300'}`} />
+                              )}
+                            </button>
+                            <span className={`text-sm ${isChecked ? 'text-slate-400 line-through' : 'text-slate-700 font-medium'}`}>
+                              {sub.label}
+                            </span>
+                            {sub.has_date && (
+                              <input
+                                type="date"
+                                value={examDates[compositeId] || ''}
+                                onChange={(e) => updateExamDate(compositeId, e.target.value)}
+                                className="ml-auto text-xs px-2 py-1 border border-slate-200 rounded-lg bg-white text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300"
+                                placeholder="Exam date"
+                              />
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {step.resources && (
+                  <div className={(instructions.length > 0 || (step.sub_steps && step.sub_steps.length > 0)) ? 'mt-4 pt-4 border-t border-dashed ' + (isLicensing ? 'border-blue-200/60' : 'border-violet-200/60') : ''}>
                     <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-2">
                       <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
                       Resources
