@@ -440,10 +440,11 @@ const TRAINING_STEPS = [
     step_description: "Meet the spouse or influential person in the recruit's life.",
     instructions: [
       'Book your meeting using our Calendly link: https://calendly.com/PLACEHOLDER-UPDATE-ME',
-      'Schedule a 60-90 minute meeting with your assigned trainer',
+      'This meeting requires approximately 3 hours to fully onboard the new agent',
       'Prepare questions about the business opportunity',
-      'Discuss your personal financial goals',
-      'Set clear 30/60/90 day objectives'
+      'Do the campaign introduction for the spouse/influential person — take notes on how the trainer is doing the presentation',
+      'Go through personal business goals in the trainer guidebook',
+      'Set up a Gmail address in this format: firstnamelastinitial@gmail.com (e.g., jorgemwfg@gmail.com) — this should be done by the new agent before the meeting'
     ],
     resources: 'Your trainer — meeting agenda template available from your upline — Book here: https://calendly.com/PLACEHOLDER-UPDATE-ME',
     timeline_guidance: '24-48 hours',
@@ -455,10 +456,11 @@ const TRAINING_STEPS = [
     step_title: 'Get Your Startup Kit',
     step_description: 'Receive and review all materials in your new agent startup package.',
     instructions: [
-      'Obtain your physical or digital startup kit from your trainer',
+      'Your startup kit will be given to you during the Step 1 meeting with your trainer',
       'Review all included training materials',
-      'Set up your business cards and marketing materials',
-      'Organize your client presentation tools'
+      'Set up your account with WSB (World System Builder)',
+      'Organize your client presentation tools',
+      'Assigned reading: Moment of Truth, Saving Your Future, and the first 98 pages of The System Builder — Moment of Truth must be read right away; the others should be completed by the end of the week (preferably before the next training meeting)'
     ],
     resources: 'Startup kit contents checklist in your trainer guidebook',
     timeline_guidance: '1 day',
@@ -516,9 +518,9 @@ const TRAINING_STEPS = [
     step_title: 'Complete Trainer Guidebook & Share List',
     step_description: 'Study the trainer guidebook and build your initial prospect list.',
     instructions: [
-      'Read the entire trainer guidebook cover to cover',
+      'Go through the trainer guidebook with your trainer',
       'Complete all exercises in the guidebook',
-      'Build your share list of at least 100 names',
+      'Build your prospect list with your trainer — aim for at least 100 names',
       'Categorize contacts by relationship and priority'
     ],
     resources: 'Share list template in your startup kit',
@@ -534,7 +536,8 @@ const TRAINING_STEPS = [
       'Schedule field training sessions with your trainer',
       'Observe at least 5 client appointments',
       'Conduct 3 supervised appointments yourself',
-      'Debrief with your trainer after each session'
+      'Debrief with your trainer after each session',
+      'For best results, the first 10 meetings should be completed in the first week'
     ],
     resources: 'Field training log sheet from your trainer',
     timeline_guidance: '30 days',
@@ -546,12 +549,14 @@ const TRAINING_STEPS = [
     step_title: 'Complete Your GX 315',
     step_description: 'Finish the GX 315 advanced training certification program.',
     instructions: [
-      'Register for the GX 315 program through WFG University',
+      'Register for the GX 315 program',
+      'Refer to the trainer manual for instructions on how to complete GX',
       'Complete all online modules and assessments',
+      'Track your progress using the GX tracking PDF (PLACEHOLDER — PDF coming soon)',
       'Attend any required live training sessions',
       'Pass the final certification exam'
     ],
-    resources: 'GX 315 access through WFG University portal',
+    resources: 'Trainer manual — GX tracking PDF (PLACEHOLDER — coming soon)',
     timeline_guidance: '30 days',
     days_from_start: 60
   }
