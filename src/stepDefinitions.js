@@ -575,7 +575,8 @@ const TRAINING_STEPS = [
  * @returns {Array} Steps with deadline_date added
  */
 export function getLicensingSteps(country, startDate) {
-  const steps = country === 'united_states' ? US_LICENSING_STEPS : CANADA_LICENSING_STEPS;
+  const normalized = (country || '').toLowerCase().replace(/\s+/g, '_');
+  const steps = normalized === 'united_states' ? US_LICENSING_STEPS : CANADA_LICENSING_STEPS;
   const start = startDate ? new Date(startDate) : new Date();
   if (isNaN(start.getTime())) start.setTime(Date.now());
   return steps.map(step => {

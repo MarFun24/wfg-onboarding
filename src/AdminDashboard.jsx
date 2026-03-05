@@ -145,7 +145,7 @@ const PipelineChart = ({ recruits }) => {
   });
   const maxCount = Math.max(...steps.map(s => s.count), 1);
   // Use CA labels if any recruit is Canadian, otherwise US
-  const hasCanadian = recruits.some(r => r.country && r.country !== 'united_states');
+  const hasCanadian = recruits.some(r => r.country && r.country.toLowerCase().replace(/\s+/g, '_') !== 'united_states');
   const stepLabels = hasCanadian ? LICENSING_LABELS.ca : LICENSING_LABELS.us;
 
   return (
