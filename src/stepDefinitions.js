@@ -22,6 +22,7 @@ const US_LICENSING_STEPS = [
     step_description: 'Complete and pay for your Associate Membership Agreement.',
     instructions: [
       'Go to www.wfglaunch.com',
+      'Click on Sign Up',
       'Type in your personal information accurately',
       'Review and sign the Associate Membership Agreement',
       'Ensure all details match your government-issued ID',
@@ -29,7 +30,7 @@ const US_LICENSING_STEPS = [
       'Keep your payment confirmation for your records',
       'Notify your trainer once complete'
     ],
-    resources: 'Your trainer, your ID, and your credit card — www.wfglaunch.com',
+    resources: 'Your trainer, your ID, your credit card, and your Recruiter code — www.wfglaunch.com',
     timeline_guidance: '10 mins',
     days_from_start: 1
   },
@@ -39,13 +40,13 @@ const US_LICENSING_STEPS = [
     step_title: 'Register for Your Online Course',
     step_description: 'Sign up for the Life & Health pre-licensing course.',
     instructions: [
-      'Go to your WFG Launch webpage (wfglaunch.com)',
+      'Go to your WFG Launch webpage (www.wfglaunch.com)',
       'Go to the Licensing section',
       'Pick your licensing provider',
       'Sign up and pay for the course',
       'Save your login credentials'
     ],
-    resources: 'Your trainer and your credit card — wfglaunch.com',
+    resources: 'Your trainer and your credit card — www.wfglaunch.com',
     timeline_guidance: '5 mins',
     days_from_start: 5
   },
@@ -71,14 +72,14 @@ const US_LICENSING_STEPS = [
     step_title: 'Book Your State Exam',
     step_description: 'Book a time to write the exam.',
     instructions: [
-      'First, create an account at pearsonvue.com/tx/insurance',
+      'First, create an account at www.pearsonvue.com/tx/insurance',
       'Fill in your information and submit',
       'Register for a test before scheduling the examination',
       'On the right side, click Create an Account',
       'Pick exam: General Lines Life, Accident & Health: INS-TX-LAH05',
       'Select your preferred date and testing location'
     ],
-    resources: 'Your ID and credit card — pearsonvue.com/tx/insurance',
+    resources: 'Your ID and credit card — www.pearsonvue.com/tx/insurance',
     timeline_guidance: '10 mins',
     days_from_start: 11
   },
@@ -119,12 +120,12 @@ const US_LICENSING_STEPS = [
     step_title: 'Create Account With Sircon',
     step_description: 'Create account with Sircon to apply for license.',
     instructions: [
-      'Visit sircon.com',
+      'Visit www.sircon.com',
       'Create a new username and password',
       'Complete your professional profile',
       'Save your login credentials securely'
     ],
-    resources: 'sircon.com',
+    resources: 'www.sircon.com',
     timeline_guidance: '10 mins',
     days_from_start: 32
   },
@@ -134,7 +135,7 @@ const US_LICENSING_STEPS = [
     step_title: 'Apply For Your State License',
     step_description: 'Apply to get your state license.',
     instructions: [
-      'Go to Sircon.com',
+      'Go to www.sircon.com',
       'Click New Insurance → Resident → Individual',
       'Enter your email, last name, and SSN',
       'Select preparer then click applicant',
@@ -142,7 +143,7 @@ const US_LICENSING_STEPS = [
       'License type → Insurance Producer → Life, Accident & Health',
       'Continue to answer the questions and pay the application fee'
     ],
-    resources: 'sircon.com',
+    resources: 'www.sircon.com',
     timeline_guidance: '30 mins',
     days_from_start: 33
   },
@@ -152,7 +153,7 @@ const US_LICENSING_STEPS = [
     step_title: 'Sign Your WFG Agent Agreement',
     step_description: 'Sign the official WFG Agent Agreement.',
     instructions: [
-      'Go to wfglaunch.com',
+      'Go to www.wfglaunch.com',
       'Click LICENSING (BLUE COLUMN)',
       'View process → Start licensing process → View WFG Agreement',
       'Start Application process → OK',
@@ -160,7 +161,7 @@ const US_LICENSING_STEPS = [
       'Complete Docusign and pay fee ($40)',
       'Wait for SMD approval and background check'
     ],
-    resources: 'Your trainer — wfglaunch.com',
+    resources: 'Your trainer — www.wfglaunch.com',
     timeline_guidance: '10 mins',
     days_from_start: 36
   },
@@ -170,14 +171,14 @@ const US_LICENSING_STEPS = [
     step_title: 'Complete AML and LTC Tests',
     step_description: 'Do the AML and LTC tests.',
     instructions: [
-      'Go to mywfg.com',
+      'Go to www.mywfg.com',
       'Click Menu → Licensing & Appointments → Licensing',
       'Go to Continuing Education',
       'Pick your provider',
       'Complete the Anti-Money Laundering course and exam',
       'Complete the Long Term Care course and exam'
     ],
-    resources: 'mywfg.com',
+    resources: 'www.mywfg.com',
     timeline_guidance: '10 hours',
     days_from_start: 41
   },
@@ -201,7 +202,7 @@ const US_LICENSING_STEPS = [
 ];
 
 // -----------------------------------------------------------------------------
-// Canada Licensing Steps (12 steps)
+// Canada Licensing Steps (13 steps)
 // -----------------------------------------------------------------------------
 const CANADA_LICENSING_STEPS = [
   {
@@ -211,6 +212,7 @@ const CANADA_LICENSING_STEPS = [
     step_description: 'Complete and pay for your Associate Membership Agreement.',
     instructions: [
       'Go to www.wfglaunch.com',
+      'Click on Sign Up',
       'Type in your personal information accurately',
       'Review and sign the Associate Membership Agreement',
       'Ensure all details match your government-issued ID',
@@ -218,7 +220,7 @@ const CANADA_LICENSING_STEPS = [
       'Keep your payment confirmation for your records',
       'Notify your trainer once complete'
     ],
-    resources: 'Your trainer, your ID, and your credit card — www.wfglaunch.com',
+    resources: 'Your trainer, your ID, your credit card, and your Recruiter code — www.wfglaunch.com',
     timeline_guidance: '10 mins',
     days_from_start: 1
   },
@@ -228,14 +230,15 @@ const CANADA_LICENSING_STEPS = [
     step_title: 'Register for Your Online Course',
     step_description: 'Register for the HLLQP course through Olivers.',
     instructions: [
-      'Go to WFGLaunch.com — create a profile if you have not already',
+      'Go to www.wfglaunch.com — create a profile if you have not already',
+      'Click on Create Password',
       'Your agent code will be in the email you received when you joined — ask your trainer if you cannot find it',
-      'On the left-hand tab, click Olivers (this is the course provider)',
+      'Click on Licensing, scroll down and click on Olivers (this is the course provider)',
       'Create an account with Olivers',
       'After signing in, click the top-right red button to do an identity check',
       'You can use your computer camera for the photo — make sure the name matches your ID exactly'
     ],
-    resources: 'wfglaunch.com — Olivers course provider',
+    resources: 'www.wfglaunch.com — Olivers course provider',
     timeline_guidance: '20 mins',
     days_from_start: 5
   },
@@ -261,12 +264,12 @@ const CANADA_LICENSING_STEPS = [
     step_title: 'Create a Provincial Licensing Account',
     step_description: 'Create account with Insurance Council of BC to apply for license.',
     instructions: [
-      'Sign up for an account at insurancecouncilofbc.com',
+      'Sign up for an account at www.insurancecouncilofbc.com',
       'You must provide a service address and a mailing address',
       'Service address: use the Burnaby office — Unit 201, 3665 Kingsway, Vancouver BC, V5R 5W2',
       'Mailing address: use your home address'
     ],
-    resources: 'insurancecouncilofbc.com',
+    resources: 'www.insurancecouncilofbc.com',
     timeline_guidance: '10 mins',
     days_from_start: 21
   },
@@ -284,7 +287,7 @@ const CANADA_LICENSING_STEPS = [
       'Once you receive the verification email, log back in to schedule and pay for your exams',
       'If you have not heard back within 3 business days, contact the Exams Team at 604-695-2006 or examinations@insurancecouncilofbc.com'
     ],
-    resources: 'insurancecouncilofbc.com',
+    resources: 'www.insurancecouncilofbc.com',
     timeline_guidance: '10 mins (plus up to 3 business days for approval)',
     days_from_start: 23
   },
@@ -306,6 +309,19 @@ const CANADA_LICENSING_STEPS = [
   {
     step_id: 'l7',
     step_number: 7,
+    step_title: 'Create Your CIPR Number',
+    step_description: 'Register for your CIPR (Canadian Insurance Participant Registry) number.',
+    instructions: [
+      'Create your CIPR number — your trainer will guide you through the process',
+      'Save your CIPR number for future licensing steps'
+    ],
+    resources: 'Your trainer',
+    timeline_guidance: '10 mins',
+    days_from_start: 29
+  },
+  {
+    step_id: 'l8',
+    step_number: 8,
     step_title: 'Complete Your Background Check',
     step_description: 'Complete your background check through Triton Canada.',
     instructions: [
@@ -320,8 +336,8 @@ const CANADA_LICENSING_STEPS = [
     days_from_start: 30
   },
   {
-    step_id: 'l8',
-    step_number: 8,
+    step_id: 'l9',
+    step_number: 9,
     step_title: 'Complete Your Anti-Money Laundering Exam & Ethics',
     step_description: 'Complete the Anti-Money Laundering and Canadian Ethics exams.',
     instructions: [
@@ -331,17 +347,17 @@ const CANADA_LICENSING_STEPS = [
       'There is no charge for these courses but they must be done before you can apply for your personal license',
       'After passing, download a copy of the Certificate of Completion for both — you will need these later'
     ],
-    resources: 'wfglaunch.com — Olivers platform',
+    resources: 'www.wfglaunch.com — Olivers platform',
     timeline_guidance: '2 hours',
     days_from_start: 32
   },
   {
-    step_id: 'l9',
-    step_number: 9,
+    step_id: 'l10',
+    step_number: 10,
     step_title: 'Sign Your WFG Agent Agreement',
     step_description: 'Sign the WFG Agent Agreement to transition from wfglaunch to mywfg.',
     instructions: [
-      'Go to wfglaunch.com',
+      'Go to www.wfglaunch.com',
       'Click LICENSING (BLUE COLUMN)',
       'View process → Start licensing process → View WFG Agreement',
       'Start Application process → OK',
@@ -349,17 +365,17 @@ const CANADA_LICENSING_STEPS = [
       'Complete Docusign and pay fee ($40)',
       'Wait for SMD approval and background check'
     ],
-    resources: 'Your trainer — wfglaunch.com',
+    resources: 'Your trainer — www.wfglaunch.com',
     timeline_guidance: '10 mins',
     days_from_start: 34
   },
   {
-    step_id: 'l10',
-    step_number: 10,
+    step_id: 'l11',
+    step_number: 11,
     step_title: 'IVARI E-CONTRACTING',
     step_description: 'Complete the Ivari e-contracting application process.',
     instructions: [
-      'Sign into MyWFG.com → MENU → LICENSING & APPOINTMENTS → LICENSING → IVARI ECONTRACTING',
+      'Sign into www.mywfg.com → MENU → LICENSING & APPOINTMENTS → LICENSING → IVARI ECONTRACTING',
       'Prepare your exam marks (find the emails you received when you passed your provincials — screenshot or convert to PDF)',
       'Prepare your Criminal Record Check from Triton Canada',
       'Use your local Branch Address (Burnaby/Kingsway office: Unit 201, 3665 Kingsway, Vancouver BC, V5R 5W2) — IMPORTANT: You must include "Unit 201" or your e-contracting will be delayed',
@@ -371,13 +387,13 @@ const CANADA_LICENSING_STEPS = [
       'Wait for Ivari approval email — if approved, save your acceptance letter and E&O insurance copy; let your trainer know either way',
       'If more than 7 business days have passed without hearing back, email wfgcontracting@ivari.ca with your AGENT code and the date your paperwork was submitted, requesting a follow-up. CC wfg.impactvancouver@gmail.com'
     ],
-    resources: 'mywfg.com — Triton Canada background check — Your trainer for Marketing Director details',
+    resources: 'www.mywfg.com — Triton Canada background check — Your trainer for Marketing Director details',
     timeline_guidance: '45 mins (plus processing time for approval)',
     days_from_start: 37
   },
   {
-    step_id: 'l11',
-    step_number: 11,
+    step_id: 'l12',
+    step_number: 12,
     step_title: 'Apply For Your Provincial License',
     step_description: 'Apply to get your provincial license.',
     instructions: [
@@ -389,13 +405,13 @@ const CANADA_LICENSING_STEPS = [
       'Once license is APPROVED, email a copy of the certificate to WFGApprovedLicense@ivari.ca AND wfgcanadalicensing@transamerica.com',
       'Include your AGENT CODE in the subject line and CC your trainer/SMD'
     ],
-    resources: 'insurancecouncilofbc.com',
+    resources: 'www.insurancecouncilofbc.com',
     timeline_guidance: '45 mins',
     days_from_start: 42
   },
   {
-    step_id: 'l12',
-    step_number: 12,
+    step_id: 'l13',
+    step_number: 13,
     step_title: 'Get Appointed By Carriers',
     step_description: 'Be able to sell different products by different carriers.',
     instructions: [
