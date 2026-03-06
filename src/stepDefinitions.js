@@ -527,8 +527,20 @@ const TRAINING_STEPS = [
       'Get the workshop and BPM schedule from your trainer',
       'Attend all Saturday training workshops',
       'Attend weekly BPM meetings consistently',
-      'Take notes and participate actively in all sessions'
+      'Take notes and participate actively in all sessions',
+      'Check off each workshop below and enter the date you attended'
     ],
+    sub_steps: [
+      { id: 'bpm1', label: 'BPM 1', has_date: true },
+      { id: 'bpm2', label: 'BPM 2', has_date: true },
+      { id: 'bpm3', label: 'BPM 3', has_date: true },
+      { id: 'bpm4', label: 'BPM 4', has_date: true },
+      { id: 'sat1', label: 'Saturday Training 1', has_date: true },
+      { id: 'sat2', label: 'Saturday Training 2', has_date: true },
+      { id: 'sat3', label: 'Saturday Training 3', has_date: true },
+      { id: 'sat4', label: 'Saturday Training 4', has_date: true }
+    ],
+    require_all_sub_steps: true,
     resources: 'Workshop calendar available in team communications — WSB Dashboard: https://worldsystembuilder.com/wsb-member-login/',
     timeline_guidance: 'Ongoing — attend all scheduled events for first 90 days',
     days_from_start: 31
