@@ -80,6 +80,9 @@ const WFGOnboardingApp = ({ token, isAdmin }) => {
   const [examDates, setExamDates] = useState(() => {
     try { return JSON.parse(localStorage.getItem(`exam_dates_${token}`) || '{}'); } catch { return {}; }
   });
+  const [examScheduling, setExamScheduling] = useState(() => {
+    try { return JSON.parse(localStorage.getItem(`exam_scheduling_${token}`) || '{}'); } catch { return {}; }
+  });
 
   useEffect(() => { if (token) fetchRecruitData(); }, []);
 
@@ -188,6 +191,21 @@ const WFGOnboardingApp = ({ token, isAdmin }) => {
   // Show confirmation modal before toggling a step
   const requestToggleStep = (stepId, stepType, currentStatus, stepTitle) => {
     if (processingSteps.has(stepId)) return;
+
+    // If marking as complete, check if all sub-steps are done and exam scheduling is set
+    if (!currentStatus) {
+      const stepsKey = stepType === 'licensing' ? 'licensing_steps' : 'training_steps';
+      const step = (recruitData?.[stepsKey] || []).find(s => s.id === stepId);
+      if (step?.require_all_sub_steps && !areAllSubStepsCompleted(step)) {
+        alert('Please complete all checkboxes before marking this step as done.');
+        return;
+      }
+      if (step?.exam_scheduling && !hasExamSchedulingDate(step)) {
+        alert('Please schedule your online exam module date before marking this step as done.');
+        return;
+      }
+    }
+
     setConfirmModal({ stepId, stepType, currentStatus, stepTitle });
   };
 
@@ -284,6 +302,26 @@ const WFGOnboardingApp = ({ token, isAdmin }) => {
       localStorage.setItem(`exam_dates_${token}`, JSON.stringify(updated));
       return updated;
     });
+  };
+
+  const updateExamScheduling = (fieldId, date) => {
+    setExamScheduling(prev => {
+      const updated = { ...prev, [fieldId]: date };
+      localStorage.setItem(`exam_scheduling_${token}`, JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  // Check if a step with sub-steps has all sub-steps completed
+  const areAllSubStepsCompleted = (step) => {
+    if (!step.sub_steps || step.sub_steps.length === 0) return true;
+    return step.sub_steps.every(sub => !!subStepCompletions[`${step.id}:${sub.id}`]);
+  };
+
+  // Check if a step with exam_scheduling has a date set
+  const hasExamSchedulingDate = (step) => {
+    if (!step.exam_scheduling) return true;
+    return !!examScheduling[step.exam_scheduling.field_id];
   };
 
   // --- Circular Progress Ring ---
@@ -583,8 +621,33 @@ const WFGOnboardingApp = ({ token, isAdmin }) => {
                   </div>
                 )}
 
+                {step.exam_scheduling && (
+                  <div className={instructions.length > 0 || (step.sub_steps && step.sub_steps.length > 0) ? 'mt-4 pt-4 border-t border-dashed ' + (isLicensing ? 'border-blue-200/60' : 'border-violet-200/60') : ''}>
+                    <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-2">
+                      <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                      {step.exam_scheduling.label}
+                    </h4>
+                    <p className="text-sm text-slate-500 mb-3">{step.exam_scheduling.description}</p>
+                    <div className="flex items-center gap-3">
+                      <label className="text-sm font-medium text-slate-700">Office visit date:</label>
+                      <input
+                        type="date"
+                        value={examScheduling[step.exam_scheduling.field_id] || ''}
+                        onChange={(e) => updateExamScheduling(step.exam_scheduling.field_id, e.target.value)}
+                        className="text-sm px-3 py-1.5 border border-slate-200 rounded-lg bg-white text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300"
+                      />
+                      {examScheduling[step.exam_scheduling.field_id] && (
+                        <span className="text-xs text-emerald-600 font-medium flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          Scheduled
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 {step.resources && (
-                  <div className={(instructions.length > 0 || (step.sub_steps && step.sub_steps.length > 0)) ? 'mt-4 pt-4 border-t border-dashed ' + (isLicensing ? 'border-blue-200/60' : 'border-violet-200/60') : ''}>
+                  <div className={(instructions.length > 0 || (step.sub_steps && step.sub_steps.length > 0) || step.exam_scheduling) ? 'mt-4 pt-4 border-t border-dashed ' + (isLicensing ? 'border-blue-200/60' : 'border-violet-200/60') : ''}>
                     <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-2">
                       <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
                       Resources
