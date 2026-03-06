@@ -276,6 +276,12 @@ const CANADA_LICENSING_STEPS = [
       { id: 'as', label: 'Accident and Sickness' },
       { id: 'seg', label: 'Segregated Funds' }
     ],
+    require_all_sub_steps: true,
+    exam_scheduling: {
+      label: 'Online Exam Module — Office Visit',
+      description: 'Schedule when you will come in to the office to write the online exam module. You must have a date booked before moving on.',
+      field_id: 'exam_module_date'
+    },
     resources: 'The training course material — Olivers platform',
     timeline_guidance: '14 days',
     days_from_start: 21
