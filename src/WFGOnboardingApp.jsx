@@ -142,7 +142,7 @@ const WFGOnboardingApp = ({ token, isAdmin }) => {
       }
       if (!data.training_steps || data.training_steps.length === 0) {
         trainingSteps = mergeStepsWithCompletion(
-          getTrainingSteps(recruit.start_date),
+          getTrainingSteps(recruit.start_date, country),
           completedTraining
         );
       } else {

@@ -42,7 +42,7 @@ const normalizeAdminRecruit = (r) => {
     completedLicensing
   );
   const trainingSteps = mergeStepsWithCompletion(
-    getTrainingSteps(r.start_date),
+    getTrainingSteps(r.start_date, country),
     completedTraining
   );
 

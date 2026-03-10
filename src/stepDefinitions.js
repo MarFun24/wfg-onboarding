@@ -449,11 +449,14 @@ const CANADA_LICENSING_STEPS = [
 ];
 
 // -----------------------------------------------------------------------------
-// Training Steps (8 steps — same for US and Canada)
+// Training Steps (8 steps)
 // Note: Training descriptions are placeholders pending official content
 //       from Jorge and Liz. Titles confirmed accurate from Miro board.
+// Workshop sub-steps differ between US and Canada (see t5).
 // -----------------------------------------------------------------------------
-const TRAINING_STEPS = [
+
+// Shared training steps (all except t5 which differs by country)
+const SHARED_TRAINING_STEPS_BEFORE_T5 = [
   {
     step_id: 't1',
     step_number: 1,
@@ -516,23 +519,69 @@ const TRAINING_STEPS = [
     resources: 'PFS workbook and forms in your startup kit — Contact your trainer to book your session',
     timeline_guidance: '24-48 hours',
     days_from_start: 21
-  },
-  {
-    step_id: 't5',
-    step_number: 5,
-    step_title: 'Attend All Workshops and BPM',
-    step_description: 'Participate in all required workshops and Business Presentation Meetings.',
-    instructions: [
-      'Log in to your WSB dashboard to book workshops: https://worldsystembuilder.com/wsb-member-login/',
-      'Get the workshop and BPM schedule from your trainer',
-      'Attend all Saturday training workshops',
-      'Attend weekly BPM meetings consistently',
-      'Take notes and participate actively in all sessions'
-    ],
-    resources: 'Workshop calendar available in team communications — WSB Dashboard: https://worldsystembuilder.com/wsb-member-login/',
-    timeline_guidance: 'Ongoing — attend all scheduled events for first 90 days',
-    days_from_start: 31
-  },
+  }
+];
+
+// US Workshop step (t5) — includes RSSA
+const US_T5 = {
+  step_id: 't5',
+  step_number: 5,
+  step_title: 'Attend All Workshops and BPM',
+  step_description: 'Participate in all required workshops and Business Presentation Meetings. Check off each workshop as you complete it.',
+  instructions: [
+    'Log in to your WSB dashboard to book workshops: https://worldsystembuilder.com/wsb-member-login/',
+    'Get the workshop and BPM schedule from your trainer',
+    'Attend all scheduled training workshops',
+    'Attend weekly BPM meetings consistently',
+    'Take notes and participate actively in all sessions',
+    'Check off each workshop below and enter the date you attended'
+  ],
+  sub_steps: [
+    { id: 'ws1', label: 'Workshop 1 — Building Saving & Wealth', has_date: true },
+    { id: 'ws2', label: 'Workshop 2 — Increase Cash Flow & Manage Debt', has_date: true },
+    { id: 'ws3', label: 'Workshop 3 — Preparing with Proper Protection', has_date: true },
+    { id: 'ws4', label: 'Workshop 4 — Your Health & Wealth', has_date: true },
+    { id: 'ws5', label: 'Workshop 5 — Understanding Asset Accumulation Strategies', has_date: true },
+    { id: 'ws6', label: 'Workshop 6 — Fulfilling Long-Term Goals', has_date: true },
+    { id: 'rssa', label: 'RSSA — Optimizing Social Security', has_date: true },
+    { id: 'product_highlights', label: 'Product Highlights — Utilizing Solutions & Strategies', has_date: true }
+  ],
+  require_all_sub_steps: true,
+  resources: 'Workshop calendar available in team communications — WSB Dashboard: https://worldsystembuilder.com/wsb-member-login/',
+  timeline_guidance: 'Ongoing — attend all scheduled events for first 90 days',
+  days_from_start: 31
+};
+
+// Canada Workshop step (t5) — no RSSA, different workshop titles for 4-6
+const CANADA_T5 = {
+  step_id: 't5',
+  step_number: 5,
+  step_title: 'Attend All Workshops and BPM',
+  step_description: 'Participate in all required workshops and Business Presentation Meetings. Check off each workshop as you complete it.',
+  instructions: [
+    'Log in to your WSB dashboard to book workshops: https://worldsystembuilder.com/wsb-member-login/',
+    'Get the workshop and BPM schedule from your trainer',
+    'Attend all scheduled training workshops',
+    'Attend weekly BPM meetings consistently',
+    'Take notes and participate actively in all sessions',
+    'Check off each workshop below and enter the date you attended'
+  ],
+  sub_steps: [
+    { id: 'ws1', label: 'Workshop 1 — Building Saving & Wealth', has_date: true },
+    { id: 'ws2', label: 'Workshop 2 — Increase Cash Flow & Manage Debt', has_date: true },
+    { id: 'ws3', label: 'Workshop 3 — Preparing with Proper Protection', has_date: true },
+    { id: 'ws4', label: 'Workshop 4 — Understanding Asset Accumulation Strategies', has_date: true },
+    { id: 'ws5', label: 'Workshop 5 — Fulfilling Long-Term Goals', has_date: true },
+    { id: 'ws6', label: 'Workshop 6 — Preserving Wealth & Estate', has_date: true },
+    { id: 'product_highlights', label: 'Product Highlights — Utilizing Solutions & Strategies', has_date: true }
+  ],
+  require_all_sub_steps: true,
+  resources: 'Workshop calendar available in team communications — WSB Dashboard: https://worldsystembuilder.com/wsb-member-login/',
+  timeline_guidance: 'Ongoing — attend all scheduled events for first 90 days',
+  days_from_start: 31
+};
+
+const SHARED_TRAINING_STEPS_AFTER_T5 = [
   {
     step_id: 't6',
     step_number: 6,
@@ -583,6 +632,13 @@ const TRAINING_STEPS = [
   }
 ];
 
+// Compose full training step arrays per country
+const US_TRAINING_STEPS = [...SHARED_TRAINING_STEPS_BEFORE_T5, US_T5, ...SHARED_TRAINING_STEPS_AFTER_T5];
+const CANADA_TRAINING_STEPS = [...SHARED_TRAINING_STEPS_BEFORE_T5, CANADA_T5, ...SHARED_TRAINING_STEPS_AFTER_T5];
+
+// Legacy alias for backwards compatibility
+const TRAINING_STEPS = CANADA_TRAINING_STEPS;
+
 // -----------------------------------------------------------------------------
 // Helper: Get steps for a country with computed deadlines
 // -----------------------------------------------------------------------------
@@ -612,15 +668,18 @@ export function getLicensingSteps(country, startDate) {
 
 /**
  * Returns training steps with deadline_date computed from start_date.
- * Training steps are the same for US and Canada.
+ * Workshop sub-steps (t5) differ between US and Canada.
  *
  * @param {string} startDate - ISO date string (e.g. '2026-03-01')
+ * @param {string} [country] - 'canada' or 'united_states' (GHL key format)
  * @returns {Array} Steps with deadline_date added
  */
-export function getTrainingSteps(startDate) {
+export function getTrainingSteps(startDate, country) {
+  const normalized = (country || '').toLowerCase().replace(/\s+/g, '_');
+  const steps = normalized === 'united_states' ? US_TRAINING_STEPS : CANADA_TRAINING_STEPS;
   const start = startDate ? new Date(startDate) : new Date();
   if (isNaN(start.getTime())) start.setTime(Date.now());
-  return TRAINING_STEPS.map(step => {
+  return steps.map(step => {
     const deadline = new Date(start);
     deadline.setDate(deadline.getDate() + step.days_from_start);
     return {
@@ -672,4 +731,4 @@ export function mergeStepsWithCompletion(stepDefs, completionMap = {}) {
 }
 
 // Raw exports for direct access if needed
-export { US_LICENSING_STEPS, CANADA_LICENSING_STEPS, TRAINING_STEPS };
+export { US_LICENSING_STEPS, CANADA_LICENSING_STEPS, US_TRAINING_STEPS, CANADA_TRAINING_STEPS, TRAINING_STEPS };
