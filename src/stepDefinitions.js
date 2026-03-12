@@ -651,9 +651,13 @@ const TRAINING_STEPS = CANADA_TRAINING_STEPS;
  * @param {string} startDate - ISO date string (e.g. '2026-03-01')
  * @returns {Array} Steps with deadline_date added
  */
+function isUnitedStates(country) {
+  const n = (country || '').toLowerCase().trim().replace(/\s+/g, '_').replace(/[^a-z_]/g, '');
+  return n === 'united_states' || n === 'us' || n === 'usa' || n === 'u_s' || n === 'united_states_of_america';
+}
+
 export function getLicensingSteps(country, startDate) {
-  const normalized = (country || '').toLowerCase().replace(/\s+/g, '_');
-  const steps = normalized === 'united_states' ? US_LICENSING_STEPS : CANADA_LICENSING_STEPS;
+  const steps = isUnitedStates(country) ? US_LICENSING_STEPS : CANADA_LICENSING_STEPS;
   const start = startDate ? new Date(startDate) : new Date();
   if (isNaN(start.getTime())) start.setTime(Date.now());
   return steps.map(step => {
@@ -675,8 +679,7 @@ export function getLicensingSteps(country, startDate) {
  * @returns {Array} Steps with deadline_date added
  */
 export function getTrainingSteps(startDate, country) {
-  const normalized = (country || '').toLowerCase().replace(/\s+/g, '_');
-  const steps = normalized === 'united_states' ? US_TRAINING_STEPS : CANADA_TRAINING_STEPS;
+  const steps = isUnitedStates(country) ? US_TRAINING_STEPS : CANADA_TRAINING_STEPS;
   const start = startDate ? new Date(startDate) : new Date();
   if (isNaN(start.getTime())) start.setTime(Date.now());
   return steps.map(step => {
