@@ -3,7 +3,7 @@ import {
   Users, TrendingUp, Clock, ChevronDown, ChevronUp,
   GraduationCap, Target, Shield, Mail, MessageCircle,
   Phone, MapPin, Search, Calendar, Activity, AlertTriangle,
-  CheckCircle2, BarChart3, ArrowUpRight, UserPlus, X, Copy, Loader2, Link
+  CheckCircle2, BarChart3, ArrowUpRight, UserPlus, X, Copy, Loader2, Link, Trash2
 } from 'lucide-react';
 import { getLicensingSteps, getTrainingSteps, mergeStepsWithCompletion } from './stepDefinitions';
 
@@ -259,7 +259,7 @@ const StepDots = ({ total, completed, color = 'blue' }) => {
 };
 
 // --- Recruit Accordion Row ---
-const RecruitRow = ({ recruit, isExpanded, onToggle }) => {
+const RecruitRow = ({ recruit, isExpanded, onToggle, onRemove }) => {
   const [linkCopied, setLinkCopied] = useState(false);
   const overallPct = Math.round(
     ((recruit.licensing_progress.completed + recruit.training_progress.completed) /
@@ -296,7 +296,14 @@ const RecruitRow = ({ recruit, isExpanded, onToggle }) => {
 
         {/* Name + meta */}
         <div className="flex-1 min-w-0">
-          <h4 className="text-sm font-semibold text-slate-900 truncate">{recruit.full_name}</h4>
+          <div className="flex items-center gap-2">
+            <h4 className="text-sm font-semibold text-slate-900 truncate">{recruit.full_name}</h4>
+            {recruit.role === 'admin' && (
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-600 text-[10px] font-semibold flex-shrink-0">
+                <Shield className="w-2.5 h-2.5" /> Admin
+              </span>
+            )}
+          </div>
           <div className="flex items-center gap-2 mt-0.5">
             <span className="text-[11px] text-slate-400">{recruit.state_province}</span>
             <span className="text-slate-200">|</span>
@@ -409,8 +416,25 @@ const RecruitRow = ({ recruit, isExpanded, onToggle }) => {
           {/* Onboarding link */}
           {onboardingLink && (
             <div className="mt-3 flex items-center gap-2 bg-slate-50 rounded-xl p-2.5 border border-slate-200/80">
-              <Link className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-              <code className="flex-1 text-[11px] text-slate-500 truncate">{onboardingLink}</code>
+              {recruit.role === 'admin' ? (
+                <Shield className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
+              ) : (
+                <Link className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+              )}
+              {recruit.role === 'admin' && (
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-600 text-[10px] font-semibold flex-shrink-0">
+                  Admin Link
+                </span>
+              )}
+              <a
+                href={onboardingLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 text-[11px] text-blue-600 hover:text-blue-700 underline underline-offset-2 truncate"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {onboardingLink}
+              </a>
               <button
                 onClick={handleCopyLink}
                 className={`flex-shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-colors ${
@@ -448,6 +472,16 @@ const RecruitRow = ({ recruit, isExpanded, onToggle }) => {
                 <Phone className="w-3.5 h-3.5" /> Call
               </a>
             )}
+          </div>
+
+          {/* Remove button */}
+          <div className="mt-4 pt-3 border-t border-slate-100 flex justify-end">
+            <button
+              onClick={(e) => { e.stopPropagation(); onRemove(recruit); }}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            >
+              <Trash2 className="w-3 h-3" /> Remove from Dashboard
+            </button>
           </div>
         </div>
       )}
@@ -567,7 +601,7 @@ const AddAdminModal = ({ isOpen, onClose, onSuccess, admin }) => {
             <div className="mb-6">
               <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Admin Dashboard Link</p>
               <div className="flex items-center gap-2 bg-slate-50 rounded-xl p-3 border border-slate-200">
-                <code className="flex-1 text-xs text-slate-600 truncate">{result.link}</code>
+                <a href={result.link} target="_blank" rel="noopener noreferrer" className="flex-1 text-xs text-blue-600 hover:text-blue-700 underline underline-offset-2 truncate">{result.link}</a>
                 <button onClick={handleCopyLink} className="flex-shrink-0 w-8 h-8 bg-white rounded-lg border border-slate-200 hover:bg-slate-50 flex items-center justify-center transition-colors" title="Copy link">
                   <Copy className="w-3.5 h-3.5 text-slate-500" />
                 </button>
@@ -720,7 +754,7 @@ const AddRecruitModal = ({ isOpen, onClose, onSuccess, admin }) => {
               <div className="mb-6">
                 <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Onboarding Link</p>
                 <div className="flex items-center gap-2 bg-slate-50 rounded-xl p-3 border border-slate-200">
-                  <code className="flex-1 text-xs text-slate-600 truncate">{result.link}</code>
+                  <a href={result.link} target="_blank" rel="noopener noreferrer" className="flex-1 text-xs text-blue-600 hover:text-blue-700 underline underline-offset-2 truncate">{result.link}</a>
                   <button onClick={handleCopyLink} className="flex-shrink-0 w-8 h-8 bg-white rounded-lg border border-slate-200 hover:bg-slate-50 flex items-center justify-center transition-colors" title="Copy link">
                     <Copy className="w-3.5 h-3.5 text-slate-500" />
                   </button>
@@ -820,6 +854,73 @@ const AddRecruitModal = ({ isOpen, onClose, onSuccess, admin }) => {
   );
 };
 
+// --- Remove Recruit Modal ---
+const RemoveRecruitModal = ({ isOpen, onClose, recruit, onConfirm }) => {
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState(null);
+
+  if (!isOpen || !recruit) return null;
+
+  const handleRemove = async () => {
+    setSubmitting(true);
+    setError(null);
+    try {
+      await onConfirm(recruit);
+      onClose();
+    } catch (err) {
+      setError(err.message || 'Something went wrong.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={!submitting ? onClose : undefined} />
+      <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm">
+        <div className="px-6 py-8 text-center">
+          <div className="w-14 h-14 bg-red-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Trash2 className="w-7 h-7 text-red-500" />
+          </div>
+          <h4 className="text-lg font-bold text-slate-900 mb-1">Remove {recruit.full_name}?</h4>
+          <p className="text-sm text-slate-500 mb-2">
+            This will set their status to inactive and disable their onboarding link.
+          </p>
+          <p className="text-xs text-slate-400 mb-6">
+            They will no longer appear on your dashboard or be able to access their tracker.
+          </p>
+          {error && (
+            <div className="flex items-center gap-2 px-4 py-3 bg-red-50 border border-red-100 rounded-xl text-sm text-red-700 mb-4">
+              <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+              {error}
+            </div>
+          )}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={onClose}
+              disabled={submitting}
+              className="flex-1 px-4 py-2.5 bg-slate-100 text-slate-700 text-sm font-semibold rounded-xl hover:bg-slate-200 transition-colors disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleRemove}
+              disabled={submitting}
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600 text-white text-sm font-semibold rounded-xl hover:bg-red-700 transition-colors disabled:opacity-50"
+            >
+              {submitting ? (
+                <><Loader2 className="w-4 h-4 animate-spin" /> Removing...</>
+              ) : (
+                <><Trash2 className="w-4 h-4" /> Remove</>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // --- Find Link Modal ---
 const FindLinkModal = ({ isOpen, onClose, recruits }) => {
   const [query, setQuery] = useState('');
@@ -909,7 +1010,14 @@ const FindLinkModal = ({ isOpen, onClose, recruits }) => {
                     {link ? (
                       <div className="flex items-center gap-2 mt-2">
                         {r.role === 'admin' && <Shield className="w-3 h-3 text-amber-500 flex-shrink-0" />}
-                        <code className="flex-1 text-[11px] text-slate-500 truncate bg-white rounded-lg px-2.5 py-1.5 border border-slate-200">{link}</code>
+                        <a
+                          href={link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 text-[11px] text-blue-600 hover:text-blue-700 underline underline-offset-2 truncate bg-white rounded-lg px-2.5 py-1.5 border border-slate-200"
+                        >
+                          {link}
+                        </a>
                         <button
                           onClick={() => handleCopy(r)}
                           className={`flex-shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition-colors ${
@@ -947,6 +1055,7 @@ const AdminDashboard = ({ token }) => {
   const [showAddRecruit, setShowAddRecruit] = useState(false);
   const [showAddAdmin, setShowAddAdmin] = useState(false);
   const [showFindLink, setShowFindLink] = useState(false);
+  const [removeTarget, setRemoveTarget] = useState(null);
 
   useEffect(() => { fetchAdminData(); }, []);
 
@@ -989,6 +1098,31 @@ const AdminDashboard = ({ token }) => {
 
   const toggleRecruit = (id) => {
     setExpandedRecruits(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const handleRemoveRecruit = async (recruit) => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20000);
+    const response = await fetch(`${CONFIG.n8nBaseUrl}/webhook/ghl-proxy`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        version: 'v2', method: 'PUT',
+        endpoint: `objects/custom_objects.recruits/records/${recruit.id}`,
+        data: {
+          locationId: 'ig2lyOlMvCuYK8K9sOyb',
+          properties: { recruit_stage: 'Inactive', onboarding_token: '' }
+        }
+      }),
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
+    if (!response.ok) throw new Error(`Failed to remove (HTTP ${response.status})`);
+    // Remove from local state
+    setAdminData(prev => ({
+      ...prev,
+      recruits: prev.recruits.filter(r => r.id !== recruit.id),
+    }));
   };
 
   // --- Loading (Skeleton) ---
@@ -1319,6 +1453,7 @@ const AdminDashboard = ({ token }) => {
                   recruit={recruit}
                   isExpanded={expandedRecruits[recruit.id]}
                   onToggle={() => toggleRecruit(recruit.id)}
+                  onRemove={(r) => setRemoveTarget(r)}
                 />
               ))
             ) : (
@@ -1357,6 +1492,12 @@ const AdminDashboard = ({ token }) => {
         isOpen={showFindLink}
         onClose={() => setShowFindLink(false)}
         recruits={recruits}
+      />
+      <RemoveRecruitModal
+        isOpen={!!removeTarget}
+        onClose={() => setRemoveTarget(null)}
+        recruit={removeTarget}
+        onConfirm={handleRemoveRecruit}
       />
     </div>
   );
