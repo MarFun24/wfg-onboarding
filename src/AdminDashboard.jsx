@@ -1076,9 +1076,56 @@ const AdminDashboard = ({ token }) => {
       try { data = await response.json(); } catch { throw new Error('bad_response'); }
       if (!data.success) throw new Error(data.error || 'Failed to fetch admin data');
       if (!data.admin || !Array.isArray(data.recruits)) throw new Error('bad_response');
+      // Fetch admin records via GHL proxy (backend only returns role="recruit")
+      let adminRecords = [];
+      try {
+        const adminController = new AbortController();
+        const adminTimeout = setTimeout(() => adminController.abort(), 15000);
+        const adminResponse = await fetch(`${CONFIG.n8nBaseUrl}/webhook/ghl-proxy`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            version: 'v2', method: 'POST',
+            endpoint: 'objects/custom_objects.recruits/records/search',
+            data: {
+              locationId: 'ig2lyOlMvCuYK8K9sOyb',
+              searchInputs: [{ name: 'role', value: 'admin' }],
+              page: 1,
+              pageLimit: 100
+            }
+          }),
+          signal: adminController.signal
+        });
+        clearTimeout(adminTimeout);
+        if (adminResponse.ok) {
+          const adminData = await adminResponse.json();
+          const records = adminData?.body?.records || adminData?.records || [];
+          adminRecords = records
+            .filter(rec => rec.properties?.onboarding_token)
+            .map(rec => ({
+              id: rec.id,
+              full_name: rec.properties?.full_name || '',
+              email: rec.properties?.email || '',
+              phone: rec.properties?.phone || '',
+              role: 'admin',
+              onboarding_token: rec.properties?.onboarding_token,
+              start_date: rec.properties?.start_date || new Date().toISOString(),
+              country: rec.properties?.country || 'canada',
+              completed_licensing_steps: '[]',
+              completed_training_steps: '[]',
+              timeline_health: 'On Track',
+            }))
+            .map(normalizeAdminRecruit);
+        }
+      } catch (e) {
+        // Non-critical: admin links just won't appear in Find Link
+        console.warn('Could not fetch admin records for Find Link:', e);
+      }
+
       setAdminData({
         ...data,
         recruits: data.recruits.map(normalizeAdminRecruit),
+        adminRecords,
       });
     } catch (err) {
       console.error('Error fetching admin data:', err);
@@ -1491,7 +1538,7 @@ const AdminDashboard = ({ token }) => {
       <FindLinkModal
         isOpen={showFindLink}
         onClose={() => setShowFindLink(false)}
-        recruits={recruits}
+        recruits={[...recruits, ...(adminData.adminRecords || [])]}
       />
       <RemoveRecruitModal
         isOpen={!!removeTarget}
