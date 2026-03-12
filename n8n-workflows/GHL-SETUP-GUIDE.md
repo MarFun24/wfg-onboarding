@@ -77,7 +77,9 @@ These fields should exist on the Recruit object:
 | Email                | `email`             | **Text**     | Recruit's email                             |
 | Phone                | `phone`             | **Text**     | Recruit's phone (optional)                  |
 | Onboarding Token     | `onboarding_token`  | **Text**     | The 32-char unique access token             |
-| Role                 | `role`              | **Dropdown** | Options: `recruit`, `admin`                 |
+| Role                 | `role`              | **Dropdown** | Options: `recruit`, `admin` — **must be searchable** |
+
+> **Important:** The `role` and `full_name` fields on the Recruit object must be marked as **searchable** in GHL (Settings → Custom Objects → Recruit → field settings). The admin dashboard's "Find Link" feature uses the GHL search API to find admin records, which only searches fields marked as searchable.
 
 ### Profile data
 
