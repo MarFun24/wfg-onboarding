@@ -296,7 +296,14 @@ const RecruitRow = ({ recruit, isExpanded, onToggle }) => {
 
         {/* Name + meta */}
         <div className="flex-1 min-w-0">
-          <h4 className="text-sm font-semibold text-slate-900 truncate">{recruit.full_name}</h4>
+          <div className="flex items-center gap-2">
+            <h4 className="text-sm font-semibold text-slate-900 truncate">{recruit.full_name}</h4>
+            {recruit.role === 'admin' && (
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-600 text-[10px] font-semibold flex-shrink-0">
+                <Shield className="w-2.5 h-2.5" /> Admin
+              </span>
+            )}
+          </div>
           <div className="flex items-center gap-2 mt-0.5">
             <span className="text-[11px] text-slate-400">{recruit.state_province}</span>
             <span className="text-slate-200">|</span>
@@ -409,8 +416,25 @@ const RecruitRow = ({ recruit, isExpanded, onToggle }) => {
           {/* Onboarding link */}
           {onboardingLink && (
             <div className="mt-3 flex items-center gap-2 bg-slate-50 rounded-xl p-2.5 border border-slate-200/80">
-              <Link className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-              <code className="flex-1 text-[11px] text-slate-500 truncate">{onboardingLink}</code>
+              {recruit.role === 'admin' ? (
+                <Shield className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
+              ) : (
+                <Link className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+              )}
+              {recruit.role === 'admin' && (
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-600 text-[10px] font-semibold flex-shrink-0">
+                  Admin Link
+                </span>
+              )}
+              <a
+                href={onboardingLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 text-[11px] text-blue-600 hover:text-blue-700 underline underline-offset-2 truncate"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {onboardingLink}
+              </a>
               <button
                 onClick={handleCopyLink}
                 className={`flex-shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-colors ${
@@ -567,7 +591,7 @@ const AddAdminModal = ({ isOpen, onClose, onSuccess, admin }) => {
             <div className="mb-6">
               <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Admin Dashboard Link</p>
               <div className="flex items-center gap-2 bg-slate-50 rounded-xl p-3 border border-slate-200">
-                <code className="flex-1 text-xs text-slate-600 truncate">{result.link}</code>
+                <a href={result.link} target="_blank" rel="noopener noreferrer" className="flex-1 text-xs text-blue-600 hover:text-blue-700 underline underline-offset-2 truncate">{result.link}</a>
                 <button onClick={handleCopyLink} className="flex-shrink-0 w-8 h-8 bg-white rounded-lg border border-slate-200 hover:bg-slate-50 flex items-center justify-center transition-colors" title="Copy link">
                   <Copy className="w-3.5 h-3.5 text-slate-500" />
                 </button>
@@ -720,7 +744,7 @@ const AddRecruitModal = ({ isOpen, onClose, onSuccess, admin }) => {
               <div className="mb-6">
                 <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Onboarding Link</p>
                 <div className="flex items-center gap-2 bg-slate-50 rounded-xl p-3 border border-slate-200">
-                  <code className="flex-1 text-xs text-slate-600 truncate">{result.link}</code>
+                  <a href={result.link} target="_blank" rel="noopener noreferrer" className="flex-1 text-xs text-blue-600 hover:text-blue-700 underline underline-offset-2 truncate">{result.link}</a>
                   <button onClick={handleCopyLink} className="flex-shrink-0 w-8 h-8 bg-white rounded-lg border border-slate-200 hover:bg-slate-50 flex items-center justify-center transition-colors" title="Copy link">
                     <Copy className="w-3.5 h-3.5 text-slate-500" />
                   </button>
@@ -909,7 +933,14 @@ const FindLinkModal = ({ isOpen, onClose, recruits }) => {
                     {link ? (
                       <div className="flex items-center gap-2 mt-2">
                         {r.role === 'admin' && <Shield className="w-3 h-3 text-amber-500 flex-shrink-0" />}
-                        <code className="flex-1 text-[11px] text-slate-500 truncate bg-white rounded-lg px-2.5 py-1.5 border border-slate-200">{link}</code>
+                        <a
+                          href={link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 text-[11px] text-blue-600 hover:text-blue-700 underline underline-offset-2 truncate bg-white rounded-lg px-2.5 py-1.5 border border-slate-200"
+                        >
+                          {link}
+                        </a>
                         <button
                           onClick={() => handleCopy(r)}
                           className={`flex-shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition-colors ${
