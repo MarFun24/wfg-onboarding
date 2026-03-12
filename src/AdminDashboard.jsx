@@ -1063,6 +1063,8 @@ const AdminDashboard = ({ token }) => {
     try {
       setLoading(true);
       setError(null);
+
+      // --- Fetch main admin + recruits data ---
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 15000);
       const response = await fetch(
@@ -1076,32 +1078,12 @@ const AdminDashboard = ({ token }) => {
       try { data = await response.json(); } catch { throw new Error('bad_response'); }
       if (!data.success) throw new Error(data.error || 'Failed to fetch admin data');
       if (!data.admin || !Array.isArray(data.recruits)) throw new Error('bad_response');
-      // Fetch admin records via GHL proxy (backend only returns role="recruit")
+
+      // --- Fetch all records from GHL and filter for admins client-side ---
+      // NOTE: GHL custom object search does not support field-specific query syntax.
+      // Omitting the query field returns all records; we filter by role === 'admin' here.
       let adminRecords = [];
-      const parseAdminRecords = (records) => records
-        .filter(rec => {
-          const props = rec.properties || {};
-          return props.role === 'admin' && props.onboarding_token;
-        })
-        .map(rec => {
-          const props = rec.properties || {};
-          return {
-            id: rec.id,
-            full_name: props.full_name || '',
-            email: props.email || '',
-            phone: props.phone || '',
-            role: 'admin',
-            onboarding_token: props.onboarding_token,
-            start_date: props.start_date || new Date().toISOString(),
-            country: props.country || 'canada',
-            completed_licensing_steps: '[]',
-            completed_training_steps: '[]',
-            timeline_health: 'On Track',
-          };
-        })
-        .map(normalizeAdminRecruit);
       try {
-        // Try searching by role field first
         const adminController = new AbortController();
         const adminTimeout = setTimeout(() => adminController.abort(), 15000);
         const adminResponse = await fetch(`${CONFIG.n8nBaseUrl}/webhook/ghl-proxy`, {
@@ -1114,7 +1096,6 @@ const AdminDashboard = ({ token }) => {
               locationId: 'ig2lyOlMvCuYK8K9sOyb',
               page: 1,
               pageLimit: 100,
-              query: 'role:admin',
               searchAfter: []
             }
           }),
@@ -1124,34 +1105,36 @@ const AdminDashboard = ({ token }) => {
         if (adminResponse.ok) {
           const adminJson = await adminResponse.json();
           const records = adminJson?.body?.records || adminJson?.records || [];
-          adminRecords = parseAdminRecords(records);
-        }
-        // If search returned nothing, try listing all records and filter client-side
-        if (adminRecords.length === 0) {
-          const listController = new AbortController();
-          const listTimeout = setTimeout(() => listController.abort(), 15000);
-          const listResponse = await fetch(`${CONFIG.n8nBaseUrl}/webhook/ghl-proxy`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              version: 'v2', method: 'POST',
-              endpoint: 'objects/custom_objects.recruits/records/search',
-              data: {
-                locationId: 'ig2lyOlMvCuYK8K9sOyb',
-                page: 1,
-                pageLimit: 100,
-                query: 'admin',
-                searchAfter: []
-              }
-            }),
-            signal: listController.signal
-          });
-          clearTimeout(listTimeout);
-          if (listResponse.ok) {
-            const listJson = await listResponse.json();
-            const allRecords = listJson?.body?.records || listJson?.records || [];
-            adminRecords = parseAdminRecords(allRecords);
+
+          // Deduplicate by email — keep most recent record per admin
+          const seen = new Map();
+          for (const rec of records) {
+            const props = rec.properties || {};
+            if (props.role !== 'admin' || !props.onboarding_token) continue;
+            const email = props.email || rec.id;
+            const existing = seen.get(email);
+            if (!existing || rec.createdAt > existing.createdAt) {
+              seen.set(email, rec);
+            }
           }
+
+          adminRecords = Array.from(seen.values()).map(rec => {
+            const props = rec.properties || {};
+            return normalizeAdminRecruit({
+              id: rec.id,
+              full_name: props.full_name || '',
+              email: props.email || '',
+              phone: props.phone || '',
+              role: 'admin',
+              onboarding_token: props.onboarding_token,
+              start_date: props.start_date || new Date().toISOString(),
+              country: props.country || 'canada',
+              upline_office: props.upline_office || '',
+              completed_licensing_steps: '[]',
+              completed_training_steps: '[]',
+              timeline_health: 'On Track',
+            });
+          });
         }
       } catch (e) {
         console.warn('Could not fetch admin records for Find Link:', e);
