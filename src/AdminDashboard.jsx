@@ -298,6 +298,10 @@ const RecruitRow = ({ recruit, isExpanded, onToggle, onRemove }) => {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <h4 className="text-sm font-semibold text-slate-900 truncate">{recruit.full_name}</h4>
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-semibold flex-shrink-0"
+              title={recruit.country && recruit.country.toLowerCase().replace(/\s+/g, '_') === 'united_states' ? 'United States' : 'Canada'}>
+              {recruit.country && recruit.country.toLowerCase().replace(/\s+/g, '_') === 'united_states' ? '🇺🇸' : '🇨🇦'}
+            </span>
             {recruit.role === 'admin' && (
               <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-600 text-[10px] font-semibold flex-shrink-0">
                 <Shield className="w-2.5 h-2.5" /> Admin
@@ -1244,7 +1248,14 @@ const AdminDashboard = ({ token }) => {
     );
   }
 
-  const { admin, recruits } = adminData;
+  const { admin, recruits: allRecruits } = adminData;
+
+  // --- Filter recruits by admin ownership ---
+  // Jorge can see all recruits; other admins only see recruits they added
+  const isJorge = admin.name && admin.name.toLowerCase().startsWith('jorge');
+  const recruits = isJorge
+    ? allRecruits
+    : allRecruits.filter(r => r.recruiter_name && r.recruiter_name.toLowerCase() === admin.name.toLowerCase());
 
   // --- Computed stats ---
   const totalRecruits = recruits.length;
