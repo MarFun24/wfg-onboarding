@@ -3,7 +3,7 @@ import {
   Users, TrendingUp, Clock, ChevronDown, ChevronUp,
   GraduationCap, Target, Shield, Mail, MessageCircle,
   Phone, MapPin, Search, Calendar, Activity, AlertTriangle,
-  CheckCircle2, BarChart3, ArrowUpRight, UserPlus, X, Copy, Loader2, Link, Trash2
+  CheckCircle2, BarChart3, ArrowUpRight, UserPlus, X, Copy, Loader2, Link, Trash2, RotateCcw
 } from 'lucide-react';
 import { getLicensingSteps, getTrainingSteps, mergeStepsWithCompletion } from './stepDefinitions';
 
@@ -925,6 +925,129 @@ const RemoveRecruitModal = ({ isOpen, onClose, recruit, onConfirm }) => {
   );
 };
 
+// --- Restore Recruit Modal ---
+const generateRecruitToken = (length = 32) => {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let token = '';
+  for (let i = 0; i < length; i++) token += chars[Math.floor(Math.random() * chars.length)];
+  return token;
+};
+
+const RestoreRecruitModal = ({ isOpen, onClose, inactiveRecruits, onRestore }) => {
+  const [query, setQuery] = useState('');
+  const [restoringId, setRestoringId] = useState(null);
+  const [restoredId, setRestoredId] = useState(null);
+  const [error, setError] = useState(null);
+
+  if (!isOpen) return null;
+
+  const q = query.toLowerCase().trim();
+  const filtered = inactiveRecruits.filter(r =>
+    !q ||
+    r.full_name.toLowerCase().includes(q) ||
+    (r.email && r.email.toLowerCase().includes(q))
+  );
+
+  const handleRestore = async (recruit) => {
+    setRestoringId(recruit.id);
+    setError(null);
+    try {
+      await onRestore(recruit);
+      setRestoredId(recruit.id);
+      setTimeout(() => setRestoredId(null), 2000);
+    } catch (err) {
+      setError(err.message || 'Failed to restore recruit.');
+    } finally {
+      setRestoringId(null);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[80vh] flex flex-col">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-emerald-50 rounded-xl flex items-center justify-center">
+              <RotateCcw className="w-4.5 h-4.5 text-emerald-600" />
+            </div>
+            <h3 className="text-base font-bold text-slate-900">Restore Recruit</h3>
+          </div>
+          <button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center transition-colors">
+            <X className="w-4 h-4 text-slate-400" />
+          </button>
+        </div>
+
+        <div className="px-6 py-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search inactive recruits..."
+              className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-300 transition-colors"
+              autoFocus
+            />
+          </div>
+        </div>
+
+        {error && (
+          <div className="mx-6 mb-2 flex items-center gap-2 px-4 py-3 bg-red-50 border border-red-100 rounded-xl text-sm text-red-700">
+            <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+            {error}
+          </div>
+        )}
+
+        <div className="flex-1 overflow-y-auto px-6 pb-6">
+          {filtered.length === 0 ? (
+            <div className="text-center py-10">
+              <p className="text-sm font-semibold text-slate-400">No inactive recruits found</p>
+              <p className="text-xs text-slate-300 mt-1">Removed recruits will appear here for restoration.</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {filtered.map(r => (
+                <div key={r.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200/80">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-slate-300 to-slate-400 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                    {r.full_name.split(' ').map(n => n[0]).join('')}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-semibold text-slate-700 truncate">{r.full_name}</p>
+                      <span title={r.country && r.country.toLowerCase().replace(/\s+/g, '_') === 'united_states' ? 'United States' : 'Canada'}>
+                        {r.country && r.country.toLowerCase().replace(/\s+/g, '_') === 'united_states' ? '🇺🇸' : '🇨🇦'}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 truncate">{r.email}</p>
+                  </div>
+                  {restoredId === r.id ? (
+                    <span className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 rounded-lg">
+                      <CheckCircle2 className="w-3.5 h-3.5" /> Restored
+                    </span>
+                  ) : (
+                    <button
+                      onClick={() => handleRestore(r)}
+                      disabled={restoringId === r.id}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors disabled:opacity-50"
+                    >
+                      {restoringId === r.id ? (
+                        <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Restoring...</>
+                      ) : (
+                        <><RotateCcw className="w-3.5 h-3.5" /> Restore</>
+                      )}
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // --- Find Link Modal ---
 const FindLinkModal = ({ isOpen, onClose, recruits }) => {
   const [query, setQuery] = useState('');
@@ -1060,6 +1183,7 @@ const AdminDashboard = ({ token }) => {
   const [showAddAdmin, setShowAddAdmin] = useState(false);
   const [showFindLink, setShowFindLink] = useState(false);
   const [removeTarget, setRemoveTarget] = useState(null);
+  const [showRestore, setShowRestore] = useState(false);
 
   useEffect(() => { fetchAdminData(); }, []);
 
@@ -1087,6 +1211,7 @@ const AdminDashboard = ({ token }) => {
       // NOTE: GHL custom object search does not support field-specific query syntax.
       // Omitting the query field returns all records; we filter by role === 'admin' here.
       let adminRecords = [];
+      let inactiveRecruits = [];
       try {
         const adminController = new AbortController();
         const adminTimeout = setTimeout(() => adminController.abort(), 15000);
@@ -1139,6 +1264,24 @@ const AdminDashboard = ({ token }) => {
               timeline_health: 'On Track',
             });
           });
+
+          // Extract inactive recruits for restore functionality
+          for (const rec of records) {
+            const props = rec.properties || {};
+            if (props.recruit_stage === 'Inactive' && props.role !== 'admin') {
+              inactiveRecruits.push({
+                id: rec.id,
+                full_name: props.full_name || '',
+                email: props.email || '',
+                phone: props.phone || '',
+                country: props.country || 'canada',
+                state_province: props.state || props.state_province || '',
+                start_date: props.start_date || '',
+                recruiter_name: props.recruiter_name || '',
+                upline_office: props.upline_office || '',
+              });
+            }
+          }
         }
       } catch (e) {
         console.warn('Could not fetch admin records for Find Link:', e);
@@ -1148,6 +1291,7 @@ const AdminDashboard = ({ token }) => {
         ...data,
         recruits: data.recruits.map(normalizeAdminRecruit),
         adminRecords,
+        inactiveRecruits,
       });
     } catch (err) {
       console.error('Error fetching admin data:', err);
@@ -1187,11 +1331,50 @@ const AdminDashboard = ({ token }) => {
     });
     clearTimeout(timeout);
     if (!response.ok) throw new Error(`Failed to remove (HTTP ${response.status})`);
-    // Remove from local state
+    // Remove from local state and add to inactive list
     setAdminData(prev => ({
       ...prev,
       recruits: prev.recruits.filter(r => r.id !== recruit.id),
+      inactiveRecruits: [...(prev.inactiveRecruits || []), {
+        id: recruit.id,
+        full_name: recruit.full_name,
+        email: recruit.email,
+        phone: recruit.phone,
+        country: recruit.country,
+        state_province: recruit.state_province,
+        start_date: recruit.start_date,
+        recruiter_name: recruit.recruiter_name,
+        upline_office: recruit.upline_office,
+      }],
     }));
+  };
+
+  const handleRestoreRecruit = async (recruit) => {
+    const newToken = generateRecruitToken();
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20000);
+    const response = await fetch(`${CONFIG.n8nBaseUrl}/webhook/ghl-proxy`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        version: 'v2', method: 'PUT',
+        endpoint: `objects/custom_objects.recruits/records/${recruit.id}`,
+        data: {
+          locationId: 'ig2lyOlMvCuYK8K9sOyb',
+          properties: { recruit_stage: 'Active Onboarding', onboarding_token: newToken }
+        }
+      }),
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
+    if (!response.ok) throw new Error(`Failed to restore (HTTP ${response.status})`);
+    // Remove from inactive list and refresh dashboard data
+    setAdminData(prev => ({
+      ...prev,
+      inactiveRecruits: (prev.inactiveRecruits || []).filter(r => r.id !== recruit.id),
+    }));
+    // Refresh to pull the restored recruit back into the active list
+    fetchAdminData();
   };
 
   // --- Loading (Skeleton) ---
@@ -1358,6 +1541,15 @@ const AdminDashboard = ({ token }) => {
                 <Link className="w-3.5 h-3.5" />
                 Find Link
               </button>
+              {(adminData.inactiveRecruits || []).length > 0 && (
+                <button
+                  onClick={() => setShowRestore(true)}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold rounded-full px-3 py-1.5 bg-emerald-600 text-white hover:bg-emerald-700 transition-colors shadow-sm shadow-emerald-500/25"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  Restore
+                </button>
+              )}
               <span className="inline-flex items-center gap-1.5 text-xs font-bold rounded-full px-3 py-1.5 bg-amber-50 text-amber-700 ring-1 ring-amber-500/20">
                 <Shield className="w-3.5 h-3.5" />
                 {admin.role}
@@ -1574,6 +1766,12 @@ const AdminDashboard = ({ token }) => {
         onClose={() => setRemoveTarget(null)}
         recruit={removeTarget}
         onConfirm={handleRemoveRecruit}
+      />
+      <RestoreRecruitModal
+        isOpen={showRestore}
+        onClose={() => setShowRestore(false)}
+        inactiveRecruits={adminData.inactiveRecruits || []}
+        onRestore={handleRestoreRecruit}
       />
     </div>
   );
