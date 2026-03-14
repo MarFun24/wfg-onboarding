@@ -1218,6 +1218,7 @@ const AdminDashboard = ({ token }) => {
       // Omitting the query field returns all records; we filter by role === 'admin' here.
       let adminRecords = [];
       let inactiveRecruits = [];
+      const inactiveEmails = new Set();
       try {
         const adminController = new AbortController();
         const adminTimeout = setTimeout(() => adminController.abort(), 15000);
@@ -1272,6 +1273,7 @@ const AdminDashboard = ({ token }) => {
           });
 
           // Extract inactive recruits for restore functionality
+          // and build a set of inactive emails to filter from the n8n response
           for (const rec of records) {
             const props = rec.properties || {};
             if (props.recruit_stage === 'Inactive' && props.role !== 'admin') {
@@ -1286,6 +1288,7 @@ const AdminDashboard = ({ token }) => {
                 recruiter_name: props.recruiter_name || '',
                 upline_office: props.upline_office || '',
               });
+              if (props.email) inactiveEmails.add(props.email.toLowerCase());
             }
           }
         }
@@ -1293,9 +1296,16 @@ const AdminDashboard = ({ token }) => {
         console.warn('Could not fetch admin records for Find Link:', e);
       }
 
+      // Filter out inactive recruits from n8n response using GHL data
+      const activeRecruits = data.recruits.filter(r => {
+        if (r.recruit_stage === 'Inactive') return false;
+        if (r.email && inactiveEmails.has(r.email.toLowerCase())) return false;
+        return true;
+      });
+
       setAdminData({
         ...data,
-        recruits: data.recruits.map(normalizeAdminRecruit),
+        recruits: activeRecruits.map(normalizeAdminRecruit),
         adminRecords,
         inactiveRecruits,
       });
@@ -1437,17 +1447,15 @@ const AdminDashboard = ({ token }) => {
     );
   }
 
-  const { admin, recruits: rawRecruits } = adminData;
-
-  // --- Exclude inactive/removed recruits ---
-  const activeRecruits = rawRecruits.filter(r => r.recruit_stage !== 'Inactive');
+  const { admin, recruits: allRecruits } = adminData;
 
   // --- Filter recruits by admin ownership ---
   // Jorge can see all recruits; other admins only see recruits they added
+  // Inactive recruits are already filtered out during fetch via GHL cross-reference
   const isJorge = admin.name && admin.name.toLowerCase().startsWith('jorge');
   const recruits = isJorge
-    ? activeRecruits
-    : activeRecruits.filter(r => r.recruiter_name && r.recruiter_name.toLowerCase() === admin.name.toLowerCase());
+    ? allRecruits
+    : allRecruits.filter(r => r.recruiter_name && r.recruiter_name.toLowerCase() === admin.name.toLowerCase());
 
   // --- Computed stats ---
   const totalRecruits = recruits.length;
