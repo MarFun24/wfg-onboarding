@@ -318,6 +318,12 @@ const RecruitRow = ({ recruit, isExpanded, onToggle, onRemove }) => {
             <span className="text-[11px] text-slate-400">{recruit.state_province}</span>
             <span className="text-slate-200">|</span>
             <span className="text-[11px] text-slate-400">{overallPct}% complete</span>
+            {recruit.recruiter_name && (
+              <>
+                <span className="text-slate-200">|</span>
+                <span className="text-[11px] text-slate-400">Added by {recruit.recruiter_name}</span>
+              </>
+            )}
           </div>
         </div>
 
