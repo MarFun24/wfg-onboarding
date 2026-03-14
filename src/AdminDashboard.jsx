@@ -1343,8 +1343,9 @@ const AdminDashboard = ({ token }) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         version: 'v2', method: 'PUT',
-        endpoint: `objects/custom_objects.recruits/records/${recruit.id}?locationId=ig2lyOlMvCuYK8K9sOyb`,
+        endpoint: `objects/custom_objects.recruits/records/${recruit.id}`,
         data: {
+          locationId: 'ig2lyOlMvCuYK8K9sOyb',
           properties: { recruit_stage: 'Inactive', onboarding_token: '' }
         }
       }),
@@ -1379,8 +1380,9 @@ const AdminDashboard = ({ token }) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         version: 'v2', method: 'PUT',
-        endpoint: `objects/custom_objects.recruits/records/${recruit.id}?locationId=ig2lyOlMvCuYK8K9sOyb`,
+        endpoint: `objects/custom_objects.recruits/records/${recruit.id}`,
         data: {
+          locationId: 'ig2lyOlMvCuYK8K9sOyb',
           properties: { recruit_stage: 'Active Onboarding', onboarding_token: newToken }
         }
       }),
