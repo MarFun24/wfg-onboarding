@@ -60,6 +60,12 @@ const normalizeAdminRecruit = (r) => {
   // Use API-provided progress if available (transition period), otherwise compute locally
   const hasApiProgress = r.licensing_progress && r.licensing_progress.total > 0;
 
+  // Compute timeline_health from step statuses
+  const allSteps = [...licensingSteps, ...trainingSteps];
+  const hasOverdue = allSteps.some(s => s.status === 'Overdue');
+  const hasDueSoon = allSteps.some(s => s.status === 'Due Soon');
+  const computedHealth = hasOverdue ? 'Overdue' : hasDueSoon ? 'Due Soon' : 'On Track';
+
   return {
     ...r,
     country,
@@ -85,7 +91,7 @@ const normalizeAdminRecruit = (r) => {
       step_number: currentTrainingStep?.step_number || 1,
       step_title: currentTrainingStep?.step_title || '',
     },
-    timeline_health: ['On Track', 'Due Soon', 'Overdue'].includes(r.timeline_health) ? r.timeline_health : 'On Track',
+    timeline_health: computedHealth,
   };
 };
 // --- Reusable Sub-components ---
@@ -1431,14 +1437,17 @@ const AdminDashboard = ({ token }) => {
     );
   }
 
-  const { admin, recruits: allRecruits } = adminData;
+  const { admin, recruits: rawRecruits } = adminData;
+
+  // --- Exclude inactive/removed recruits ---
+  const activeRecruits = rawRecruits.filter(r => r.recruit_stage !== 'Inactive');
 
   // --- Filter recruits by admin ownership ---
   // Jorge can see all recruits; other admins only see recruits they added
   const isJorge = admin.name && admin.name.toLowerCase().startsWith('jorge');
   const recruits = isJorge
-    ? allRecruits
-    : allRecruits.filter(r => r.recruiter_name && r.recruiter_name.toLowerCase() === admin.name.toLowerCase());
+    ? activeRecruits
+    : activeRecruits.filter(r => r.recruiter_name && r.recruiter_name.toLowerCase() === admin.name.toLowerCase());
 
   // --- Computed stats ---
   const totalRecruits = recruits.length;
