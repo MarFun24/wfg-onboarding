@@ -1282,7 +1282,7 @@ const AdminDashboard = ({ token }) => {
           // and build a set of inactive emails to filter from the n8n response
           for (const rec of records) {
             const props = rec.properties || {};
-            if (props.recruit_stage === 'Inactive' && props.role !== 'admin') {
+            if ((props.recruit_stage || '').toLowerCase() === 'inactive' && props.role !== 'admin') {
               inactiveRecruits.push({
                 id: rec.id,
                 full_name: props.full_name || '',
@@ -1304,7 +1304,7 @@ const AdminDashboard = ({ token }) => {
 
       // Filter out inactive recruits from n8n response using GHL data
       const activeRecruits = data.recruits.filter(r => {
-        if (r.recruit_stage === 'Inactive') return false;
+        if ((r.recruit_stage || '').toLowerCase() === 'inactive') return false;
         if (r.email && inactiveEmails.has(r.email.toLowerCase())) return false;
         return true;
       });
@@ -1346,7 +1346,7 @@ const AdminDashboard = ({ token }) => {
         endpoint: `objects/custom_objects.recruits/records/${recruit.id}`,
         data: {
           locationId: 'ig2lyOlMvCuYK8K9sOyb',
-          properties: { recruit_stage: 'Inactive', onboarding_token: '' }
+          properties: { recruit_stage: 'inactive', onboarding_token: '' }
         }
       }),
       signal: controller.signal
@@ -1383,7 +1383,7 @@ const AdminDashboard = ({ token }) => {
         endpoint: `objects/custom_objects.recruits/records/${recruit.id}`,
         data: {
           locationId: 'ig2lyOlMvCuYK8K9sOyb',
-          properties: { recruit_stage: 'Active Onboarding', onboarding_token: newToken }
+          properties: { recruit_stage: 'active_onboarding', onboarding_token: newToken }
         }
       }),
       signal: controller.signal
