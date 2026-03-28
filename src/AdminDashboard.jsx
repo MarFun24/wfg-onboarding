@@ -703,7 +703,7 @@ const AddRecruitModal = ({ isOpen, onClose, onSuccess, admin }) => {
       const timeout = setTimeout(() => controller.abort(), 20000);
       const response = await fetch(
         `${CONFIG.n8nBaseUrl}${CONFIG.webhooks.createRecruit}`,
-        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form), signal: controller.signal }
+        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...form, recruiter_name: admin?.name || form.recruiter_name }), signal: controller.signal }
       );
       clearTimeout(timeout);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -841,7 +841,7 @@ const AddRecruitModal = ({ isOpen, onClose, onSuccess, admin }) => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className={labelClass}>Recruiter</label>
-                <input type="text" value={form.recruiter_name} onChange={(e) => handleChange('recruiter_name', e.target.value)} className={inputClass} />
+                <input type="text" value={admin?.name || ''} readOnly className={`${inputClass} bg-slate-50 text-slate-500 cursor-not-allowed`} />
               </div>
               <div>
                 <label className={labelClass}>Office</label>
