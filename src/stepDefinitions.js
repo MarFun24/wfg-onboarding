@@ -472,7 +472,7 @@ const SHARED_TRAINING_STEPS_BEFORE_T5 = [
     ],
     resources: 'Your trainer — meeting agenda template available from your upline',
     timeline_guidance: '24-48 hours',
-    days_from_start: 1
+    days_from_start: 3
   },
   {
     step_id: 't2',
