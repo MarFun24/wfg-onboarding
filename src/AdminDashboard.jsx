@@ -19,7 +19,8 @@ const CONFIG = {
 // Normalize admin recruit data, computing progress from local step definitions
 const normalizeAdminRecruit = (r) => {
   // Default country to 'canada' if missing (WFG is Vancouver-based)
-  const country = r.country || 'canada';
+  const rawCountry = Array.isArray(r.country) ? r.country[0] : r.country;
+  const country = rawCountry || 'canada';
 
   // Default role to 'recruit' if missing
   const role = r.role || 'recruit';
@@ -151,7 +152,7 @@ const PipelineChart = ({ recruits }) => {
   });
   const maxCount = Math.max(...steps.map(s => s.count), 1);
   // Use CA labels if any recruit is Canadian, otherwise US
-  const hasCanadian = recruits.some(r => r.country && r.country.toLowerCase().replace(/\s+/g, '_') !== 'united_states');
+  const hasCanadian = recruits.some(r => r.country && (Array.isArray(r.country) ? r.country[0] : r.country).toLowerCase().replace(/\s+/g, '_') !== 'united_states');
   const stepLabels = hasCanadian ? LICENSING_LABELS.ca : LICENSING_LABELS.us;
 
   return (
@@ -305,8 +306,8 @@ const RecruitRow = ({ recruit, isExpanded, onToggle, onRemove }) => {
           <div className="flex items-center gap-2">
             <h4 className="text-sm font-semibold text-slate-900 truncate">{recruit.full_name}</h4>
             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-semibold flex-shrink-0"
-              title={recruit.country && recruit.country.toLowerCase().replace(/\s+/g, '_') === 'united_states' ? 'United States' : 'Canada'}>
-              {recruit.country && recruit.country.toLowerCase().replace(/\s+/g, '_') === 'united_states' ? '🇺🇸' : '🇨🇦'}
+              title={recruit.country && (Array.isArray(recruit.country) ? recruit.country[0] : recruit.country).toLowerCase().replace(/\s+/g, '_') === 'united_states' ? 'United States' : 'Canada'}>
+              {recruit.country && (Array.isArray(recruit.country) ? recruit.country[0] : recruit.country).toLowerCase().replace(/\s+/g, '_') === 'united_states' ? '🇺🇸' : '🇨🇦'}
             </span>
             {recruit.role === 'admin' && (
               <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-600 text-[10px] font-semibold flex-shrink-0">
@@ -1027,8 +1028,8 @@ const RestoreRecruitModal = ({ isOpen, onClose, inactiveRecruits, onRestore }) =
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <p className="text-sm font-semibold text-slate-700 truncate">{r.full_name}</p>
-                      <span title={r.country && r.country.toLowerCase().replace(/\s+/g, '_') === 'united_states' ? 'United States' : 'Canada'}>
-                        {r.country && r.country.toLowerCase().replace(/\s+/g, '_') === 'united_states' ? '🇺🇸' : '🇨🇦'}
+                      <span title={r.country && (Array.isArray(r.country) ? r.country[0] : r.country).toLowerCase().replace(/\s+/g, '_') === 'united_states' ? 'United States' : 'Canada'}>
+                        {r.country && (Array.isArray(r.country) ? r.country[0] : r.country).toLowerCase().replace(/\s+/g, '_') === 'united_states' ? '🇺🇸' : '🇨🇦'}
                       </span>
                     </div>
                     <p className="text-[11px] text-slate-400 truncate">{r.email}</p>
