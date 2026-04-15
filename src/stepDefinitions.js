@@ -652,7 +652,8 @@ const TRAINING_STEPS = CANADA_TRAINING_STEPS;
  * @returns {Array} Steps with deadline_date added
  */
 function isUnitedStates(country) {
-  const n = (country || '').toLowerCase().trim().replace(/\s+/g, '_').replace(/[^a-z_]/g, '');
+  const raw = Array.isArray(country) ? country[0] : country;
+  const n = (raw || '').toLowerCase().trim().replace(/\s+/g, '_').replace(/[^a-z_]/g, '');
   return n === 'united_states' || n === 'us' || n === 'usa' || n === 'u_s' || n === 'united_states_of_america';
 }
 
