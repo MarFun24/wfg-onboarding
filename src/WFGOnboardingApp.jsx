@@ -107,7 +107,8 @@ const WFGOnboardingApp = ({ token, isAdmin }) => {
       const recruit = data.recruit;
 
       // Default country to 'canada' if missing (WFG is Vancouver-based)
-      const country = recruit.country || 'canada';
+      const rawCountry = Array.isArray(recruit.country) ? recruit.country[0] : recruit.country;
+      const country = rawCountry || 'canada';
 
       // Parse completion arrays from recruit record
       let completedLicensing = {};
