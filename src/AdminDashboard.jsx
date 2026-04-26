@@ -578,7 +578,11 @@ const AddAdminModal = ({ isOpen, onClose, onSuccess, admin }) => {
       }
     } catch (err) {
       console.error('Error creating admin:', err);
-      setResult({ success: false, error: err.name === 'AbortError' ? 'Request timed out. Please try again.' : (err.message || 'Something went wrong.') });
+      const rawErr = err.name === 'AbortError' ? 'Request timed out. Please try again.' : (err.message || 'Something went wrong.');
+const friendly = /string did not match the expected pattern/i.test(rawErr)
+  ? 'One of the fields is in an invalid format — most commonly the phone number. Try entering it as +1 followed by the 10-digit number.'
+  : rawErr;
+setResult({ success: false, error: friendly });
     } finally {
       setSubmitting(false);
     }
@@ -719,7 +723,11 @@ const AddRecruitModal = ({ isOpen, onClose, onSuccess, admin }) => {
       }
     } catch (err) {
       console.error('Error creating recruit:', err);
-      setResult({ success: false, error: err.name === 'AbortError' ? 'Request timed out. Please try again.' : (err.message || 'Something went wrong.') });
+      const rawErr = err.name === 'AbortError' ? 'Request timed out. Please try again.' : (err.message || 'Something went wrong.');
+const friendly = /string did not match the expected pattern/i.test(rawErr)
+  ? 'One of the fields is in an invalid format — most commonly the phone number. Try entering it as +1 followed by the 10-digit number.'
+  : rawErr;
+setResult({ success: false, error: friendly });
     } finally {
       setSubmitting(false);
     }
